@@ -2,6 +2,11 @@ const API = "/api";
 const app = document.querySelector("#app");
 const state = { user: null, token: localStorage.getItem("nebula_token"), page: "overview", authMode: "login", authRole: "student", courses: [], quizzes: [], lessons: [], students: [], enrolledCourseIds: [], enrollmentsLoaded: false, courseView: "my", focusLessons: [], lessonTopicOptions: [], lessonViewing: null, progress: null, plan: null, recommendations: [], recommendationData: null, focusCourse: null, focusTopics: [], activeQuiz: null, selected: [], review: null, quizStartedAt: null, editingQuiz: null, quizDraftQuestions: [], toastTimer: null };
 
+document.addEventListener("error", event => {
+  const image = event.target;
+  if (image instanceof HTMLImageElement && image.classList.contains("course-art-photo")) image.remove();
+}, true);
+
 const icons = {
   nebula: '<svg viewBox="0 0 24 24" fill="none"><path d="M7.5 17.7a5.5 5.5 0 0 1-1-10.9A7 7 0 0 1 20 9.5a4.2 4.2 0 0 1-1.2 8.2H7.5Z" stroke="currentColor" stroke-width="1.8"/><path d="m10 14 2-4 2 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   overview: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>',
@@ -15,6 +20,8 @@ const icons = {
   clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
   search: '<svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>',
   bell: '<svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9m-8 12h4"/></svg>',
+  eye: '<svg viewBox="0 0 24 24"><path d="M2.5 12s3.3-6 9.5-6 9.5 6 9.5 6-3.3 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>',
+  eyeOff: '<svg viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 6.2A10.7 10.7 0 0 1 12 6c6.2 0 9.5 6 9.5 6a15 15 0 0 1-3.1 3.6M6.2 6.3C3.8 8 2.5 12 2.5 12s3.3 6 9.5 6c1.2 0 2.3-.2 3.2-.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
   logout: '<svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/></svg>',
   arrow: '<svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>',
   book: '<svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21V5.5Z"/><path d="M8 7h8m-8 4h8"/></svg>',
@@ -45,13 +52,13 @@ function renderAuth() {
     <form id="auth-form" class="${signup ? "auth-form-signup" : ""}">${signup ? `<div class="auth-signup-grid">
       <div class="field"><label for="auth-name">Your name</label><input id="auth-name" name="name" autocomplete="name" placeholder="e.g. Sam Rawat" required minlength="2" /></div>
       <div class="field"><label for="auth-email">Email address</label><input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required /></div>
-      <div class="field"><label for="auth-password">Password</label><input id="auth-password" name="password" type="password" autocomplete="new-password" placeholder="At least 10 characters" required minlength="10" /></div>
+      <div class="field"><label for="auth-password">Password</label><div class="auth-password-control"><input id="auth-password" name="password" type="password" autocomplete="new-password" placeholder="At least 10 characters" required minlength="10" /><button class="auth-password-toggle" type="button" data-action="toggle-password" data-target="auth-password" aria-label="Show password" aria-pressed="false">${icons.eye}</button></div></div>
       <div class="field"><label for="auth-role">Account type</label><select id="auth-role" name="role"><option value="student" ${state.authRole === "student" ? "selected" : ""}>Student</option><option value="admin" ${state.authRole === "admin" ? "selected" : ""}>Administrator</option></select></div>
       <div id="student-profile-fields" class="auth-profile-fields ${state.authRole === "admin" ? "hidden" : ""}"><div class="field"><label for="auth-goal">What are you learning towards?</label><input id="auth-goal" name="goal" placeholder="e.g. Prepare for board exams" /></div><div class="form-grid"><div class="field"><label for="auth-level">Your level</label><input id="auth-level" name="level" placeholder="e.g. Class 12" /></div><div class="field"><label for="auth-minutes">Minutes per day</label><input id="auth-minutes" name="daily_minutes" type="number" min="10" max="480" value="60" /></div></div></div>
-      <div id="admin-key-field" class="field auth-admin-key ${state.authRole === "student" ? "hidden" : ""}"><label for="admin-key">Admin setup key</label><input id="admin-key" name="admin_signup_key" type="password" placeholder="Provided by your project admin" /></div>
-    </div>` : `<div class="field"><label for="auth-email">Email address</label><input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required /></div><div class="field"><label for="auth-password">Password</label><input id="auth-password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required minlength="1" /></div>`}
+      <div id="admin-key-field" class="field auth-admin-key ${state.authRole === "student" ? "hidden" : ""}"><label for="admin-key">Admin setup key</label><div class="auth-password-control"><input id="admin-key" name="admin_signup_key" type="password" placeholder="Set in backend/.env by the project owner" /><button class="auth-password-toggle" type="button" data-action="toggle-password" data-target="admin-key" aria-label="Show setup key" aria-pressed="false">${icons.eye}</button></div><small class="auth-key-help">Your project owner sets this as <code>ADMIN_SIGNUP_KEY</code> in <code>backend/.env</code>. Ask them for it; it is private.</small></div>
+    </div>` : `<div class="field"><label for="auth-email">Email address</label><input id="auth-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required /></div><div class="field"><label for="auth-password">Password</label><div class="auth-password-control"><input id="auth-password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required minlength="1" /><button class="auth-password-toggle" type="button" data-action="toggle-password" data-target="auth-password" aria-label="Show password" aria-pressed="false">${icons.eye}</button></div></div>`}
       <button class="btn auth-submit" type="submit">${signup ? "Create my account" : "Sign in to Nebula"} ${icons.arrow}</button>
-    </form><div class="auth-foot">${signup && state.authRole === "admin" ? "Admin accounts require a private setup key." : "Your progress is personal. Your learning is yours."}</div>
+    </form><div class="auth-foot">${signup && state.authRole === "admin" ? "Admin key: backend/.env → ADMIN_SIGNUP_KEY. Ask the project owner; keep it private." : "Your progress is personal. Your learning is yours."}</div>
   </div><div class="auth-foot">© 2026 Nebula Learning</div></section><section class="auth-side"><div class="auth-orbit"></div><div class="auth-planet"></div><div class="auth-star"></div><div class="auth-copy"><div class="eyebrow">Built around the way you learn</div><h2>Small steps.<br/>Stronger understanding.</h2><p>Find your rhythm, focus on what matters, and watch your progress take shape.</p><div class="auth-quote"><strong>Learn with purpose.</strong> Your study path adapts as you grow.</div></div></section></main>`;
 }
 
@@ -84,6 +91,19 @@ function courseArtTheme(title = "") {
 function courseArtwork(course, index = 0) {
   const title = course.title || course.subject || "Learning course";
   const theme = courseArtTheme(title);
+  const photos = {
+    database: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=1200&q=82",
+    network: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=82",
+    security: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=82",
+    cloud: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=82",
+    blockchain: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=1200&q=82",
+    devops: "https://images.unsplash.com/photo-1681408969415-34cb37122508?auto=format&fit=crop&w=1200&q=82",
+    hardware: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=82",
+    intelligence: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=82",
+    algorithms: "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?auto=format&fit=crop&w=1200&q=82",
+    systems: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=82",
+    programming: "https://images.unsplash.com/photo-1681408969415-34cb37122508?auto=format&fit=crop&w=1200&q=82"
+  };
   const labels = { database: "DATA SYSTEMS", network: "COMPUTER NETWORKS", security: "CYBER SECURITY", cloud: "CLOUD COMPUTING", blockchain: "BLOCKCHAIN", devops: "DEVOPS PIPELINES", hardware: "COMPUTER HARDWARE", intelligence: "ARTIFICIAL INTELLIGENCE", algorithms: "ALGORITHMS", systems: "SYSTEMS DESIGN", programming: "SOFTWARE DEVELOPMENT" };
   const glyphs = {
     database: '<ellipse cx="100" cy="39" rx="39" ry="13"/><path d="M61 39v47c0 8 17 15 39 15s39-7 39-15V39M61 62c0 8 17 15 39 15s39-7 39-15M61 84c0 8 17 15 39 15s39-7 39-15"/>',
@@ -98,7 +118,7 @@ function courseArtwork(course, index = 0) {
     systems: '<rect x="54" y="38" width="92" height="69" rx="10"/><path d="M54 56h92M69 48h1m11 0h1m11 0h1M69 70h24v22H69zm37 0h25m-25 11h25m-25 11h18"/>',
     programming: '<rect x="53" y="38" width="94" height="65" rx="11"/><path d="M53 57h94M68 48h1m11 0h1m11 0h1m-9 30-10 8 10 8m28-16 10 8-10 8m-6-20-8 25"/>'
   };
-  return `<div class="course-art course-art-${theme} cover-${index % 3}" role="img" aria-label="${esc(title)} subject illustration"><span class="course-art-grid"></span><span class="course-art-halo"></span><span class="course-art-orbit course-art-orbit-one"></span><span class="course-art-orbit course-art-orbit-two"></span><svg class="course-art-glyph" viewBox="0 0 200 140" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${glyphs[theme]}</svg><div class="course-art-caption"><span>SUBJECT AREA</span><strong>${labels[theme]}</strong></div><span class="course-art-index">${esc(course.course_id || String(index + 1).padStart(2, "0"))}</span></div>`;
+  return `<div class="course-art course-art-${theme} cover-${index % 3}" role="img" aria-label="${esc(title)} subject artwork"><img class="course-art-photo" src="${photos[theme]}" alt="" aria-hidden="true" loading="lazy"/><span class="course-art-grid"></span><span class="course-art-halo"></span><span class="course-art-orbit course-art-orbit-one"></span><span class="course-art-orbit course-art-orbit-two"></span><svg class="course-art-glyph" viewBox="0 0 200 140" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${glyphs[theme]}</svg><div class="course-art-caption"><span>SUBJECT AREA</span><strong>${labels[theme]}</strong></div><span class="course-art-index">${esc(course.course_id || String(index + 1).padStart(2, "0"))}</span></div>`;
 }
 function empty(title, detail) { return `<div class="empty"><strong>${title}</strong>${detail}</div>`; }
 function youtubeSearchUrl(query) { return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`; }
@@ -221,7 +241,31 @@ function profilePage() {
 
 function quizPage() {
   const quiz = state.activeQuiz;
-  if (!quiz) return `${heading("Practice", state.progress?.summary?.attempts ? "Choose a quiz" : "Start with a quick diagnostic", state.progress?.summary?.attempts ? "Check a topic, save your result, and use it to sharpen your study plan." : "Your first quiz gives Nebula a baseline. Your score and topic will shape what to practice next.")}<div class="quiz-intro card"><span class="quiz-card-icon">${icons.spark}</span><div><strong>${state.progress?.summary?.attempts ? "Every attempt updates your learning picture" : "A baseline, then a plan built around you"}</strong><p>We save each quiz score and topic under your account so your progress chart and study recommendations can improve over time.</p></div></div><div class="quiz-cards">${state.quizzes.map(q => `<button class="quiz-card" data-action="start-quiz" data-id="${esc(q._id)}"><span class="quiz-card-icon">${icons.quiz}</span><span><strong>${esc(q.title)}</strong><small>${esc(q.topic)} · ${q.questions?.length || 0} questions · ${esc(q.difficulty || "practice")}</small></span>${icons.arrow}</button>`).join("") || empty("No published quizzes yet", "Your teacher or admin needs to publish a quiz before you can begin.")}</div>`;
+  if (!quiz) {
+    const attempts = state.progress?.summary?.attempts || 0;
+    const average = state.progress?.summary?.average || 0;
+    const quizCount = state.quizzes.length;
+    const courseById = new Map(state.courses.map(course => [course.course_id, course]));
+    const cards = state.quizzes.map((item, index) => {
+      const course = courseById.get(item.course_id);
+      const count = item.questions?.length || 0;
+      const difficulty = (item.difficulty || "mixed").toLowerCase();
+      const label = attempts ? `PRACTICE SET ${String(index + 1).padStart(2, "0")}` : index === 0 ? "YOUR BASELINE" : `DIAGNOSTIC ${String(index + 1).padStart(2, "0")}`;
+      return `<button class="practice-quiz-card practice-tone-${index % 4}" data-action="start-quiz" data-id="${esc(item._id)}" aria-label="Start ${esc(item.title)} quiz">
+        <span class="practice-card-orbit" aria-hidden="true"></span><span class="practice-card-orbit practice-card-orbit-small" aria-hidden="true"></span>
+        <span class="practice-card-top"><span class="practice-card-label">${label}</span><span class="practice-card-icon">${icons.quiz}</span></span>
+        <span class="practice-card-course">${esc(course?.subject || item.course_id || "NEBULA PRACTICE")}</span>
+        <strong class="practice-card-title">${esc(item.title)}</strong>
+        <span class="practice-card-topic">${esc(item.topic || course?.subject || "Mixed practice")}</span>
+        <span class="practice-card-bottom"><span class="practice-card-facts"><b>${count}</b> questions <i></i> ${Math.max(1, Math.ceil(count * 1.5))} min <i></i> <span class="practice-difficulty difficulty-${esc(difficulty)}">${esc(difficulty)}</span></span><span class="practice-card-start">Start quiz ${icons.arrow}</span></span>
+      </button>`;
+    }).join("");
+    return `${heading("Practice studio", attempts ? "Make your next attempt count." : "Find your starting point.", attempts ? "Pick a focused quiz. Every result sharpens your study plan." : "A quick baseline shows what you already know and where to focus next.")}
+      <section class="practice-hero"><div class="practice-hero-copy"><span class="practice-live"><i></i> YOUR LEARNING LOOP</span><h2>${attempts ? "Small sessions. Stronger results." : "Start curious. Grow with a plan."}</h2><p>${attempts ? "Choose one topic to practice today. Nebula will use your result to tune your next steps." : "Take a short diagnostic to unlock a study plan shaped around your strengths and gaps."}</p><div class="practice-hero-pills"><span>${quizCount} quizzes ready</span><span>${attempts ? `${attempts} attempts saved` : "8 questions each"}</span></div></div><div class="practice-hero-visual" aria-hidden="true"><div class="practice-ring practice-ring-one"></div><div class="practice-ring practice-ring-two"></div><div class="practice-orb"></div><span class="practice-star practice-star-one">✦</span><span class="practice-star practice-star-two">✧</span></div>${attempts ? `<div class="practice-average"><span>YOUR QUIZ AVERAGE</span><strong>${average}<small>%</small></strong><i><b style="width:${Math.max(0, Math.min(100, average))}%"></b></i></div>` : ""}</section>
+      <div class="practice-section-head"><div><span class="eyebrow">PICK YOUR NEXT SESSION</span><h2>Ready when you are</h2></div><span class="practice-section-count">${quizCount} <small>QUIZZES</small></span></div>
+      ${quizCount ? `<div class="practice-quiz-grid">${cards}</div>` : `<div class="card practice-empty">${empty("No quizzes ready just yet", "Your teacher or admin needs to publish a quiz before you can begin.")}</div>`}
+      <div class="practice-footnote"><span>${icons.spark}</span><p><strong>Your score has a purpose.</strong> Nebula saves each attempt and uses topic results to update your progress and study plan.</p></div>`;
+  }
   if (state.review) {
     const attempt = state.review.attempt;
     const course = state.courses.find(c => c.course_id === state.activeQuiz?.course_id);
@@ -418,11 +462,15 @@ function quizQuestionEditor(question = {}, index = 0, total = 1) {
   const correctOptions = ["A", "B", "C", "D"].map((letter, i) => `<option value="${i}" ${correctLetter === i ? "selected" : ""}>${letter}</option>`).join("");
   return `<section class="quiz-question-editor" data-question-editor><div class="card-head"><h3>Question ${index + 1}</h3>${total > 1 ? `<button type="button" class="table-actions" data-action="remove-quiz-question" data-index="${index}">Remove</button>` : ""}</div><div class="form-grid"><div class="field"><label>Question topic (optional)</label><input name="question_topic" value="${esc(question.topic || "")}" placeholder="Match a topic from the course catalog"/></div><div class="field"><label>Question</label><textarea name="prompt" required placeholder="Write a clear question…">${esc(question.prompt || "")}</textarea></div></div><div class="form-grid">${choiceFields}</div><div class="form-grid"><div class="field"><label>Correct choice</label><select name="answer_index">${correctOptions}</select></div><div class="field"><label>Answer explanation (optional)</label><input name="explanation" value="${esc(question.explanation || "")}" placeholder="Explain why this answer is correct"/></div></div></section>`;
 }
+function renderQuizQuestionList() {
+  const count = state.quizDraftQuestions.length;
+  return `<div class="quiz-question-list-head"><div><strong>Quiz questions</strong><small>Edit each question and its answer below.</small></div><span>${count} ${count === 1 ? "question" : "questions"}</span></div>${state.quizDraftQuestions.map((question, i) => quizQuestionEditor(question, i, count)).join("")}`;
+}
 function showQuizModal(quiz = null) {
   state.editingQuiz = quiz;
   state.quizDraftQuestions = quiz?.questions?.length ? quiz.questions.map(q => structuredClone(q)) : [{}];
   const q = quiz || {};
-  document.body.insertAdjacentHTML("beforeend", `<div id="modal-root" class="modal-backdrop"><div class="modal quiz-modal"><div class="modal-heading"><div><div class="eyebrow">Quiz builder</div><h2>${quiz ? "Edit quiz" : "Create a quiz"}</h2></div><button class="icon-button" data-action="close-modal">${icons.close}</button></div><form id="quiz-form"><input type="hidden" name="quiz_id" value="${esc(q._id || "")}"/><div class="form-grid"><div class="field"><label>Quiz title</label><input name="title" value="${esc(q.title || "")}" placeholder="Fractions check-in" required/></div><div class="field"><label>Course ID (optional)</label><input name="course_id" value="${esc(q.course_id || "")}" placeholder="MATH-101"/></div></div><div class="form-grid"><div class="field"><label>Topic</label><input name="topic" value="${esc(q.topic || "")}" placeholder="Fractions" required/></div><div class="field"><label>Difficulty</label><select name="difficulty"><option ${q.difficulty === "easy" ? "selected" : ""}>easy</option><option ${q.difficulty === "medium" || !q.difficulty ? "selected" : ""}>medium</option><option ${q.difficulty === "hard" ? "selected" : ""}>hard</option></select></div></div><div id="quiz-question-list">${state.quizDraftQuestions.map((question, i) => quizQuestionEditor(question, i, state.quizDraftQuestions.length)).join("")}</div><button type="button" class="btn secondary" data-action="add-quiz-question">+ Add question</button><div class="form-grid"><div class="field"><label>Publish</label><select name="published"><option value="on" ${q.published !== false ? "selected" : ""}>Publish for students</option><option value="off" ${q.published === false ? "selected" : ""}>Save as draft</option></select></div></div><div class="modal-actions"><button type="button" class="btn secondary" data-action="close-modal">Cancel</button><button class="btn">${quiz ? "Save changes" : "Create quiz"}</button></div></form></div></div>`);
+  document.body.insertAdjacentHTML("beforeend", `<div id="modal-root" class="modal-backdrop"><div class="modal quiz-modal"><div class="modal-heading"><div><div class="eyebrow">Quiz builder</div><h2>${quiz ? "Edit quiz" : "Create a quiz"}</h2></div><button type="button" class="btn secondary quiz-builder-back" data-action="close-modal">← Back to quizzes</button></div><form id="quiz-form"><input type="hidden" name="quiz_id" value="${esc(q._id || "")}"/><div class="form-grid"><div class="field"><label>Quiz title</label><input name="title" value="${esc(q.title || "")}" placeholder="Fractions check-in" required/></div><div class="field"><label>Course ID (optional)</label><input name="course_id" value="${esc(q.course_id || "")}" placeholder="MATH-101"/></div></div><div class="form-grid"><div class="field"><label>Topic</label><input name="topic" value="${esc(q.topic || "")}" placeholder="Fractions" required/></div><div class="field"><label>Difficulty</label><select name="difficulty"><option ${q.difficulty === "easy" ? "selected" : ""}>easy</option><option ${q.difficulty === "medium" || !q.difficulty ? "selected" : ""}>medium</option><option ${q.difficulty === "hard" ? "selected" : ""}>hard</option></select></div></div><div id="quiz-question-list">${renderQuizQuestionList()}</div><button type="button" class="btn secondary" data-action="add-quiz-question">+ Add question</button><div class="form-grid"><div class="field"><label>Publish</label><select name="published"><option value="on" ${q.published !== false ? "selected" : ""}>Publish for students</option><option value="off" ${q.published === false ? "selected" : ""}>Save as draft</option></select></div></div><div class="modal-actions"><button type="button" class="btn secondary" data-action="close-modal">Cancel</button><button class="btn">${quiz ? "Save changes" : "Create quiz"}</button></div></form></div></div>`);
 }
 function captureQuizQuestionDrafts() {
   return [...document.querySelectorAll("#quiz-question-list [data-question-editor]")].map(editor => {
@@ -447,6 +495,16 @@ document.addEventListener("change", async event => {
 document.addEventListener("click", async event => {
   const button = event.target.closest("[data-action]"); if (!button) return;
   const action = button.dataset.action;
+  if (action === "toggle-password") {
+    const input = document.getElementById(button.dataset.target);
+    if (!input) return;
+    const visible = input.type === "password";
+    input.type = visible ? "text" : "password";
+    button.setAttribute("aria-label", `${visible ? "Hide" : "Show"} ${input.name === "admin_signup_key" ? "setup key" : "password"}`);
+    button.setAttribute("aria-pressed", String(visible));
+    button.innerHTML = visible ? icons.eyeOff : icons.eye;
+    return;
+  }
   if (action === "auth-mode") { state.authMode = button.dataset.mode; renderAuth(); }
   if (action === "logout") logout();
   if (action === "menu") document.querySelector("#sidebar")?.classList.toggle("open");
@@ -485,8 +543,8 @@ document.addEventListener("click", async event => {
   if (action === "complete-lesson") { try { await api(`/lessons/${button.dataset.id}/complete`, { method: "POST", body: "{}" }); closeModal(); if (state.focusCourse) { state.focusLessons = (await api(`/courses/${encodeURIComponent(state.focusCourse.course_id)}/lessons`)).lessons; } toast("Lesson marked complete."); await render(); } catch (e) { toast(e.message, true); } }
   if (action === "add-quiz") { if (!state.courses.length) state.courses = (await api("/courses")).courses; showQuizModal(); }
   if (action === "edit-quiz") { try { showQuizModal((await api(`/quizzes/${button.dataset.id}`)).quiz); } catch (e) { toast(e.message, true); } }
-  if (action === "add-quiz-question") { state.quizDraftQuestions = captureQuizQuestionDrafts(); state.quizDraftQuestions.push({}); document.querySelector("#quiz-question-list").innerHTML = state.quizDraftQuestions.map((question, i) => quizQuestionEditor(question, i, state.quizDraftQuestions.length)).join(""); }
-  if (action === "remove-quiz-question") { state.quizDraftQuestions = captureQuizQuestionDrafts(); if (state.quizDraftQuestions.length > 1) state.quizDraftQuestions.splice(Number(button.dataset.index), 1); document.querySelector("#quiz-question-list").innerHTML = state.quizDraftQuestions.map((question, i) => quizQuestionEditor(question, i, state.quizDraftQuestions.length)).join(""); }
+  if (action === "add-quiz-question") { state.quizDraftQuestions = captureQuizQuestionDrafts(); state.quizDraftQuestions.push({}); document.querySelector("#quiz-question-list").innerHTML = renderQuizQuestionList(); }
+  if (action === "remove-quiz-question") { state.quizDraftQuestions = captureQuizQuestionDrafts(); if (state.quizDraftQuestions.length > 1) state.quizDraftQuestions.splice(Number(button.dataset.index), 1); document.querySelector("#quiz-question-list").innerHTML = renderQuizQuestionList(); }
   if (action === "close-modal") closeModal();
   if (action === "delete-course") { const course = state.courses.find(c => c.course_id === button.dataset.id); if (confirm(`Delete “${course?.title || button.dataset.id}”?`)) { try { await api(`/courses/${encodeURIComponent(button.dataset.id)}`, { method: "DELETE" }); toast("Course deleted."); await render(); } catch (e) { toast(e.message, true); } } }
   if (action === "delete-quiz") { const quiz = state.quizzes.find(q => q._id === button.dataset.id); if (confirm(`Delete “${quiz?.title || "this quiz"}”?`)) { try { await api(`/quizzes/${button.dataset.id}`, { method: "DELETE" }); toast("Quiz deleted."); await render(); } catch (e) { toast(e.message, true); } } }
@@ -521,7 +579,7 @@ app.addEventListener("change", event => {
     state.authRole = event.target.value;
     document.querySelector("#student-profile-fields")?.classList.toggle("hidden", state.authRole === "admin");
     document.querySelector("#admin-key-field")?.classList.toggle("hidden", state.authRole !== "admin");
-    const foot = document.querySelector(".auth-card .auth-foot"); if (foot) foot.textContent = state.authRole === "admin" ? "Admin accounts require a private setup key." : "Your progress is personal. Your learning is yours.";
+    const foot = document.querySelector(".auth-card .auth-foot"); if (foot) foot.textContent = state.authRole === "admin" ? "Admin key: backend/.env → ADMIN_SIGNUP_KEY. Ask the project owner; keep it private." : "Your progress is personal. Your learning is yours.";
   }
 });
 

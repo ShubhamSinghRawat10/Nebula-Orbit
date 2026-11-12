@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import sys
+import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
@@ -13,6 +14,7 @@ BACKEND = Path(__file__).resolve().parents[1]
 os.environ["NEBULA_SKIP_DEFAULT_APP"] = "true"
 sys.path.insert(0, str(BACKEND))
 from app import create_app  # noqa: E402
+from data_loader import import_curriculum  # noqa: E402
 os.environ.pop("NEBULA_SKIP_DEFAULT_APP", None)
 
 
@@ -128,6 +130,11 @@ class NebulaAcceptanceTests(unittest.TestCase):
         admin = register(self.client, role="admin", email="admin@example.test", admin_signup_key="isolated-admin-invitation-2026")
         self.assertEqual(admin.status_code, 201)
         admin_headers = auth(admin.json["access_token"])
+        duplicate_course = self.client.post("/api/courses", headers=admin_headers, json={
+            "course_id": "DSA", "title": "Would overwrite DSA", "topics": ["Wrong topic"],
+        })
+        self.assertEqual(duplicate_course.status_code, 409)
+        self.assertEqual(self.db.courses.count_documents({"course_id": "DSA"}), 1)
 
         course = self.client.post("/api/courses", headers=admin_headers, json={
             "course_id": "WEB-101", "title": "Web Foundations", "subject": "Web",
@@ -135,8 +142,28 @@ class NebulaAcceptanceTests(unittest.TestCase):
             "topics": ["HTML", "CSS"],
         })
         self.assertEqual(course.status_code, 201)
+        course_topics = self.client.get("/api/courses/WEB-101/topics", headers=student_headers)
+        self.assertEqual([row["topic_name"] for row in course_topics.json["topics"]], ["HTML", "CSS"])
+        self.assertEqual(self.client.post("/api/courses", headers=admin_headers, json={
+            "course_id": "BAD-101", "title": "Bad course", "estimated_hours": "not-a-number", "topics": ["Topic"],
+        }).status_code, 400)
+        changed_topics = self.client.put("/api/courses/WEB-101", headers=admin_headers, json={
+            "topics": ["HTML", "CSS", "Accessibility"],
+        })
+        self.assertEqual(changed_topics.status_code, 200)
+        self.assertEqual(len(self.client.get("/api/courses/WEB-101/topics", headers=student_headers).json["topics"]), 3)
         edited_course = self.client.put("/api/courses/WEB-101", headers=admin_headers, json={"title": "Web Foundations Updated"})
         self.assertEqual(edited_course.json["course"]["title"], "Web Foundations Updated")
+
+        web_lesson = self.client.post("/api/admin/lessons", headers=admin_headers, json={
+            "course_id": "WEB-101", "topic_id": "WEB-101_T1", "title": "HTML basics",
+            "summary": "A web lesson.", "content": "Learn semantic HTML.", "position": 1,
+        })
+        self.assertEqual(web_lesson.status_code, 201)
+        blocked_topic_edit = self.client.put("/api/courses/WEB-101", headers=admin_headers, json={"topics": ["Replaced"]})
+        self.assertEqual(blocked_topic_edit.status_code, 409)
+        self.assertEqual(self.client.delete("/api/courses/WEB-101", headers=admin_headers).status_code, 409)
+        self.assertEqual(self.client.delete(f"/api/admin/lessons/{web_lesson.json['lesson']['_id']}", headers=admin_headers).status_code, 200)
 
         lesson = self.client.post("/api/admin/lessons", headers=admin_headers, json={
             "course_id": "DSA", "topic_id": "DSA_T1", "title": "A first lesson",
@@ -172,18 +199,22 @@ class NebulaAcceptanceTests(unittest.TestCase):
         self.assertEqual(self.client.post("/api/auth/login", json={"email": "learner@example.test", "password": "Long-test-password-2026"}).status_code, 403)
         self.assertEqual(self.client.get("/api/progress", headers=student_headers).status_code, 403)
         self.assertEqual(self.client.delete("/api/courses/WEB-101", headers=admin_headers).status_code, 200)
+        self.assertEqual(self.db.topics.count_documents({"course_id": "WEB-101"}), 0)
         self.assertEqual(self.db.users.count_documents({"role": "admin"}), 1)
 
     def test_auth_validation_and_security_headers(self):
         self.assertEqual(self.client.get("/api/progress").status_code, 401)
         self.assertEqual(register(self.client, email="bad-email").status_code, 400)
         self.assertEqual(register(self.client, email="short-password@example.test", password="tiny").status_code, 400)
+        self.assertEqual(register(self.client, email="long-password@example.test", password="x" * 129).status_code, 400)
+        self.assertEqual(self.client.post("/api/auth/login", json={"email": "nobody@example.test", "password": "x" * 100_000}).status_code, 401)
         self.assertEqual(register(self.client, email="duplicate@example.test").status_code, 201)
         self.assertEqual(register(self.client, email="duplicate@example.test").status_code, 409)
         health = self.client.get("/api/health")
         self.assertEqual(health.status_code, 200)
         self.assertEqual(health.json, {"status": "ok", "database": "connected"})
         self.assertEqual(health.headers["X-Content-Type-Options"], "nosniff")
+        self.assertIn("Content-Security-Policy", health.headers)
 
     def test_production_configuration_rejects_unsafe_defaults(self):
         with self.assertRaisesRegex(RuntimeError, "remote MongoDB"):
@@ -196,6 +227,27 @@ class NebulaAcceptanceTests(unittest.TestCase):
                         "MONGODB_URI": "mongodb://db.example.test:27017/nebula",
                         "JWT_SECRET_KEY": "x" * 40, "ADMIN_SIGNUP_KEY": "y" * 30,
                         "FRONTEND_ORIGIN": "http://learn.example.test"})
+
+    def test_curriculum_refresh_preserves_admin_prerequisites(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "courses.csv").write_text(
+                "course_code,course_name,category\nTST,Test Course,Science\n", encoding="utf-8"
+            )
+            (root / "topics.csv").write_text(
+                "topic_id,course_code,topic_name,difficulty_level,estimated_hours\nTST_T1,TST,Topic One,Beginner,1\n"
+                "TST_T2,TST,Topic Two,Beginner,1\n", encoding="utf-8"
+            )
+            (root / "topic_prerequisite.csv").write_text(
+                "id,topic_id,prerequisite_topic_id,prerequisite_type\nTST_EDGE,TST_T2,TST_T1,Direct\n", encoding="utf-8"
+            )
+            self.db.prerequisites.insert_one({
+                "edge_id": "ADMIN_EDGE", "topic_id": "ADMIN_T2",
+                "prerequisite_topic_id": "ADMIN_T1", "prerequisite_type": "Direct", "source": "admin",
+            })
+            import_curriculum(self.db, root)
+            self.assertEqual(self.db.prerequisites.count_documents({"edge_id": "ADMIN_EDGE"}), 1)
+            self.assertEqual(self.db.prerequisites.count_documents({"edge_id": "TST_EDGE"}), 1)
 
 
 if __name__ == "__main__":

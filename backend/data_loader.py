@@ -88,7 +88,11 @@ def import_curriculum(db, data_dir: str | Path):
     # Keep CSV-owned catalog rows in sync while preserving admin-created records.
     db.courses.delete_many({"source": "nebula_curriculum_csv", "course_id": {"$nin": [doc["course_id"] for doc in course_docs]}})
     db.topics.delete_many({"source": "nebula_curriculum_csv", "topic_id": {"$nin": [doc["topic_id"] for doc in topic_docs]}})
-    db.prerequisites.delete_many({"edge_id": {"$exists": True, "$nin": [doc["edge_id"] for doc in prerequisite_docs]}})
+    # Curriculum refreshes must never delete relationships created by an admin.
+    db.prerequisites.delete_many({
+        "source": "nebula_curriculum_csv",
+        "edge_id": {"$nin": [doc["edge_id"] for doc in prerequisite_docs]},
+    })
     counts = {
         "courses": _bulk_upsert(db.courses, course_docs, "course_id"),
         "topics": _bulk_upsert(db.topics, topic_docs, "topic_id"),
