@@ -15,11 +15,12 @@ The backend runs on Render and stores application data in MongoDB Atlas. Netlify
 
 ### For students
 
-- Create an account and set a learning goal, level, and daily study time.
+- Create an account and choose a supported B.Tech learning focus and daily study time.
 - Explore courses, enroll, and open topic-linked lessons and video resources.
 - Take quizzes, review results, and keep an attempt history.
 - Track progress and topic mastery over time.
 - Get a rule-based study plan and recommendations based on quiz scores and course prerequisites.
+- Set available weekdays and a preferred session length; generated sessions respect the selected days and daily time budget.
 
 ### For administrators
 

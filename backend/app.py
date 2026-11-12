@@ -46,6 +46,51 @@ def serialize(value):
     return value
 
 
+STUDY_GOALS = {
+    "weak_topics": "Strengthen my weak B.Tech topics",
+    "foundations": "Build strong B.Tech fundamentals",
+    "explore_courses": "Explore my enrolled courses",
+}
+STUDY_DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+DEFAULT_STUDY_DAYS = ["mon", "tue", "wed", "thu", "fri"]
+SESSION_LENGTHS = (15, 25, 30, 45, 60)
+
+
+def normalize_student_profile(profile, fallback=None):
+    """Validate and normalize student study preferences across old/new accounts."""
+    fallback = fallback if isinstance(fallback, dict) else {}
+    mode = profile.get("goal_mode", fallback.get("goal_mode", "weak_topics"))
+    if not isinstance(mode, str) or mode not in STUDY_GOALS:
+        old_goal = str(profile.get("goal", fallback.get("goal", ""))).strip().casefold()
+        mode = next((key for key, label in STUDY_GOALS.items() if old_goal == label.casefold()), "weak_topics")
+
+    days = profile.get("available_days", fallback.get("available_days", DEFAULT_STUDY_DAYS))
+    if not isinstance(days, list):
+        raise ValueError("Choose at least one available study day.")
+    days = list(dict.fromkeys(day for day in days if isinstance(day, str) and day in STUDY_DAYS))
+    if not days:
+        raise ValueError("Choose at least one available study day.")
+
+    try:
+        daily_minutes = int(profile.get("daily_minutes", fallback.get("daily_minutes", 60)))
+        session_minutes = int(profile.get("preferred_session_minutes", fallback.get("preferred_session_minutes", 25)))
+    except (TypeError, ValueError):
+        raise ValueError("Study time and session length must be whole numbers.")
+    if not 10 <= daily_minutes <= 480:
+        raise ValueError("Daily study time must be between 10 and 480 minutes.")
+    if session_minutes not in SESSION_LENGTHS:
+        raise ValueError("Choose a supported session length.")
+
+    return {
+        "goal": STUDY_GOALS[mode],
+        "goal_mode": mode,
+        "level": str(profile.get("level", fallback.get("level", "B.Tech")))[:80],
+        "daily_minutes": daily_minutes,
+        "available_days": days,
+        "preferred_session_minutes": session_minutes,
+    }
+
+
 def create_app(test_config=None):
     frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
     app = Flask(__name__, static_folder=frontend_dir, static_url_path="/assets")
@@ -323,20 +368,16 @@ def create_app(test_config=None):
                 return api_error("Admin registration requires a valid setup key.", 403)
         profile = body.get("profile", {}) if isinstance(body.get("profile", {}), dict) else {}
         try:
-            daily_minutes = max(10, min(480, int(profile.get("daily_minutes", 60) or 60)))
-        except (TypeError, ValueError):
-            return api_error("Study time must be a whole number of minutes from 10 to 480.")
+            normalized_profile = normalize_student_profile(profile)
+        except ValueError as error:
+            return api_error(str(error))
         user = {
             "name": name,
             "email": email,
             "password_hash": generate_password_hash(password),
             "role": role,
             "status": "active",
-            "profile": {
-                "goal": str(profile.get("goal", ""))[:160],
-                "level": str(profile.get("level", ""))[:80],
-                "daily_minutes": daily_minutes,
-            } if role == "student" else {},
+            "profile": normalized_profile if role == "student" else {},
             "created_at": utcnow(),
         }
         try:
@@ -380,14 +421,9 @@ def create_app(test_config=None):
         if not isinstance(profile, dict):
             return api_error("Profile must be an object.")
         try:
-            daily_minutes = max(10, min(480, int(profile.get("daily_minutes", user.get("profile", {}).get("daily_minutes", 60)))))
-        except (TypeError, ValueError):
-            return api_error("Study time must be a whole number of minutes from 10 to 480.")
-        updated = {
-            "goal": str(profile.get("goal", user.get("profile", {}).get("goal", "")))[:160],
-            "level": str(profile.get("level", user.get("profile", {}).get("level", "")))[:80],
-            "daily_minutes": daily_minutes,
-        }
+            updated = normalize_student_profile(profile, user.get("profile", {}))
+        except ValueError as error:
+            return api_error(str(error))
         users.update_one({"_id": user["_id"]}, {"$set": {"profile": updated}})
         user["profile"] = updated
         return jsonify({"user": serialize(user)})
@@ -945,6 +981,7 @@ def create_app(test_config=None):
     @role_required("student")
     def generate_plan():
         user = current_user()
+        profile = normalize_student_profile(user.get("profile", {}))
         past = list(attempts.find({"student_id": user["_id"]}).sort("created_at", -1).limit(100))
         topic_scores = {}
         for item in past:
@@ -961,28 +998,90 @@ def create_app(test_config=None):
         enrolled_ids = {row["course_id"] for row in enrollments.find({"student_id": user["_id"]})}
         course_rows.sort(key=lambda course: (course.get("course_id") not in enrolled_ids, course.get("title", "")))
         needs_practice.sort(key=lambda pair: (pair[0][0] not in enrolled_ids, pair[1]["score"] / pair[1]["total"] if pair[1]["total"] else 0))
-        needs_practice = needs_practice[:3]
-        day_minutes = user.get("profile", {}).get("daily_minutes", 60)
-        tasks = []
-        for (course_id, topic), stats in needs_practice:
-            course = next((c for c in course_rows if c.get("course_id", "").upper() == course_id), None)
-            topic_doc = topics_collection.find_one({"course_id": course_id, "topic_name": topic}) if course_id else None
-            prerequisite_rows = list(prerequisites.find({"topic_id": topic_doc["topic_id"]})) if topic_doc else []
-            already_planned = {task["topic"] for task in tasks}
-            for edge in prerequisite_rows:
-                prereq_doc = topics_collection.find_one({"topic_id": edge["prerequisite_topic_id"]})
-                if prereq_doc and prereq_doc["topic_name"] not in already_planned:
-                    tasks.append({"day": len(tasks) + 1, "topic": prereq_doc["topic_name"], "course_id": course_id, "minutes": max(5, day_minutes // 3), "activity": "Review a prerequisite foundation before the next quiz"})
-                    already_planned.add(prereq_doc["topic_name"])
-            tasks.append({"day": len(tasks) + 1, "topic": topic, "course_id": course.get("course_id") if course else None, "minutes": max(5, day_minutes // 2), "activity": "Review the lesson, then try a focused practice quiz"})
-        if not tasks:
+        goal_mode = profile["goal_mode"]
+        planned_topics = []
+        seen_topics = set()
+
+        def add_topic(course_id, topic_name, activity):
+            key = (course_id, topic_name)
+            if topic_name and key not in seen_topics:
+                planned_topics.append({"course_id": course_id, "topic": topic_name, "activity": activity})
+                seen_topics.add(key)
+
+        if goal_mode == "explore_courses":
+            for course in course_rows:
+                course_id = str(course.get("course_id", "")).upper()
+                course_topics = course.get("topics") or []
+                if course_topics:
+                    add_topic(course_id, course_topics[0], "Explore a course lesson, then try its practice quiz")
+                if len(planned_topics) >= 3:
+                    break
+        else:
+            needs_practice = needs_practice[:3]
+            for (course_id, topic), _stats in needs_practice:
+                topic_doc = topics_collection.find_one({"course_id": course_id, "topic_name": topic}) if course_id else None
+                if topic_doc and goal_mode == "foundations":
+                    # Walk the full prerequisite chain so foundational topics come first.
+                    pending = [topic_doc["topic_id"]]
+                    visited = set()
+                    ancestors = []
+                    while pending:
+                        current_id = pending.pop(0)
+                        if current_id in visited:
+                            continue
+                        visited.add(current_id)
+                        edges = list(prerequisites.find({"topic_id": current_id}))
+                        for edge in edges:
+                            prereq_id = edge.get("prerequisite_topic_id")
+                            prereq_doc = topics_collection.find_one({"topic_id": prereq_id}) if prereq_id else None
+                            if prereq_doc:
+                                pending.append(prereq_id)
+                                if prereq_id != topic_doc["topic_id"]:
+                                    ancestors.append(prereq_doc)
+                    # Add deeper prerequisites before their dependent topics.
+                    for prerequisite_doc in reversed(ancestors):
+                        add_topic(course_id, prerequisite_doc["topic_name"], "Review this prerequisite before moving to the next concept")
+                elif topic_doc:
+                    for edge in prerequisites.find({"topic_id": topic_doc["topic_id"]}):
+                        prereq_doc = topics_collection.find_one({"topic_id": edge.get("prerequisite_topic_id")})
+                        if prereq_doc:
+                            add_topic(course_id, prereq_doc["topic_name"], "Review a prerequisite foundation before the next quiz")
+                add_topic(course_id, topic, "Review the lesson, then try a focused practice quiz")
+
+        if not planned_topics:
             starter_courses = [course for course in course_rows if not enrolled_ids or course.get("course_id") in enrolled_ids][:3]
-            tasks = [{"day": i + 1, "topic": (c.get("topics") or ["Explore your next topic"])[0], "course_id": c.get("course_id"), "minutes": max(5, day_minutes // 2), "activity": "Study a lesson and complete a practice quiz"} for i, c in enumerate(starter_courses)]
-        tasks = tasks[:7]
-        for index, task in enumerate(tasks):
-            task["day"] = index + 1
-            task["day_label"] = "TODAY" if index == 0 else f"DAY {index + 1}"
-        plan = {"student_id": user["_id"], "goal": user.get("profile", {}).get("goal", "Build a steady study habit"), "daily_minutes": day_minutes, "tasks": tasks, "generated_at": utcnow()}
+            for course in starter_courses:
+                course_id = str(course.get("course_id", "")).upper()
+                add_topic(course_id, (course.get("topics") or ["Explore your next topic"])[0], "Study a lesson and complete a practice quiz")
+
+        # Schedule sessions only on selected weekdays and cap each session at the
+        # student's preferred length (or their smaller daily time budget).
+        day_minutes = profile["daily_minutes"]
+        session_minutes = min(profile["preferred_session_minutes"], day_minutes)
+        sessions_per_day = max(1, math.ceil(day_minutes / session_minutes))
+        allowed_weekdays = {STUDY_DAYS.index(day) for day in profile["available_days"]}
+        try:
+            local_timezone = ZoneInfo(request.headers.get("X-Timezone", "UTC"))
+        except Exception:
+            local_timezone = timezone.utc
+        today = datetime.now(local_timezone).date()
+        cursor = today
+        daily_counts = {}
+        tasks = []
+        for item in planned_topics[:7]:
+            while cursor.weekday() not in allowed_weekdays or daily_counts.get(cursor, 0) >= sessions_per_day:
+                cursor += timedelta(days=1)
+            used_sessions = daily_counts.get(cursor, 0)
+            task_minutes = min(session_minutes, day_minutes - used_sessions * session_minutes)
+            daily_counts[cursor] = used_sessions + 1
+            day_label = "TODAY" if cursor == today else f"{cursor.strftime('%a').upper()} · {cursor.strftime('%b')} {cursor.day}"
+            tasks.append({**item, "day": len(tasks) + 1, "day_label": day_label, "scheduled_date": cursor.isoformat(), "minutes": task_minutes})
+        plan = {
+            "student_id": user["_id"], "goal": profile["goal"], "goal_mode": goal_mode,
+            "daily_minutes": day_minutes, "available_days": profile["available_days"],
+            "preferred_session_minutes": profile["preferred_session_minutes"], "session_minutes": session_minutes,
+            "tasks": tasks, "generated_at": utcnow(),
+        }
         plans.update_one({"student_id": user["_id"]}, {"$set": plan}, upsert=True)
         return jsonify({"plan": serialize(plan)})
 
