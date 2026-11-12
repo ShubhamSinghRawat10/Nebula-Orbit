@@ -5,6 +5,7 @@ import os
 import re
 import json
 import math
+import secrets
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from pathlib import Path
@@ -12,7 +13,7 @@ from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 from bson import ObjectId, json_util
-from dotenv import load_dotenv
+from dotenv import dotenv_values, load_dotenv
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
@@ -22,7 +23,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from data_loader import import_curriculum
 from performance_model import PerformanceModel
 
-load_dotenv()
+# Resolve this project's env file directly. In local development it is the source
+# of truth even if an old terminal still has stale values; deployments continue
+# to prefer secrets injected through the process environment.
+ENV_FILE = Path(__file__).resolve().with_name(".env")
+load_dotenv(ENV_FILE, override=os.getenv("NEBULA_ENV", "development").lower() != "production")
 
 
 def utcnow():
@@ -52,11 +57,15 @@ def create_app(test_config=None):
         ADMIN_SIGNUP_KEY=os.getenv("ADMIN_SIGNUP_KEY", ""),
         FRONTEND_ORIGIN=os.getenv("FRONTEND_ORIGIN", "http://localhost:5173"),
         NEBULA_ENV=os.getenv("NEBULA_ENV", "development").lower(),
+        MAX_CONTENT_LENGTH=1_048_576,
     )
     if test_config:
         app.config.update(test_config)
 
+    demo_mode = os.getenv("NEBULA_DEMO_MODE", "false").lower() == "true"
     if app.config["NEBULA_ENV"] == "production" and not app.config.get("TESTING"):
+        if demo_mode:
+            raise RuntimeError("NEBULA_DEMO_MODE must be disabled in production.")
         parsed_mongo_uri = urlparse(app.config["MONGODB_URI"])
         if not parsed_mongo_uri.hostname or parsed_mongo_uri.hostname in {"localhost", "127.0.0.1"}:
             raise RuntimeError("Production requires a reachable managed or remote MongoDB URI.")
@@ -71,7 +80,6 @@ def create_app(test_config=None):
     CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
     JWTManager(app)
 
-    demo_mode = os.getenv("NEBULA_DEMO_MODE", "false").lower() == "true"
     client_override = app.config.get("MONGODB_CLIENT")
     if client_override is not None:
         client = client_override
@@ -135,7 +143,13 @@ def create_app(test_config=None):
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
         response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
-        if app.config["NEBULA_ENV"] == "production" and request.is_secure:
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; "
+            "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+        )
+        if app.config["NEBULA_ENV"] == "production":
             response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
         return response
     users.create_index([("email", ASCENDING)], unique=True)
@@ -190,6 +204,64 @@ def create_app(test_config=None):
     def api_error(message, status=400):
         return jsonify({"error": message}), status
 
+    def normalize_course_topics(value):
+        if not isinstance(value, list) or not value or len(value) > 60:
+            raise ValueError("Add between 1 and 60 course topics.")
+        topics = []
+        seen = set()
+        for item in value:
+            if not isinstance(item, str):
+                raise ValueError("Each topic must be text.")
+            name = item.strip()
+            if not name or len(name) > 160:
+                raise ValueError("Topic names must contain 1 to 160 characters.")
+            key = name.casefold()
+            if key in seen:
+                raise ValueError("Course topic names must be unique.")
+            seen.add(key)
+            topics.append(name)
+        return topics
+
+    def parse_course_hours(value):
+        if isinstance(value, bool):
+            raise ValueError("Estimated hours must be a whole number from 1 to 1000.")
+        try:
+            hours = int(value)
+        except (TypeError, ValueError):
+            raise ValueError("Estimated hours must be a whole number from 1 to 1000.")
+        if str(value).strip() != str(hours) or not 1 <= hours <= 1000:
+            raise ValueError("Estimated hours must be a whole number from 1 to 1000.")
+        return hours
+
+    def course_has_activity(course_id, topic_ids):
+        dependency_queries = [
+            (lessons, {"course_id": course_id}),
+            (enrollments, {"course_id": course_id}),
+            (quizzes, {"course_id": course_id}),
+            (attempts, {"course_id": course_id}),
+            (plans, {"tasks.course_id": course_id}),
+            (db.dataset_interactions, {"course_id": course_id}),
+        ]
+        if any(collection.count_documents(query) for collection, query in dependency_queries):
+            return True
+        if topic_ids and prerequisites.count_documents({"$or": [
+            {"topic_id": {"$in": topic_ids}},
+            {"prerequisite_topic_id": {"$in": topic_ids}},
+        ]}):
+            return True
+        return False
+
+    def make_course_topic_docs(course_id, topic_names, estimated_hours):
+        per_topic_hours = max(1, math.ceil(estimated_hours / len(topic_names)))
+        return [{
+            "topic_id": f"{course_id}_T{index + 1}",
+            "course_id": course_id,
+            "topic_name": name,
+            "difficulty_level": "Beginner",
+            "estimated_hours": per_topic_hours,
+            "source": "admin",
+        } for index, name in enumerate(topic_names)]
+
     def current_user():
         identity = get_jwt_identity()
         try:
@@ -229,19 +301,25 @@ def create_app(test_config=None):
         body = request.get_json(silent=True) or {}
         name = str(body.get("name", "")).strip()
         email = str(body.get("email", "")).strip().lower()
-        password = str(body.get("password", ""))
+        raw_password = body.get("password", "")
+        password = raw_password if isinstance(raw_password, str) else ""
         role = str(body.get("role", "student")).lower()
         if len(name) < 2 or len(name) > 80:
             return api_error("Enter a name between 2 and 80 characters.")
-        if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email):
+        if len(email) > 254 or not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email):
             return api_error("Enter a valid email address.")
-        if len(password) < 10:
-            return api_error("Password must be at least 10 characters long.")
+        if len(password) < 10 or len(password) > 128:
+            return api_error("Password must be between 10 and 128 characters long.")
         if role not in ("student", "admin"):
             return api_error("Choose a valid account type.")
         if role == "admin":
             supplied_key = str(body.get("admin_signup_key", ""))
-            if not app.config["ADMIN_SIGNUP_KEY"] or supplied_key != app.config["ADMIN_SIGNUP_KEY"]:
+            expected_key = app.config["ADMIN_SIGNUP_KEY"]
+            if app.config["NEBULA_ENV"] != "production":
+                # In local development, read the project's .env at request time
+                # so edits take effect even if a stale Flask process is running.
+                expected_key = dotenv_values(ENV_FILE).get("ADMIN_SIGNUP_KEY") or expected_key
+            if not expected_key or supplied_key != expected_key:
                 return api_error("Admin registration requires a valid setup key.", 403)
         profile = body.get("profile", {}) if isinstance(body.get("profile", {}), dict) else {}
         try:
@@ -273,7 +351,10 @@ def create_app(test_config=None):
     def login():
         body = request.get_json(silent=True) or {}
         email = str(body.get("email", "")).strip().lower()
-        password = str(body.get("password", ""))
+        raw_password = body.get("password", "")
+        password = raw_password if isinstance(raw_password, str) else ""
+        if len(password) > 128:
+            return api_error("Email or password is incorrect.", 401)
         user = users.find_one({"email": email})
         if not user or not check_password_hash(user.get("password_hash", ""), password):
             return api_error("Email or password is incorrect.", 401)
@@ -489,22 +570,42 @@ def create_app(test_config=None):
         body = request.get_json(silent=True) or {}
         title = str(body.get("title", "")).strip()
         course_id = str(body.get("course_id", "")).strip().upper()
-        if not title or not course_id:
+        if not title or len(title) > 120 or not course_id or not re.fullmatch(r"[A-Z0-9][A-Z0-9_-]{0,39}", course_id):
             return api_error("Course title and course ID are required.")
+        try:
+            topic_names = normalize_course_topics(body.get("topics"))
+            estimated_hours = parse_course_hours(body.get("estimated_hours", 1))
+        except ValueError as error:
+            return api_error(str(error))
+        topic_docs = make_course_topic_docs(course_id, topic_names, estimated_hours)
+        if topics_collection.count_documents({"topic_id": {"$in": [topic["topic_id"] for topic in topic_docs]}}):
+            return api_error("Topic IDs for that course already exist.", 409)
+        creation_token = secrets.token_hex(16)
+        for topic in topic_docs:
+            topic["_creation_token"] = creation_token
         doc = {
             "course_id": course_id,
             "title": title[:120],
             "subject": str(body.get("subject", "General"))[:80],
             "level": str(body.get("level", "Beginner"))[:60],
             "description": str(body.get("description", ""))[:2000],
-            "estimated_hours": max(1, min(1000, int(body.get("estimated_hours", 1)))),
-            "topics": body.get("topics", []) if isinstance(body.get("topics", []), list) else [],
+            "estimated_hours": estimated_hours,
+            "topics": topic_names,
+            "topic_ids": [topic["topic_id"] for topic in topic_docs],
             "created_at": utcnow(),
         }
         try:
             result = courses.insert_one(doc)
         except DuplicateKeyError:
             return api_error("That course ID already exists.", 409)
+        try:
+            topics_collection.insert_many(topic_docs)
+            topics_collection.update_many({"_creation_token": creation_token}, {"$unset": {"_creation_token": ""}})
+        except Exception:
+            courses.delete_one({"_id": result.inserted_id})
+            topics_collection.delete_many({"_creation_token": creation_token})
+            app.logger.exception("Could not create course topics; rolled back course creation.")
+            return api_error("The course could not be saved. Please retry.", 500)
         doc["_id"] = result.inserted_id
         return jsonify({"course": serialize(doc)}), 201
 
@@ -516,16 +617,64 @@ def create_app(test_config=None):
         changes = {k: body[k] for k in allowed if k in body}
         if not changes:
             return api_error("No course fields were provided.")
-        courses.update_one({"course_id": course_id.upper()}, {"$set": changes})
-        doc = courses.find_one({"course_id": course_id.upper()})
+        course_id = course_id.upper()
+        doc = courses.find_one({"course_id": course_id})
+        if not doc:
+            return api_error("Course not found.", 404)
+        for field, limit in (("title", 120), ("subject", 80), ("level", 60), ("description", 2000)):
+            if field in changes:
+                if not isinstance(changes[field], str) or not changes[field].strip() or len(changes[field].strip()) > limit:
+                    return api_error(f"{field.title()} must contain 1 to {limit} characters.")
+                changes[field] = changes[field].strip()
+        if "estimated_hours" in changes:
+            try:
+                changes["estimated_hours"] = parse_course_hours(changes["estimated_hours"])
+            except ValueError as error:
+                return api_error(str(error))
+        if "topics" in changes:
+            try:
+                topic_names = normalize_course_topics(changes["topics"])
+            except ValueError as error:
+                return api_error(str(error))
+            old_names = doc.get("topics", [])
+            if topic_names != old_names:
+                old_topic_ids = doc.get("topic_ids") or [row["topic_id"] for row in topics_collection.find({"course_id": course_id}, {"topic_id": 1})]
+                if course_has_activity(course_id, old_topic_ids):
+                    return api_error("Topics cannot change after lessons, quizzes, enrollments, or study activity use this course.", 409)
+                if old_topic_ids:
+                    prerequisites.delete_many({"$or": [
+                        {"topic_id": {"$in": old_topic_ids}},
+                        {"prerequisite_topic_id": {"$in": old_topic_ids}},
+                    ]})
+                topics_collection.delete_many({"course_id": course_id})
+                topic_docs = make_course_topic_docs(course_id, topic_names, changes.get("estimated_hours", doc.get("estimated_hours", 1)))
+                try:
+                    topics_collection.insert_many(topic_docs)
+                except Exception:
+                    app.logger.exception("Could not replace course topics for %s.", course_id)
+                    return api_error("Course topics could not be updated.", 500)
+                changes["topics"] = topic_names
+                changes["topic_ids"] = [topic["topic_id"] for topic in topic_docs]
+        courses.update_one({"course_id": course_id}, {"$set": changes})
+        doc = courses.find_one({"course_id": course_id})
         return (jsonify({"course": serialize(doc)}), 200) if doc else api_error("Course not found.", 404)
 
     @app.delete("/api/courses/<course_id>")
     @role_required("admin")
     def delete_course(course_id):
         course_id = course_id.upper()
-        if lessons.count_documents({"course_id": course_id}) or enrollments.count_documents({"course_id": course_id}):
-            return api_error("Remove this course's lessons and student enrollments before deleting the course.", 409)
+        course = courses.find_one({"course_id": course_id})
+        if not course:
+            return api_error("Course not found.", 404)
+        topic_ids = course.get("topic_ids") or [row["topic_id"] for row in topics_collection.find({"course_id": course_id}, {"topic_id": 1})]
+        if course_has_activity(course_id, topic_ids):
+            return api_error("This course has lessons, quizzes, enrollments, or student activity and cannot be deleted.", 409)
+        if topic_ids:
+            prerequisites.delete_many({"$or": [
+                {"topic_id": {"$in": topic_ids}},
+                {"prerequisite_topic_id": {"$in": topic_ids}},
+            ]})
+        topics_collection.delete_many({"course_id": course_id})
         result = courses.delete_one({"course_id": course_id})
         return (jsonify({"deleted": True}), 200) if result.deleted_count else api_error("Course not found.", 404)
 
