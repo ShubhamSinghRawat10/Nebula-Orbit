@@ -1,56 +1,178 @@
 # Nebula
 
-Nebula is a personalized learning MVP for students, with an admin workspace for managing course and quiz content. Study plans use transparent quiz-score thresholds and prerequisite-based sequencing. An offline ML score estimator is evaluated on chronological data, but Nebula withholds its forecasts from students until it demonstrates a meaningful lift over the baseline.
+**Personalized learning, one focused step at a time.**
 
-## Current setup
+Nebula is an AI-assisted learning MVP. Students take topic-based quizzes, see where they need practice, and get a study plan shaped by their results. Teachers and administrators manage the courses, lessons, quizzes, and student access.
 
-- `backend/`: Flask REST API, MongoDB persistence, JWT sessions and role checks.
-- Student accounts can register normally. Admin account creation requires the private `ADMIN_SIGNUP_KEY` configured on the server.
-- Students can view published courses and quizzes, submit quiz attempts, update their learning profile, mark lessons complete, see progress, generate a study plan and receive rule-based recommendations.
-- Demo mode includes an original 8-question baseline diagnostic for each of the 25 CSV courses. These are starter checks and should be reviewed and expanded before classroom use.
-- Quiz results are tagged by topic; a regression model estimates next-assessment scores from prior learner results and the curriculum. Its chronological holdout metrics are saved in `backend/performance_model_metrics.json`.
-- Admins can manage courses, quizzes and topic-linked lessons; review student account status and aggregate activity; and suspend/reactivate student access.
-- `frontend/`: responsive, API-connected student and admin experience. Styling tokens are in `frontend/style.css`; current palette is midnight black, electric cobalt and acid lime.
-- The five-course pilot lesson pack contains 10 original, in-app lessons across DSA, Python, DBMS, Computer Networks and Operating Systems. It is published into the configured MongoDB database by `backend/seed_pilot_lessons.py`; re-running the seed does not overwrite admin edits.
-- The UI was authored locally from the project brief and public Stitch workflow descriptions. Stitch account access was not used.
+## Live app
 
-## Run the API
+- **Student and admin app:** [nebula-orbit.netlify.app](https://nebula-orbit.netlify.app)
+- **Backend health:** [nebula-orbit.onrender.com/api/health](https://nebula-orbit.onrender.com/api/health)
 
-1. Install Python 3.10 or newer. Use MongoDB Community Server (or provide a MongoDB connection URI) for persistent data.
-2. Install `backend/requirements.txt` into your Python environment.
-3. Copy `backend/.env.example` to `backend/.env`; set unique secret values for `JWT_SECRET_KEY` and `ADMIN_SIGNUP_KEY`.
-4. From `backend`, run `python app.py`. The frontend is served at `http://127.0.0.1:5000`.
+The backend runs on Render and stores application data in MongoDB Atlas. Netlify serves the frontend and proxies `/api/*` requests to Render. The free Render instance can sleep when inactive, so the first request after a quiet period may take longer to respond.
 
-To train or retrain the score estimator after replacing `student_interaction.csv`, run `python train_performance_model.py` from `backend`, then restart the API. The script holds out later assessment dates for evaluation and reports score MAE/RMSE plus proficiency-band accuracy. These metrics evaluate score prediction, not whether a suggested intervention causes learning gains.
+## What Nebula does
 
-For a quick local demo without installing MongoDB, install `backend/requirements-dev.txt` and set `NEBULA_DEMO_MODE=true`. Demo mode seeds baseline quizzes for the full CSV course catalog and saves a local `.demo_data.json` snapshot so student accounts and quiz attempts survive a server restart. It is intended for one local developer process; use MongoDB for real students or multiple server workers.
+### For students
 
-On Windows, start the demo from the repository root with `powershell -ExecutionPolicy Bypass -File .\backend\start-demo.ps1`. The script selects the project's `.venv`, adds the local `.deps` packages, enables demo mode, and refuses to start if the configured port is already occupied. Stop the existing Nebula process with `Ctrl+C` in its terminal before restarting so the browser cannot keep talking to an older backend process. For a MongoDB-backed run, use the `.env` settings and start `python app.py` from `backend/` instead.
+- Create an account and choose a supported B.Tech learning focus and daily study time.
+- Explore courses, enroll, and open topic-linked lessons and video resources.
+- Take quizzes, review results, and keep an attempt history.
+- Track progress and topic mastery over time.
+- Get a rule-based study plan and recommendations based on quiz scores and course prerequisites.
+- Set available weekdays and a preferred session length; generated sessions respect the selected days and daily time budget.
 
-The four supplied CSV files are in `backend/`. Demo mode loads their course, topic, and prerequisite catalog into the app automatically. With MongoDB configured, run `python import_dataset.py` from `backend/` to persist the catalog. To also import historical assessment records, set a private `DATASET_HASH_SALT` of at least 24 characters. The importer drops `student_name` and HMAC-pseudonymizes student and interaction IDs; these records are not attached to login accounts.
+### For administrators
 
-The API listens at `http://127.0.0.1:5000`. Check `/api/health` for the database connection status. Never commit `.env` or share the admin signup key.
+- Create and update courses, quizzes, and lessons.
+- Publish or edit learning content for students.
+- Review student account status and aggregate activity.
+- Suspend or restore student access.
 
-## Isolated acceptance checks
+Admin signup requires the private `ADMIN_SIGNUP_KEY` configured on the server. Never put this key in frontend code or publish it in this README.
 
-From `backend/`, run `python -m unittest discover -s tests -v`. The suite uses an isolated in-memory Mongo mock; it covers student signup/login, answer-key hiding, quiz grading and score persistence, progress and prerequisite-aware study plans, recommendation gates, app restart persistence, admin CRUD and access control, lesson publication/completion, account suspension, validation and security headers. It does not write test data to Atlas.
+## How recommendations work
 
-## Production container
+Study plans currently use quiz scores, weak topics, and prerequisite order. This keeps recommendations explainable and avoids presenting uncertain model output as fact.
 
-The root `Dockerfile` builds a single-container MVP that serves the frontend and Flask API behind Gunicorn. Build with `docker build -t nebula-mvp .`; run it only after providing these private runtime variables through the hosting provider's secret manager: `NEBULA_ENV=production`, `MONGODB_URI`, `MONGODB_DB`, `JWT_SECRET_KEY` (at least 32 private characters), `ADMIN_SIGNUP_KEY` (at least 24 private characters), and `FRONTEND_ORIGIN` (one or more comma-separated HTTPS origins). The app refuses production startup when the remote database or HTTPS/secret requirements are missing. Keep `NEBULA_DEMO_MODE=false`; do not bake `.env` into the image. Configure the hosting provider for HTTPS and a health check at `/api/health`.
+Nebula also includes an experimental score estimator trained on historical assessment data. It is evaluated using a chronological holdout, with metrics in [`backend/performance_model_metrics.json`](backend/performance_model_metrics.json). Its forecasts are withheld from students until the model demonstrates a meaningful improvement over a baseline. Score prediction metrics do not prove that a recommended lesson causes learning gains.
 
-Before opening signup to real students, rotate any Atlas password or app secret that has been pasted into a chat, terminal transcript, issue, or screenshot; create a dedicated Atlas database user scoped to the Nebula cluster and `nebula` database; restrict Atlas network access to the hosting provider's fixed egress IPs where possible; confirm Atlas backups/retention; and do one production smoke test with an owner-controlled account. Deployment still requires the project owner to choose a hosting provider/domain, add the runtime secrets and Atlas network allowlist there, and confirm backups. The app and container are prepared, but this repository cannot create a domain or hosting account on the owner's behalf.
+## Technology
 
-## Main API routes
-
-| Purpose | Routes |
+| Area | Technology |
 |---|---|
-| Signup, login, session, profile | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PATCH /api/auth/profile` |
-| Courses | `GET /api/courses`, `POST /api/courses`, `PUT /api/courses/:course_id`, `DELETE /api/courses/:course_id` |
-| Student enrollment | `GET /api/enrollments`, `POST/DELETE /api/enrollments/:course_id` |
-| Lessons | `GET /api/courses/:course_id/lessons`, admin `GET/POST /api/admin/lessons`, `PUT/DELETE /api/admin/lessons/:id`, `POST /api/lessons/:id/complete` |
-| Quizzes | `GET /api/quizzes`, `GET /api/quizzes/:id`, `POST /api/quizzes`, `PUT /api/quizzes/:id`, `DELETE /api/quizzes/:id`, `POST /api/quizzes/:id/submit` |
-| Learning | `GET /api/progress`, `POST /api/lessons/:id/complete`, `GET/POST /api/study-plan`, `GET /api/recommendations` |
+| Frontend | HTML, CSS, JavaScript |
+| API | Python, Flask, Flask-JWT-Extended |
+| Database | MongoDB Atlas / MongoDB Community Server |
+| ML | pandas-compatible CSV workflow, scikit-learn |
+| Local production server | Gunicorn |
+| Hosting | Netlify (frontend), Render (API), MongoDB Atlas (database) |
+
+## Run locally
+
+### MongoDB-backed development
+
+Requirements: Python 3.10+ and a running MongoDB instance or Atlas connection string.
+
+1. Copy `backend/.env.example` to `backend/.env`.
+2. Set `MONGODB_URI`, `MONGODB_DB`, `JWT_SECRET_KEY`, and `ADMIN_SIGNUP_KEY` in `backend/.env`. Use private, random secrets; do not commit `.env`.
+3. Install dependencies and start the API from the repository root:
+
+   ```powershell
+   cd backend
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   pip install -r requirements.txt
+   python app.py
+   ```
+
+4. Open [http://127.0.0.1:5000](http://127.0.0.1:5000). Check the database connection at [http://127.0.0.1:5000/api/health](http://127.0.0.1:5000/api/health).
+
+On macOS/Linux, activate the environment with `source .venv/bin/activate` instead.
+
+### Local demo without MongoDB
+
+From the repository root on Windows, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\backend\start-demo.ps1
+```
+
+Demo mode uses a local `.demo_data.json` snapshot so accounts and quiz attempts survive a server restart. It is for one developer process only; use MongoDB for shared or real student data. Keep the demo snapshot as a backup until you have verified any migration you need.
+
+## Dataset and model workflows
+
+The supplied CSV files live in `backend/`:
+
+- `courses.csv` — course catalog
+- `topics.csv` — course topic catalog
+- `topic_prerequisite.csv` — prerequisite relationships
+- `student_interaction.csv` — historical assessment records
+
+With MongoDB configured, import the curriculum from `backend/`:
+
+```powershell
+python import_dataset.py
+```
+
+To include historical assessment rows, set a private `DATASET_HASH_SALT` with at least 24 characters before importing. The importer omits student names and pseudonymizes student and interaction IDs; historical rows are not linked to app login accounts.
+
+To retrain the experimental score estimator after changing the assessment data:
+
+```powershell
+python train_performance_model.py
+```
+
+Review the reported holdout metrics and `performance_model_metrics.json` before using a new model. Training accuracy alone is not a reliable measure of future performance.
+
+## Deployments
+
+### Frontend — Netlify
+
+- Connect the GitHub repository and deploy the `main` branch.
+- Set the publish directory to `frontend`; no frontend build command is required.
+- Keep the root [`netlify.toml`](netlify.toml) file. It maps the app's `/assets/*` paths to the published files, proxies `/api/*` to Render, and supports frontend routes.
+- The configured API proxy points to `https://nebula-orbit.onrender.com`.
+
+### Backend — Render
+
+- Create a Docker web service from the repository root using the root `Dockerfile`.
+- Add the required environment variables in Render's Environment settings (see below).
+- Set the health check path to `/api/health`.
+- Add the Render service's outbound IP ranges to the Atlas project's **Network Access** IP access list. Avoid `0.0.0.0/0` for production.
+
+### MongoDB Atlas
+
+- Use a dedicated database user with only the privileges Nebula needs.
+- Set the Atlas URI as the `MONGODB_URI` secret in Render and use `nebula` for `MONGODB_DB`.
+- Keep the cluster active and confirm Atlas network access allows the Render service's outbound ranges.
+- Configure backups/retention appropriate to your data before onboarding real students.
+
+### Render environment variables
+
+| Variable | Purpose |
+|---|---|
+| `NEBULA_ENV` | Set to `production` |
+| `NEBULA_DEMO_MODE` | Set to `false` |
+| `MONGODB_URI` | Private Atlas connection string |
+| `MONGODB_DB` | Database name, normally `nebula` |
+| `JWT_SECRET_KEY` | Private signing secret, at least 32 characters |
+| `ADMIN_SIGNUP_KEY` | Private administrator invitation key, at least 24 characters |
+| `FRONTEND_ORIGIN` | `https://nebula-orbit.netlify.app` (no trailing slash) |
+
+Set secrets only in the hosting provider's secret/environment settings. Do not commit `.env`, database credentials, or signing keys. Rotate credentials that have been exposed in screenshots, chats, or logs.
+
+## API overview
+
+All routes are under `/api`. Protected endpoints require `Authorization: Bearer <access_token>`.
+
+| Feature | Routes |
+|---|---|
+| Health | `GET /api/health` |
+| Authentication and profile | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PATCH /api/auth/profile` |
+| Courses and enrollment | `GET /api/courses`, `POST /api/courses`, `PUT/DELETE /api/courses/:course_id`, `GET /api/enrollments`, `POST/DELETE /api/enrollments/:course_id` |
+| Lessons | `GET /api/courses/:course_id/lessons`, `GET/POST /api/admin/lessons`, `PUT/DELETE /api/admin/lessons/:id`, `POST /api/lessons/:id/complete` |
+| Quizzes | `GET /api/quizzes`, `GET /api/quizzes/:id`, `POST /api/quizzes`, `PUT/DELETE /api/quizzes/:id`, `POST /api/quizzes/:id/submit` |
+| Learning | `GET /api/progress`, `GET/POST /api/study-plan`, `POST /api/study-plan/generate`, `GET /api/recommendations` |
 | Admin | `GET /api/admin/overview`, `GET /api/admin/students`, `PATCH /api/admin/students/:id/status` |
 
-Send the JWT as `Authorization: Bearer <access_token>`. Student quiz responses deliberately omit answer keys; keys are returned only in the submission review after grading. Admin student oversight returns profile preferences and aggregate attempt counts only, not quiz answers or password hashes. Suspended accounts cannot sign in or use student-only API routes. Published lesson content is visible to students; drafts are restricted to admins.
+Student quiz responses omit answer keys. Grading feedback is returned after submission. Admin student views expose profile preferences and aggregate activity, not password hashes or quiz answers. Draft lessons are admin-only; published lessons are available to students.
+
+## Project layout
+
+```text
+backend/       Flask API, data import, model workflow, and backend tests
+frontend/      Static app (index.html, app.js, style.css)
+Dockerfile     Render/Gunicorn container configuration
+netlify.toml   Frontend asset, API proxy, and route rules
+```
+
+## Tests
+
+Run the backend suite from `backend/`:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+The suite uses an isolated in-memory Mongo mock and does not write test data to Atlas.

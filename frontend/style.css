@@ -26,6 +26,16 @@ body{background:var(--bg);color:var(--ink)}.sidebar{background:#0c1017;border-co
 .profile-help{max-width:620px;margin:7px 0 20px;color:#98a6b6;font-size:11px;line-height:1.6}
 .profile-editor .field{margin-bottom:15px}
 .profile-editor .field small{display:block;margin-top:5px;color:#77869a;font-size:9px}
+.study-days-field{min-width:0;margin:4px 0 17px;padding:0;border:0}
+.study-days-field legend{margin-bottom:9px;color:#c3cedd;font-size:10px;font-weight:700}
+.study-day-options{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.study-day-option{position:relative;display:block;cursor:pointer}
+.study-day-option input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.study-day-option span{display:grid;min-height:36px;place-items:center;border:1px solid #35445a;border-radius:10px;background:#111923;color:#aebbd0;font-size:10px;font-weight:700;transition:background .16s,border-color .16s,color .16s,box-shadow .16s}
+.study-day-option input:checked+span{border-color:#668af0;background:#1b2d50;color:#edf3ff;box-shadow:inset 0 0 0 1px #668af044}
+.study-day-option input:focus-visible+span{outline:3px solid var(--lime);outline-offset:2px}
+.study-day-option:hover span{border-color:#7898d7;color:#fff}
+.auth-schedule-note{display:block;margin-top:2px;color:#8797ae;font-size:9px;line-height:1.5}
 .input-suffix{position:relative}
 .input-suffix input{padding-right:66px}
 .input-suffix span{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:#8290a2;font-size:10px;pointer-events:none}
@@ -33,6 +43,7 @@ body{background:var(--bg);color:var(--ink)}.sidebar{background:#0c1017;border-co
 .profile-actions .btn{min-height:40px}
 @media(max-width:760px){.profile-layout{grid-template-columns:1fr}.profile-identity{display:grid;grid-template-columns:62px 1fr;column-gap:14px;align-items:center}.profile-large-avatar{grid-row:span 2}.profile-role{margin-top:0;justify-self:start}.profile-identity h2{margin:0}.profile-identity>p{grid-column:2}.profile-divider,.profile-fact{grid-column:1/-1}.profile-divider{margin:15px 0 8px}}
 @media(max-width:480px){.profile-identity,.profile-editor{padding:17px}.profile-actions{flex-direction:column-reverse}.profile-actions .btn{width:100%}}
+@media(max-width:420px){.study-day-options{gap:4px}.study-day-option span{min-height:34px;font-size:9px}}
 
 /* YouTube lesson links in the course library */
 .course-video-panel{margin-top:13px;padding:11px;border:1px solid #29384e;border-radius:14px;background:radial-gradient(ellipse at 100% 0,#1a2b4629,transparent 56%),#101721}
