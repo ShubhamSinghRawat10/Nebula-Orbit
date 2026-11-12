@@ -1,0 +1,14 @@
+.git
+.env
+**/.env
+**/.venv
+**/.deps
+**/__pycache__
+**/*.pyc
+**/*.log
+**/.demo_data*.json
+backend/student_interaction.csv
+backend/*.csv
+backend/tests
+backend/requirements-dev.txt
+frontend/node_modules

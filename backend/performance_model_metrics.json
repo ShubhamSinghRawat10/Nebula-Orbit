@@ -1,0 +1,45 @@
+{
+  "target": "next_assessment_test_score",
+  "split": "chronological 70/10/20 train/validation/test by assessment date; same-day rows stay together",
+  "training_rows": 19916,
+  "selection_training_rows": 17450,
+  "validation_rows": 2466,
+  "test_rows": 5084,
+  "train_through": "2026-07-29",
+  "validation_from": "2026-07-30",
+  "validation_through": "2026-08-28",
+  "test_from": "2026-08-29",
+  "mae_points": 14.166,
+  "rmse_points": 17.635,
+  "r2": -0.0012,
+  "proficiency_band_accuracy": 0.5913,
+  "proficiency_band_balanced_accuracy": 0.3333,
+  "proficiency_band_macro_f1": 0.2477,
+  "majority_band_accuracy_baseline": 0.5913,
+  "baseline_previous_topic_mean_mae_points": 15.702,
+  "baseline_training_global_mean_mae_points": 14.159,
+  "student_facing_eligible": false,
+  "candidate_comparison": [
+    {
+      "model": "RandomForestRegressor",
+      "validation_mae_points": 14.335
+    },
+    {
+      "model": "ExtraTreesRegressor",
+      "validation_mae_points": 14.37
+    },
+    {
+      "model": "HistGradientBoostingRegressor",
+      "validation_mae_points": 14.36
+    },
+    {
+      "model": "previous_topic_mean_baseline",
+      "validation_mae_points": 15.65
+    },
+    {
+      "model": "training_global_mean_baseline",
+      "validation_mae_points": 14.323
+    }
+  ],
+  "created_at": "2026-11-12T10:09:11.147792+00:00"
+}

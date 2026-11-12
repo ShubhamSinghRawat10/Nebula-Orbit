@@ -1,0 +1,9 @@
+backend/.env
+backend/.venv/
+backend/.deps/
+backend/.demo_data.json
+backend/.demo_data.migrated-backup.json
+backend/.demo_data.json.tmp
+backend/__pycache__/
+backend/*.pyc
+backend/server.verify*.log

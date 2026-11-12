@@ -1,0 +1,376 @@
+topic_id,course_code,topic_name,difficulty_level,estimated_hours
+CN_T1,CN,Computer Networks - Fundamentals & Core Concepts,Beginner,2
+CN_T2,CN,Computer Networks - Architecture & Principles,Beginner,2
+CN_T3,CN,Computer Networks - Primary Protocols & Operations,Intermediate,5
+CN_T4,CN,Computer Networks - Data Structures & Types,Intermediate,3
+CN_T5,CN,Computer Networks - Algorithms & Control Logic,Intermediate,5
+CN_T6,CN,Computer Networks - Implementation & Syntax,Intermediate,4
+CN_T7,CN,Computer Networks - Optimization & Performance,Advanced,4
+CN_T8,CN,Computer Networks - Error Handling & Debugging,Intermediate,2
+CN_T9,CN,Computer Networks - Advanced Architectural Patterns,Advanced,8
+CN_T10,CN,Computer Networks - Security Mechanisms & Encryption,Advanced,3
+CN_T11,CN,Computer Networks - System Integration & APIs,Intermediate,3
+CN_T12,CN,Computer Networks - Benchmarking & Evaluation,Advanced,2
+CN_T13,CN,Computer Networks - Distributed Systems & Scaling,Advanced,5
+CN_T14,CN,Computer Networks - Real-world Case Studies,Advanced,4
+CN_T15,CN,Computer Networks - Captains & Modern Trends,Advanced,4
+OOPS_T1,OOPS,Object-Oriented Programming - Fundamentals & Core Concepts,Beginner,2
+OOPS_T2,OOPS,Object-Oriented Programming - Architecture & Principles,Beginner,5
+OOPS_T3,OOPS,Object-Oriented Programming - Primary Protocols & Operations,Intermediate,4
+OOPS_T4,OOPS,Object-Oriented Programming - Data Structures & Types,Intermediate,5
+OOPS_T5,OOPS,Object-Oriented Programming - Algorithms & Control Logic,Intermediate,6
+OOPS_T6,OOPS,Object-Oriented Programming - Implementation & Syntax,Intermediate,3
+OOPS_T7,OOPS,Object-Oriented Programming - Optimization & Performance,Advanced,5
+OOPS_T8,OOPS,Object-Oriented Programming - Error Handling & Debugging,Intermediate,5
+OOPS_T9,OOPS,Object-Oriented Programming - Advanced Architectural Patterns,Advanced,7
+OOPS_T10,OOPS,Object-Oriented Programming - Security Mechanisms & Encryption,Advanced,5
+OOPS_T11,OOPS,Object-Oriented Programming - System Integration & APIs,Intermediate,4
+OOPS_T12,OOPS,Object-Oriented Programming - Benchmarking & Evaluation,Advanced,3
+OOPS_T13,OOPS,Object-Oriented Programming - Distributed Systems & Scaling,Advanced,6
+OOPS_T14,OOPS,Object-Oriented Programming - Real-world Case Studies,Advanced,3
+OOPS_T15,OOPS,Object-Oriented Programming - Captains & Modern Trends,Advanced,4
+DSA_T1,DSA,Data Structures & Algorithms - Fundamentals & Core Concepts,Beginner,4
+DSA_T2,DSA,Data Structures & Algorithms - Architecture & Principles,Beginner,2
+DSA_T3,DSA,Data Structures & Algorithms - Primary Protocols & Operations,Intermediate,5
+DSA_T4,DSA,Data Structures & Algorithms - Data Structures & Types,Intermediate,4
+DSA_T5,DSA,Data Structures & Algorithms - Algorithms & Control Logic,Intermediate,6
+DSA_T6,DSA,Data Structures & Algorithms - Implementation & Syntax,Intermediate,3
+DSA_T7,DSA,Data Structures & Algorithms - Optimization & Performance,Advanced,7
+DSA_T8,DSA,Data Structures & Algorithms - Error Handling & Debugging,Intermediate,2
+DSA_T9,DSA,Data Structures & Algorithms - Advanced Architectural Patterns,Advanced,8
+DSA_T10,DSA,Data Structures & Algorithms - Security Mechanisms & Encryption,Advanced,3
+DSA_T11,DSA,Data Structures & Algorithms - System Integration & APIs,Intermediate,5
+DSA_T12,DSA,Data Structures & Algorithms - Benchmarking & Evaluation,Advanced,4
+DSA_T13,DSA,Data Structures & Algorithms - Distributed Systems & Scaling,Advanced,5
+DSA_T14,DSA,Data Structures & Algorithms - Real-world Case Studies,Advanced,3
+DSA_T15,DSA,Data Structures & Algorithms - Captains & Modern Trends,Advanced,4
+DBMS_T1,DBMS,Database Management Systems - Fundamentals & Core Concepts,Beginner,2
+DBMS_T2,DBMS,Database Management Systems - Architecture & Principles,Beginner,4
+DBMS_T3,DBMS,Database Management Systems - Primary Protocols & Operations,Intermediate,3
+DBMS_T4,DBMS,Database Management Systems - Data Structures & Types,Intermediate,3
+DBMS_T5,DBMS,Database Management Systems - Algorithms & Control Logic,Intermediate,4
+DBMS_T6,DBMS,Database Management Systems - Implementation & Syntax,Intermediate,6
+DBMS_T7,DBMS,Database Management Systems - Optimization & Performance,Advanced,6
+DBMS_T8,DBMS,Database Management Systems - Error Handling & Debugging,Intermediate,5
+DBMS_T9,DBMS,Database Management Systems - Advanced Architectural Patterns,Advanced,7
+DBMS_T10,DBMS,Database Management Systems - Security Mechanisms & Encryption,Advanced,4
+DBMS_T11,DBMS,Database Management Systems - System Integration & APIs,Intermediate,5
+DBMS_T12,DBMS,Database Management Systems - Benchmarking & Evaluation,Advanced,4
+DBMS_T13,DBMS,Database Management Systems - Distributed Systems & Scaling,Advanced,5
+DBMS_T14,DBMS,Database Management Systems - Real-world Case Studies,Advanced,5
+DBMS_T15,DBMS,Database Management Systems - Captains & Modern Trends,Advanced,4
+OS_T1,OS,Operating Systems - Fundamentals & Core Concepts,Beginner,2
+OS_T2,OS,Operating Systems - Architecture & Principles,Beginner,3
+OS_T3,OS,Operating Systems - Primary Protocols & Operations,Intermediate,4
+OS_T4,OS,Operating Systems - Data Structures & Types,Intermediate,5
+OS_T5,OS,Operating Systems - Algorithms & Control Logic,Intermediate,7
+OS_T6,OS,Operating Systems - Implementation & Syntax,Intermediate,5
+OS_T7,OS,Operating Systems - Optimization & Performance,Advanced,5
+OS_T8,OS,Operating Systems - Error Handling & Debugging,Intermediate,4
+OS_T9,OS,Operating Systems - Advanced Architectural Patterns,Advanced,5
+OS_T10,OS,Operating Systems - Security Mechanisms & Encryption,Advanced,4
+OS_T11,OS,Operating Systems - System Integration & APIs,Intermediate,3
+OS_T12,OS,Operating Systems - Benchmarking & Evaluation,Advanced,4
+OS_T13,OS,Operating Systems - Distributed Systems & Scaling,Advanced,7
+OS_T14,OS,Operating Systems - Real-world Case Studies,Advanced,5
+OS_T15,OS,Operating Systems - Captains & Modern Trends,Advanced,4
+AI_T1,AI,Artificial Intelligence & ML - Fundamentals & Core Concepts,Beginner,2
+AI_T2,AI,Artificial Intelligence & ML - Architecture & Principles,Beginner,4
+AI_T3,AI,Artificial Intelligence & ML - Primary Protocols & Operations,Intermediate,4
+AI_T4,AI,Artificial Intelligence & ML - Data Structures & Types,Intermediate,5
+AI_T5,AI,Artificial Intelligence & ML - Algorithms & Control Logic,Intermediate,7
+AI_T6,AI,Artificial Intelligence & ML - Implementation & Syntax,Intermediate,6
+AI_T7,AI,Artificial Intelligence & ML - Optimization & Performance,Advanced,5
+AI_T8,AI,Artificial Intelligence & ML - Error Handling & Debugging,Intermediate,4
+AI_T9,AI,Artificial Intelligence & ML - Advanced Architectural Patterns,Advanced,6
+AI_T10,AI,Artificial Intelligence & ML - Security Mechanisms & Encryption,Advanced,4
+AI_T11,AI,Artificial Intelligence & ML - System Integration & APIs,Intermediate,5
+AI_T12,AI,Artificial Intelligence & ML - Benchmarking & Evaluation,Advanced,5
+AI_T13,AI,Artificial Intelligence & ML - Distributed Systems & Scaling,Advanced,7
+AI_T14,AI,Artificial Intelligence & ML - Real-world Case Studies,Advanced,5
+AI_T15,AI,Artificial Intelligence & ML - Captains & Modern Trends,Advanced,5
+SE_T1,SE,Software Engineering - Fundamentals & Core Concepts,Beginner,2
+SE_T2,SE,Software Engineering - Architecture & Principles,Beginner,5
+SE_T3,SE,Software Engineering - Primary Protocols & Operations,Intermediate,3
+SE_T4,SE,Software Engineering - Data Structures & Types,Intermediate,2
+SE_T5,SE,Software Engineering - Algorithms & Control Logic,Intermediate,4
+SE_T6,SE,Software Engineering - Implementation & Syntax,Intermediate,4
+SE_T7,SE,Software Engineering - Optimization & Performance,Advanced,5
+SE_T8,SE,Software Engineering - Error Handling & Debugging,Intermediate,5
+SE_T9,SE,Software Engineering - Advanced Architectural Patterns,Advanced,5
+SE_T10,SE,Software Engineering - Security Mechanisms & Encryption,Advanced,6
+SE_T11,SE,Software Engineering - System Integration & APIs,Intermediate,6
+SE_T12,SE,Software Engineering - Benchmarking & Evaluation,Advanced,5
+SE_T13,SE,Software Engineering - Distributed Systems & Scaling,Advanced,6
+SE_T14,SE,Software Engineering - Real-world Case Studies,Advanced,3
+SE_T15,SE,Software Engineering - Captains & Modern Trends,Advanced,4
+WT_T1,WT,Web Technologies - Fundamentals & Core Concepts,Beginner,3
+WT_T2,WT,Web Technologies - Architecture & Principles,Beginner,4
+WT_T3,WT,Web Technologies - Primary Protocols & Operations,Intermediate,3
+WT_T4,WT,Web Technologies - Data Structures & Types,Intermediate,4
+WT_T5,WT,Web Technologies - Algorithms & Control Logic,Intermediate,7
+WT_T6,WT,Web Technologies - Implementation & Syntax,Intermediate,4
+WT_T7,WT,Web Technologies - Optimization & Performance,Advanced,7
+WT_T8,WT,Web Technologies - Error Handling & Debugging,Intermediate,2
+WT_T9,WT,Web Technologies - Advanced Architectural Patterns,Advanced,7
+WT_T10,WT,Web Technologies - Security Mechanisms & Encryption,Advanced,4
+WT_T11,WT,Web Technologies - System Integration & APIs,Intermediate,3
+WT_T12,WT,Web Technologies - Benchmarking & Evaluation,Advanced,4
+WT_T13,WT,Web Technologies - Distributed Systems & Scaling,Advanced,5
+WT_T14,WT,Web Technologies - Real-world Case Studies,Advanced,4
+WT_T15,WT,Web Technologies - Captains & Modern Trends,Advanced,6
+CD_T1,CD,Compiler Design - Fundamentals & Core Concepts,Beginner,2
+CD_T2,CD,Compiler Design - Architecture & Principles,Beginner,2
+CD_T3,CD,Compiler Design - Primary Protocols & Operations,Intermediate,5
+CD_T4,CD,Compiler Design - Data Structures & Types,Intermediate,5
+CD_T5,CD,Compiler Design - Algorithms & Control Logic,Intermediate,4
+CD_T6,CD,Compiler Design - Implementation & Syntax,Intermediate,3
+CD_T7,CD,Compiler Design - Optimization & Performance,Advanced,6
+CD_T8,CD,Compiler Design - Error Handling & Debugging,Intermediate,4
+CD_T9,CD,Compiler Design - Advanced Architectural Patterns,Advanced,6
+CD_T10,CD,Compiler Design - Security Mechanisms & Encryption,Advanced,3
+CD_T11,CD,Compiler Design - System Integration & APIs,Intermediate,4
+CD_T12,CD,Compiler Design - Benchmarking & Evaluation,Advanced,2
+CD_T13,CD,Compiler Design - Distributed Systems & Scaling,Advanced,4
+CD_T14,CD,Compiler Design - Real-world Case Studies,Advanced,6
+CD_T15,CD,Compiler Design - Captains & Modern Trends,Advanced,4
+COA_T1,COA,Computer Organization & Architecture - Fundamentals & Core Concepts,Beginner,2
+COA_T2,COA,Computer Organization & Architecture - Architecture & Principles,Beginner,3
+COA_T3,COA,Computer Organization & Architecture - Primary Protocols & Operations,Intermediate,6
+COA_T4,COA,Computer Organization & Architecture - Data Structures & Types,Intermediate,3
+COA_T5,COA,Computer Organization & Architecture - Algorithms & Control Logic,Intermediate,6
+COA_T6,COA,Computer Organization & Architecture - Implementation & Syntax,Intermediate,6
+COA_T7,COA,Computer Organization & Architecture - Optimization & Performance,Advanced,5
+COA_T8,COA,Computer Organization & Architecture - Error Handling & Debugging,Intermediate,3
+COA_T9,COA,Computer Organization & Architecture - Advanced Architectural Patterns,Advanced,7
+COA_T10,COA,Computer Organization & Architecture - Security Mechanisms & Encryption,Advanced,6
+COA_T11,COA,Computer Organization & Architecture - System Integration & APIs,Intermediate,5
+COA_T12,COA,Computer Organization & Architecture - Benchmarking & Evaluation,Advanced,5
+COA_T13,COA,Computer Organization & Architecture - Distributed Systems & Scaling,Advanced,7
+COA_T14,COA,Computer Organization & Architecture - Real-world Case Studies,Advanced,3
+COA_T15,COA,Computer Organization & Architecture - Captains & Modern Trends,Advanced,5
+CC_T1,CC,Cloud Computing - Fundamentals & Core Concepts,Beginner,2
+CC_T2,CC,Cloud Computing - Architecture & Principles,Beginner,2
+CC_T3,CC,Cloud Computing - Primary Protocols & Operations,Intermediate,5
+CC_T4,CC,Cloud Computing - Data Structures & Types,Intermediate,2
+CC_T5,CC,Cloud Computing - Algorithms & Control Logic,Intermediate,5
+CC_T6,CC,Cloud Computing - Implementation & Syntax,Intermediate,4
+CC_T7,CC,Cloud Computing - Optimization & Performance,Advanced,4
+CC_T8,CC,Cloud Computing - Error Handling & Debugging,Intermediate,2
+CC_T9,CC,Cloud Computing - Advanced Architectural Patterns,Advanced,5
+CC_T10,CC,Cloud Computing - Security Mechanisms & Encryption,Advanced,4
+CC_T11,CC,Cloud Computing - System Integration & APIs,Intermediate,3
+CC_T12,CC,Cloud Computing - Benchmarking & Evaluation,Advanced,2
+CC_T13,CC,Cloud Computing - Distributed Systems & Scaling,Advanced,6
+CC_T14,CC,Cloud Computing - Real-world Case Studies,Advanced,3
+CC_T15,CC,Cloud Computing - Captains & Modern Trends,Advanced,5
+TOC_T1,TOC,Theory of Computation - Fundamentals & Core Concepts,Beginner,3
+TOC_T2,TOC,Theory of Computation - Architecture & Principles,Beginner,5
+TOC_T3,TOC,Theory of Computation - Primary Protocols & Operations,Intermediate,4
+TOC_T4,TOC,Theory of Computation - Data Structures & Types,Intermediate,3
+TOC_T5,TOC,Theory of Computation - Algorithms & Control Logic,Intermediate,7
+TOC_T6,TOC,Theory of Computation - Implementation & Syntax,Intermediate,4
+TOC_T7,TOC,Theory of Computation - Optimization & Performance,Advanced,7
+TOC_T8,TOC,Theory of Computation - Error Handling & Debugging,Intermediate,5
+TOC_T9,TOC,Theory of Computation - Advanced Architectural Patterns,Advanced,6
+TOC_T10,TOC,Theory of Computation - Security Mechanisms & Encryption,Advanced,3
+TOC_T11,TOC,Theory of Computation - System Integration & APIs,Intermediate,3
+TOC_T12,TOC,Theory of Computation - Benchmarking & Evaluation,Advanced,5
+TOC_T13,TOC,Theory of Computation - Distributed Systems & Scaling,Advanced,6
+TOC_T14,TOC,Theory of Computation - Real-world Case Studies,Advanced,6
+TOC_T15,TOC,Theory of Computation - Captains & Modern Trends,Advanced,7
+C_T1,C,C Programming & Problem Solving - Fundamentals & Core Concepts,Beginner,4
+C_T2,C,C Programming & Problem Solving - Architecture & Principles,Beginner,2
+C_T3,C,C Programming & Problem Solving - Primary Protocols & Operations,Intermediate,3
+C_T4,C,C Programming & Problem Solving - Data Structures & Types,Intermediate,2
+C_T5,C,C Programming & Problem Solving - Algorithms & Control Logic,Intermediate,7
+C_T6,C,C Programming & Problem Solving - Implementation & Syntax,Intermediate,5
+C_T7,C,C Programming & Problem Solving - Optimization & Performance,Advanced,4
+C_T8,C,C Programming & Problem Solving - Error Handling & Debugging,Intermediate,3
+C_T9,C,C Programming & Problem Solving - Advanced Architectural Patterns,Advanced,6
+C_T10,C,C Programming & Problem Solving - Security Mechanisms & Encryption,Advanced,4
+C_T11,C,C Programming & Problem Solving - System Integration & APIs,Intermediate,6
+C_T12,C,C Programming & Problem Solving - Benchmarking & Evaluation,Advanced,3
+C_T13,C,C Programming & Problem Solving - Distributed Systems & Scaling,Advanced,7
+C_T14,C,C Programming & Problem Solving - Real-world Case Studies,Advanced,4
+C_T15,C,C Programming & Problem Solving - Captains & Modern Trends,Advanced,6
+CPP_T1,CPP,Advanced C++ Programming - Fundamentals & Core Concepts,Beginner,4
+CPP_T2,CPP,Advanced C++ Programming - Architecture & Principles,Beginner,3
+CPP_T3,CPP,Advanced C++ Programming - Primary Protocols & Operations,Intermediate,3
+CPP_T4,CPP,Advanced C++ Programming - Data Structures & Types,Intermediate,5
+CPP_T5,CPP,Advanced C++ Programming - Algorithms & Control Logic,Intermediate,4
+CPP_T6,CPP,Advanced C++ Programming - Implementation & Syntax,Intermediate,3
+CPP_T7,CPP,Advanced C++ Programming - Optimization & Performance,Advanced,4
+CPP_T8,CPP,Advanced C++ Programming - Error Handling & Debugging,Intermediate,2
+CPP_T9,CPP,Advanced C++ Programming - Advanced Architectural Patterns,Advanced,6
+CPP_T10,CPP,Advanced C++ Programming - Security Mechanisms & Encryption,Advanced,4
+CPP_T11,CPP,Advanced C++ Programming - System Integration & APIs,Intermediate,6
+CPP_T12,CPP,Advanced C++ Programming - Benchmarking & Evaluation,Advanced,5
+CPP_T13,CPP,Advanced C++ Programming - Distributed Systems & Scaling,Advanced,7
+CPP_T14,CPP,Advanced C++ Programming - Real-world Case Studies,Advanced,4
+CPP_T15,CPP,Advanced C++ Programming - Captains & Modern Trends,Advanced,7
+JAVA_T1,JAVA,Java Application Development - Fundamentals & Core Concepts,Beginner,2
+JAVA_T2,JAVA,Java Application Development - Architecture & Principles,Beginner,3
+JAVA_T3,JAVA,Java Application Development - Primary Protocols & Operations,Intermediate,6
+JAVA_T4,JAVA,Java Application Development - Data Structures & Types,Intermediate,2
+JAVA_T5,JAVA,Java Application Development - Algorithms & Control Logic,Intermediate,7
+JAVA_T6,JAVA,Java Application Development - Implementation & Syntax,Intermediate,5
+JAVA_T7,JAVA,Java Application Development - Optimization & Performance,Advanced,7
+JAVA_T8,JAVA,Java Application Development - Error Handling & Debugging,Intermediate,4
+JAVA_T9,JAVA,Java Application Development - Advanced Architectural Patterns,Advanced,8
+JAVA_T10,JAVA,Java Application Development - Security Mechanisms & Encryption,Advanced,6
+JAVA_T11,JAVA,Java Application Development - System Integration & APIs,Intermediate,4
+JAVA_T12,JAVA,Java Application Development - Benchmarking & Evaluation,Advanced,3
+JAVA_T13,JAVA,Java Application Development - Distributed Systems & Scaling,Advanced,6
+JAVA_T14,JAVA,Java Application Development - Real-world Case Studies,Advanced,4
+JAVA_T15,JAVA,Java Application Development - Captains & Modern Trends,Advanced,4
+PY_T1,PY,Python for Data Science - Fundamentals & Core Concepts,Beginner,2
+PY_T2,PY,Python for Data Science - Architecture & Principles,Beginner,4
+PY_T3,PY,Python for Data Science - Primary Protocols & Operations,Intermediate,3
+PY_T4,PY,Python for Data Science - Data Structures & Types,Intermediate,2
+PY_T5,PY,Python for Data Science - Algorithms & Control Logic,Intermediate,7
+PY_T6,PY,Python for Data Science - Implementation & Syntax,Intermediate,4
+PY_T7,PY,Python for Data Science - Optimization & Performance,Advanced,4
+PY_T8,PY,Python for Data Science - Error Handling & Debugging,Intermediate,2
+PY_T9,PY,Python for Data Science - Advanced Architectural Patterns,Advanced,6
+PY_T10,PY,Python for Data Science - Security Mechanisms & Encryption,Advanced,3
+PY_T11,PY,Python for Data Science - System Integration & APIs,Intermediate,3
+PY_T12,PY,Python for Data Science - Benchmarking & Evaluation,Advanced,3
+PY_T13,PY,Python for Data Science - Distributed Systems & Scaling,Advanced,7
+PY_T14,PY,Python for Data Science - Real-world Case Studies,Advanced,3
+PY_T15,PY,Python for Data Science - Captains & Modern Trends,Advanced,5
+CS_T1,CS,Cyber Security & Cryptography - Fundamentals & Core Concepts,Beginner,2
+CS_T2,CS,Cyber Security & Cryptography - Architecture & Principles,Beginner,2
+CS_T3,CS,Cyber Security & Cryptography - Primary Protocols & Operations,Intermediate,6
+CS_T4,CS,Cyber Security & Cryptography - Data Structures & Types,Intermediate,4
+CS_T5,CS,Cyber Security & Cryptography - Algorithms & Control Logic,Intermediate,6
+CS_T6,CS,Cyber Security & Cryptography - Implementation & Syntax,Intermediate,4
+CS_T7,CS,Cyber Security & Cryptography - Optimization & Performance,Advanced,6
+CS_T8,CS,Cyber Security & Cryptography - Error Handling & Debugging,Intermediate,3
+CS_T9,CS,Cyber Security & Cryptography - Advanced Architectural Patterns,Advanced,7
+CS_T10,CS,Cyber Security & Cryptography - Security Mechanisms & Encryption,Advanced,6
+CS_T11,CS,Cyber Security & Cryptography - System Integration & APIs,Intermediate,4
+CS_T12,CS,Cyber Security & Cryptography - Benchmarking & Evaluation,Advanced,4
+CS_T13,CS,Cyber Security & Cryptography - Distributed Systems & Scaling,Advanced,7
+CS_T14,CS,Cyber Security & Cryptography - Real-world Case Studies,Advanced,5
+CS_T15,CS,Cyber Security & Cryptography - Captains & Modern Trends,Advanced,4
+BD_T1,BD,Big Data Analytics - Fundamentals & Core Concepts,Beginner,2
+BD_T2,BD,Big Data Analytics - Architecture & Principles,Beginner,5
+BD_T3,BD,Big Data Analytics - Primary Protocols & Operations,Intermediate,3
+BD_T4,BD,Big Data Analytics - Data Structures & Types,Intermediate,2
+BD_T5,BD,Big Data Analytics - Algorithms & Control Logic,Intermediate,5
+BD_T6,BD,Big Data Analytics - Implementation & Syntax,Intermediate,5
+BD_T7,BD,Big Data Analytics - Optimization & Performance,Advanced,5
+BD_T8,BD,Big Data Analytics - Error Handling & Debugging,Intermediate,4
+BD_T9,BD,Big Data Analytics - Advanced Architectural Patterns,Advanced,5
+BD_T10,BD,Big Data Analytics - Security Mechanisms & Encryption,Advanced,4
+BD_T11,BD,Big Data Analytics - System Integration & APIs,Intermediate,5
+BD_T12,BD,Big Data Analytics - Benchmarking & Evaluation,Advanced,4
+BD_T13,BD,Big Data Analytics - Distributed Systems & Scaling,Advanced,5
+BD_T14,BD,Big Data Analytics - Real-world Case Studies,Advanced,6
+BD_T15,BD,Big Data Analytics - Captains & Modern Trends,Advanced,6
+DE_T1,DE,Digital Electronics & Logic Design - Fundamentals & Core Concepts,Beginner,2
+DE_T2,DE,Digital Electronics & Logic Design - Architecture & Principles,Beginner,4
+DE_T3,DE,Digital Electronics & Logic Design - Primary Protocols & Operations,Intermediate,3
+DE_T4,DE,Digital Electronics & Logic Design - Data Structures & Types,Intermediate,3
+DE_T5,DE,Digital Electronics & Logic Design - Algorithms & Control Logic,Intermediate,6
+DE_T6,DE,Digital Electronics & Logic Design - Implementation & Syntax,Intermediate,3
+DE_T7,DE,Digital Electronics & Logic Design - Optimization & Performance,Advanced,4
+DE_T8,DE,Digital Electronics & Logic Design - Error Handling & Debugging,Intermediate,3
+DE_T9,DE,Digital Electronics & Logic Design - Advanced Architectural Patterns,Advanced,7
+DE_T10,DE,Digital Electronics & Logic Design - Security Mechanisms & Encryption,Advanced,5
+DE_T11,DE,Digital Electronics & Logic Design - System Integration & APIs,Intermediate,4
+DE_T12,DE,Digital Electronics & Logic Design - Benchmarking & Evaluation,Advanced,4
+DE_T13,DE,Digital Electronics & Logic Design - Distributed Systems & Scaling,Advanced,5
+DE_T14,DE,Digital Electronics & Logic Design - Real-world Case Studies,Advanced,5
+DE_T15,DE,Digital Electronics & Logic Design - Captains & Modern Trends,Advanced,7
+MP_T1,MP,Microprocessors & Interfacing - Fundamentals & Core Concepts,Beginner,3
+MP_T2,MP,Microprocessors & Interfacing - Architecture & Principles,Beginner,2
+MP_T3,MP,Microprocessors & Interfacing - Primary Protocols & Operations,Intermediate,3
+MP_T4,MP,Microprocessors & Interfacing - Data Structures & Types,Intermediate,5
+MP_T5,MP,Microprocessors & Interfacing - Algorithms & Control Logic,Intermediate,6
+MP_T6,MP,Microprocessors & Interfacing - Implementation & Syntax,Intermediate,3
+MP_T7,MP,Microprocessors & Interfacing - Optimization & Performance,Advanced,4
+MP_T8,MP,Microprocessors & Interfacing - Error Handling & Debugging,Intermediate,4
+MP_T9,MP,Microprocessors & Interfacing - Advanced Architectural Patterns,Advanced,6
+MP_T10,MP,Microprocessors & Interfacing - Security Mechanisms & Encryption,Advanced,5
+MP_T11,MP,Microprocessors & Interfacing - System Integration & APIs,Intermediate,4
+MP_T12,MP,Microprocessors & Interfacing - Benchmarking & Evaluation,Advanced,5
+MP_T13,MP,Microprocessors & Interfacing - Distributed Systems & Scaling,Advanced,7
+MP_T14,MP,Microprocessors & Interfacing - Real-world Case Studies,Advanced,3
+MP_T15,MP,Microprocessors & Interfacing - Captains & Modern Trends,Advanced,4
+DL_T1,DL,Deep Learning & Neural Networks - Fundamentals & Core Concepts,Beginner,2
+DL_T2,DL,Deep Learning & Neural Networks - Architecture & Principles,Beginner,3
+DL_T3,DL,Deep Learning & Neural Networks - Primary Protocols & Operations,Intermediate,3
+DL_T4,DL,Deep Learning & Neural Networks - Data Structures & Types,Intermediate,4
+DL_T5,DL,Deep Learning & Neural Networks - Algorithms & Control Logic,Intermediate,5
+DL_T6,DL,Deep Learning & Neural Networks - Implementation & Syntax,Intermediate,6
+DL_T7,DL,Deep Learning & Neural Networks - Optimization & Performance,Advanced,5
+DL_T8,DL,Deep Learning & Neural Networks - Error Handling & Debugging,Intermediate,2
+DL_T9,DL,Deep Learning & Neural Networks - Advanced Architectural Patterns,Advanced,7
+DL_T10,DL,Deep Learning & Neural Networks - Security Mechanisms & Encryption,Advanced,5
+DL_T11,DL,Deep Learning & Neural Networks - System Integration & APIs,Intermediate,3
+DL_T12,DL,Deep Learning & Neural Networks - Benchmarking & Evaluation,Advanced,4
+DL_T13,DL,Deep Learning & Neural Networks - Distributed Systems & Scaling,Advanced,5
+DL_T14,DL,Deep Learning & Neural Networks - Real-world Case Studies,Advanced,4
+DL_T15,DL,Deep Learning & Neural Networks - Captains & Modern Trends,Advanced,4
+NLP_T1,NLP,Natural Language Processing - Fundamentals & Core Concepts,Beginner,3
+NLP_T2,NLP,Natural Language Processing - Architecture & Principles,Beginner,5
+NLP_T3,NLP,Natural Language Processing - Primary Protocols & Operations,Intermediate,4
+NLP_T4,NLP,Natural Language Processing - Data Structures & Types,Intermediate,3
+NLP_T5,NLP,Natural Language Processing - Algorithms & Control Logic,Intermediate,5
+NLP_T6,NLP,Natural Language Processing - Implementation & Syntax,Intermediate,4
+NLP_T7,NLP,Natural Language Processing - Optimization & Performance,Advanced,7
+NLP_T8,NLP,Natural Language Processing - Error Handling & Debugging,Intermediate,2
+NLP_T9,NLP,Natural Language Processing - Advanced Architectural Patterns,Advanced,6
+NLP_T10,NLP,Natural Language Processing - Security Mechanisms & Encryption,Advanced,5
+NLP_T11,NLP,Natural Language Processing - System Integration & APIs,Intermediate,6
+NLP_T12,NLP,Natural Language Processing - Benchmarking & Evaluation,Advanced,3
+NLP_T13,NLP,Natural Language Processing - Distributed Systems & Scaling,Advanced,6
+NLP_T14,NLP,Natural Language Processing - Real-world Case Studies,Advanced,4
+NLP_T15,NLP,Natural Language Processing - Captains & Modern Trends,Advanced,4
+DevOps_T1,DevOps,DevOps & CI/CD Pipelines - Fundamentals & Core Concepts,Beginner,4
+DevOps_T2,DevOps,DevOps & CI/CD Pipelines - Architecture & Principles,Beginner,2
+DevOps_T3,DevOps,DevOps & CI/CD Pipelines - Primary Protocols & Operations,Intermediate,6
+DevOps_T4,DevOps,DevOps & CI/CD Pipelines - Data Structures & Types,Intermediate,3
+DevOps_T5,DevOps,DevOps & CI/CD Pipelines - Algorithms & Control Logic,Intermediate,5
+DevOps_T6,DevOps,DevOps & CI/CD Pipelines - Implementation & Syntax,Intermediate,6
+DevOps_T7,DevOps,DevOps & CI/CD Pipelines - Optimization & Performance,Advanced,6
+DevOps_T8,DevOps,DevOps & CI/CD Pipelines - Error Handling & Debugging,Intermediate,4
+DevOps_T9,DevOps,DevOps & CI/CD Pipelines - Advanced Architectural Patterns,Advanced,6
+DevOps_T10,DevOps,DevOps & CI/CD Pipelines - Security Mechanisms & Encryption,Advanced,4
+DevOps_T11,DevOps,DevOps & CI/CD Pipelines - System Integration & APIs,Intermediate,3
+DevOps_T12,DevOps,DevOps & CI/CD Pipelines - Benchmarking & Evaluation,Advanced,3
+DevOps_T13,DevOps,DevOps & CI/CD Pipelines - Distributed Systems & Scaling,Advanced,7
+DevOps_T14,DevOps,DevOps & CI/CD Pipelines - Real-world Case Studies,Advanced,5
+DevOps_T15,DevOps,DevOps & CI/CD Pipelines - Captains & Modern Trends,Advanced,6
+BC_T1,BC,Blockchain & Distributed Ledgers - Fundamentals & Core Concepts,Beginner,2
+BC_T2,BC,Blockchain & Distributed Ledgers - Architecture & Principles,Beginner,4
+BC_T3,BC,Blockchain & Distributed Ledgers - Primary Protocols & Operations,Intermediate,5
+BC_T4,BC,Blockchain & Distributed Ledgers - Data Structures & Types,Intermediate,5
+BC_T5,BC,Blockchain & Distributed Ledgers - Algorithms & Control Logic,Intermediate,6
+BC_T6,BC,Blockchain & Distributed Ledgers - Implementation & Syntax,Intermediate,3
+BC_T7,BC,Blockchain & Distributed Ledgers - Optimization & Performance,Advanced,4
+BC_T8,BC,Blockchain & Distributed Ledgers - Error Handling & Debugging,Intermediate,4
+BC_T9,BC,Blockchain & Distributed Ledgers - Advanced Architectural Patterns,Advanced,6
+BC_T10,BC,Blockchain & Distributed Ledgers - Security Mechanisms & Encryption,Advanced,5
+BC_T11,BC,Blockchain & Distributed Ledgers - System Integration & APIs,Intermediate,3
+BC_T12,BC,Blockchain & Distributed Ledgers - Benchmarking & Evaluation,Advanced,2
+BC_T13,BC,Blockchain & Distributed Ledgers - Distributed Systems & Scaling,Advanced,7
+BC_T14,BC,Blockchain & Distributed Ledgers - Real-world Case Studies,Advanced,5
+BC_T15,BC,Blockchain & Distributed Ledgers - Captains & Modern Trends,Advanced,6
+DGA_T1,DGA,Design & Analysis of Algorithms - Fundamentals & Core Concepts,Beginner,4
+DGA_T2,DGA,Design & Analysis of Algorithms - Architecture & Principles,Beginner,2
+DGA_T3,DGA,Design & Analysis of Algorithms - Primary Protocols & Operations,Intermediate,6
+DGA_T4,DGA,Design & Analysis of Algorithms - Data Structures & Types,Intermediate,3
+DGA_T5,DGA,Design & Analysis of Algorithms - Algorithms & Control Logic,Intermediate,6
+DGA_T6,DGA,Design & Analysis of Algorithms - Implementation & Syntax,Intermediate,3
+DGA_T7,DGA,Design & Analysis of Algorithms - Optimization & Performance,Advanced,7
+DGA_T8,DGA,Design & Analysis of Algorithms - Error Handling & Debugging,Intermediate,2
+DGA_T9,DGA,Design & Analysis of Algorithms - Advanced Architectural Patterns,Advanced,6
+DGA_T10,DGA,Design & Analysis of Algorithms - Security Mechanisms & Encryption,Advanced,5
+DGA_T11,DGA,Design & Analysis of Algorithms - System Integration & APIs,Intermediate,6
+DGA_T12,DGA,Design & Analysis of Algorithms - Benchmarking & Evaluation,Advanced,2
+DGA_T13,DGA,Design & Analysis of Algorithms - Distributed Systems & Scaling,Advanced,6
+DGA_T14,DGA,Design & Analysis of Algorithms - Real-world Case Studies,Advanced,5
+DGA_T15,DGA,Design & Analysis of Algorithms - Captains & Modern Trends,Advanced,4
