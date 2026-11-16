@@ -51,6 +51,8 @@ STUDY_GOALS = {
     "foundations": "Build strong B.Tech fundamentals",
     "explore_courses": "Explore my enrolled courses",
 }
+LEARNING_TRACK = "btech_course_fundamentals"
+LEARNING_TRACK_LABEL = "B.Tech course fundamentals"
 STUDY_DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 DEFAULT_STUDY_DAYS = ["mon", "tue", "wed", "thu", "fri"]
 SESSION_LENGTHS = (15, 25, 30, 45, 60)
@@ -82,6 +84,7 @@ def normalize_student_profile(profile, fallback=None):
         raise ValueError("Choose a supported session length.")
 
     return {
+        "learning_track": LEARNING_TRACK,
         "goal": STUDY_GOALS[mode],
         "goal_mode": mode,
         "level": str(profile.get("level", fallback.get("level", "B.Tech")))[:80],
@@ -154,6 +157,9 @@ def create_app(test_config=None):
     quizzes = db.quizzes
     attempts = db.attempts
     plans = db.study_plans
+    study_session_completions = db.study_session_completions
+    student_activity_days = db.student_activity_days
+    app_metadata = db.app_metadata
     model_path = os.path.join(os.path.dirname(__file__), "performance_model.joblib")
     try:
         metrics_path = os.path.join(os.path.dirname(__file__), "performance_model_metrics.json")
@@ -200,6 +206,15 @@ def create_app(test_config=None):
     users.create_index([("email", ASCENDING)], unique=True)
     courses.create_index([("course_id", ASCENDING)], unique=True)
     enrollments.create_index([("student_id", ASCENDING), ("course_id", ASCENDING)], unique=True)
+    study_session_completions.create_index([("student_id", ASCENDING), ("session_id", ASCENDING)], unique=True)
+    study_session_completions.create_index([("student_id", ASCENDING), ("course_id", ASCENDING), ("topic", ASCENDING), ("completed_at", ASCENDING)])
+    student_activity_days.create_index([("student_id", ASCENDING), ("activity_date", ASCENDING)], unique=True)
+    app_metadata.update_one(
+        {"_id": "pilot_activity_tracking_started_at"},
+        {"$setOnInsert": {"started_at": utcnow()}},
+        upsert=True,
+    )
+    pilot_tracking_started_at = app_metadata.find_one({"_id": "pilot_activity_tracking_started_at"})["started_at"]
 
     if demo_mode:
         # Pick up replaced CSV curriculum files on the next demo server start.
@@ -315,6 +330,16 @@ def create_app(test_config=None):
             user = None
         return user
 
+    def record_student_activity(user_id, event_type):
+        """Store one privacy-light activity record per student and UTC day."""
+        now = utcnow()
+        student_activity_days.update_one(
+            {"student_id": user_id, "activity_date": now.date().isoformat()},
+            {"$setOnInsert": {"student_id": user_id, "activity_date": now.date().isoformat(), "first_activity_at": now},
+             "$set": {"last_activity_at": now}, "$addToSet": {"event_types": event_type}},
+            upsert=True,
+        )
+
     def user_is_active(user):
         # Accounts created before status management are active by default.
         return user is not None and user.get("status", "active") == "active"
@@ -402,6 +427,8 @@ def create_app(test_config=None):
         if not user_is_active(user):
             return api_error("This account is suspended. Contact an administrator.", 403)
         token = create_access_token(identity=str(user["_id"]), additional_claims={"role": user["role"]})
+        if user.get("role") == "student":
+            record_student_activity(user["_id"], "app_open")
         return jsonify({"access_token": token, "user": serialize(user)})
 
     @app.get("/api/auth/me")
@@ -410,6 +437,8 @@ def create_app(test_config=None):
         user = current_user()
         if not user or not user_is_active(user):
             return api_error("Account not found.", 404)
+        if user.get("role") == "student":
+            record_student_activity(user["_id"], "app_open")
         return jsonify({"user": serialize(user)})
 
     @app.patch("/api/auth/profile")
@@ -725,6 +754,11 @@ def create_app(test_config=None):
         items = list(quizzes.find(query).sort("title", ASCENDING))
         if is_student:
             for quiz in items:
+                kind = str(quiz.get("assessment_type", "")).strip().lower()
+                if kind not in {"baseline", "topic_practice"}:
+                    title = str(quiz.get("title", "")).lower()
+                    kind = "baseline" if "baseline" in title or "diagnostic" in title else "topic_practice"
+                quiz["assessment_type"] = kind
                 quiz["questions"] = [{k: v for k, v in question.items() if k != "answer_index"} for question in quiz.get("questions", [])]
         return jsonify({"quizzes": serialize(items)})
 
@@ -741,6 +775,11 @@ def create_app(test_config=None):
         if not quiz or (user.get("role") == "student" and not quiz.get("published")):
             return api_error("Quiz not found.", 404)
         if user.get("role") == "student":
+            kind = str(quiz.get("assessment_type", "")).strip().lower()
+            if kind not in {"baseline", "topic_practice"}:
+                title = str(quiz.get("title", "")).lower()
+                kind = "baseline" if "baseline" in title or "diagnostic" in title else "topic_practice"
+            quiz["assessment_type"] = kind
             quiz["questions"] = [{k: v for k, v in question.items() if k != "answer_index"} for question in quiz.get("questions", [])]
         return jsonify({"quiz": serialize(quiz)})
 
@@ -839,10 +878,40 @@ def create_app(test_config=None):
             bucket["max_score"] += 1
             response_snapshot.append({"prompt": question["prompt"], "topic": topic_name, "options": question["options"], "selected_index": answers[i], "is_correct": is_correct})
         topic_scores = [{"topic": name, **score} for name, score in topic_breakdown.items()]
-        attempt = {"student_id": user["_id"], "quiz_id": quiz["_id"], "quiz_title": quiz.get("title", "Practice quiz"), "course_id": quiz.get("course_id", ""), "topic": quiz.get("topic", "General"), "topic_scores": topic_scores, "score": correct, "max_score": total, "percentage": int(math.floor(100 * correct / total + 0.5)), "answers": answers, "responses": response_snapshot, "elapsed_seconds": elapsed_seconds, "created_at": utcnow()}
+        submitted_at = utcnow()
+        attempt = {"student_id": user["_id"], "quiz_id": quiz["_id"], "quiz_title": quiz.get("title", "Practice quiz"), "course_id": quiz.get("course_id", ""), "topic": quiz.get("topic", "General"), "topic_scores": topic_scores, "score": correct, "max_score": total, "percentage": int(math.floor(100 * correct / total + 0.5)), "answers": answers, "responses": response_snapshot, "elapsed_seconds": elapsed_seconds, "created_at": submitted_at}
         result = attempts.insert_one(attempt)
         attempt["_id"] = result.inserted_id
-        return jsonify({"attempt": serialize(attempt), "review": [{"prompt": q["prompt"], "topic": q.get("topic", quiz.get("topic", "General")), "options": q["options"], "answer_index": q["answer_index"], "explanation": q.get("explanation", ""), "selected_index": answers[i], "correct": answers[i] == q["answer_index"]} for i, q in enumerate(questions)]})
+        record_student_activity(user["_id"], "quiz_attempt")
+        linked_outcomes = 0
+        course_id = str(attempt.get("course_id", "")).upper()
+        for topic_result in topic_scores:
+            topic_name = topic_result["topic"]
+            completed_session = study_session_completions.find_one(
+                {"student_id": user["_id"], "course_id": course_id, "topic": topic_name,
+                 "completed_at": {"$lte": submitted_at}, "follow_up_attempt_id": {"$exists": False}},
+                sort=[("completed_at", -1)],
+            )
+            if not completed_session:
+                continue
+            percentage = int(math.floor(100 * topic_result["score"] / topic_result["max_score"] + 0.5)) if topic_result["max_score"] else 0
+            baseline = completed_session.get("baseline_mastery")
+            outcome = {
+                "follow_up_attempt_id": result.inserted_id,
+                "follow_up_at": submitted_at,
+                "follow_up_score": topic_result["score"],
+                "follow_up_max_score": topic_result["max_score"],
+                "follow_up_percentage": percentage,
+            }
+            baseline_questions = int(completed_session.get("baseline_question_count", 0))
+            if isinstance(baseline, (int, float)) and baseline_questions >= 3 and topic_result["max_score"] >= 3:
+                outcome["score_change_points"] = percentage - baseline
+            linked = study_session_completions.update_one(
+                {"_id": completed_session["_id"], "follow_up_attempt_id": {"$exists": False}},
+                {"$set": outcome},
+            )
+            linked_outcomes += linked.modified_count
+        return jsonify({"attempt": serialize(attempt), "learning_outcomes_linked": linked_outcomes, "review": [{"prompt": q["prompt"], "topic": q.get("topic", quiz.get("topic", "General")), "options": q["options"], "answer_index": q["answer_index"], "explanation": q.get("explanation", ""), "selected_index": answers[i], "correct": answers[i] == q["answer_index"]} for i, q in enumerate(questions)]})
 
     @app.get("/api/progress")
     @role_required("student")
@@ -877,7 +946,24 @@ def create_app(test_config=None):
         while day in study_days:
             streak += 1
             day -= timedelta(days=1)
-        return jsonify({"summary": {"attempts": len(recent), "average": int(math.floor(100 * score / total + 0.5)) if total else 0, "completed_lessons": lesson_count, "streak_days": streak}, "topics": topics, "recent_attempts": serialize(recent[:12]), "score_trend_attempts": serialize(recent)})
+        all_session_completions = study_session_completions.count_documents({"student_id": user["_id"]})
+        outcome_summary = list(study_session_completions.aggregate([
+            {"$match": {"student_id": user["_id"], "score_change_points": {"$type": "number"}}},
+            {"$group": {"_id": None, "count": {"$sum": 1}, "average": {"$avg": "$score_change_points"}, "improved": {"$sum": {"$cond": [{"$gt": ["$score_change_points", 0]}, 1, 0]}}}},
+        ]))
+        outcome_summary = outcome_summary[0] if outcome_summary else {}
+        current_plan = plans.find_one({"student_id": user["_id"]}) or {}
+        current_plan_completed = study_session_completions.count_documents({"student_id": user["_id"], "plan_id": current_plan.get("plan_id")}) if current_plan.get("plan_id") else 0
+        study_session_metrics = {
+            "completed_all_time": all_session_completions,
+            "completed_in_current_plan": current_plan_completed,
+            "planned_in_current_plan": len(current_plan.get("tasks", [])),
+            "follow_up_assessments": study_session_completions.count_documents({"student_id": user["_id"], "follow_up_attempt_id": {"$exists": True}}),
+            "paired_assessments": outcome_summary.get("count", 0),
+            "average_score_change_points": round(outcome_summary["average"], 1) if outcome_summary.get("count") else None,
+            "improved_assessments": outcome_summary.get("improved", 0),
+        }
+        return jsonify({"summary": {"attempts": len(recent), "average": int(math.floor(100 * score / total + 0.5)) if total else 0, "completed_lessons": lesson_count, "streak_days": streak}, "study_sessions": study_session_metrics, "topics": topics, "recent_attempts": serialize(recent[:12]), "score_trend_attempts": serialize(recent)})
 
     @app.post("/api/lessons/<lesson_id>/complete")
     @role_required("student")
@@ -890,13 +976,54 @@ def create_app(test_config=None):
             {"student_id": user["_id"], "lesson_id": lesson_id},
             {"$set": {"completed_at": utcnow()}}, upsert=True,
         )
+        record_student_activity(user["_id"], "lesson_completion")
         return jsonify({"completed": True, "lesson_id": lesson_id})
 
     @app.get("/api/study-plan")
     @role_required("student")
     def get_study_plan():
-        plan = plans.find_one({"student_id": current_user()["_id"]})
+        user = current_user()
+        plan = plans.find_one({"student_id": user["_id"]})
+        if plan and plan.get("plan_id"):
+            completion_rows = study_session_completions.find({"student_id": user["_id"], "plan_id": plan["plan_id"]})
+            completed_by_id = {row["session_id"]: row for row in completion_rows}
+            for task in plan.get("tasks", []):
+                completion = completed_by_id.get(task.get("session_id"))
+                task["completed"] = bool(completion)
+                if completion:
+                    task["completed_at"] = completion.get("completed_at")
+                    task["follow_up_percentage"] = completion.get("follow_up_percentage")
+                    task["follow_up_max_score"] = completion.get("follow_up_max_score")
+                    task["score_change_points"] = completion.get("score_change_points")
+                    task["follow_up_at"] = completion.get("follow_up_at")
         return jsonify({"plan": serialize(plan)})
+
+    @app.post("/api/study-plan/sessions/<session_id>/complete")
+    @role_required("student")
+    def complete_study_session(session_id):
+        user = current_user()
+        plan = plans.find_one({"student_id": user["_id"], "tasks.session_id": session_id})
+        if not plan:
+            return api_error("This session is not part of your current study plan.", 404)
+        task = next((item for item in plan.get("tasks", []) if item.get("session_id") == session_id), None)
+        if not task:
+            return api_error("Study session not found.", 404)
+        completed_at = utcnow()
+        document = {
+            "student_id": user["_id"], "plan_id": plan["plan_id"], "session_id": session_id,
+            "course_id": str(task.get("course_id", "")).upper(), "topic": task.get("topic", ""),
+            "reason_type": task.get("reason_type", "practice"), "reason": task.get("reason", ""),
+            "scheduled_date": task.get("scheduled_date"), "minutes": task.get("minutes", 0),
+            "baseline_mastery": task.get("baseline_mastery"),
+            "baseline_question_count": task.get("baseline_question_count", 0), "completed_at": completed_at,
+        }
+        study_session_completions.update_one(
+            {"student_id": user["_id"], "session_id": session_id},
+            {"$setOnInsert": document}, upsert=True,
+        )
+        record_student_activity(user["_id"], "study_session_completion")
+        completion = study_session_completions.find_one({"student_id": user["_id"], "session_id": session_id})
+        return jsonify({"completed": True, "session": serialize(completion)})
 
     @app.get("/api/recommendations")
     @role_required("student")
@@ -988,32 +1115,53 @@ def create_app(test_config=None):
             course_id = item.get("course_id", "").upper()
             breakdown = item.get("topic_scores") or [{"topic": item.get("topic", "General"), "score": item.get("score", 0), "max_score": item.get("max_score", 0)}]
             for result in breakdown:
-                row = topic_scores.setdefault((course_id, result.get("topic", "General")), {"score": 0, "total": 0})
+                row = topic_scores.setdefault((course_id, result.get("topic", "General")), {"score": 0, "total": 0, "assessments": 0})
                 row["score"] += result.get("score", 0)
                 row["total"] += result.get("max_score", 0)
+                row["assessments"] += 1
         ranked = sorted(topic_scores.items(), key=lambda pair: pair[1]["score"] / pair[1]["total"] if pair[1]["total"] else 0)
         needs_practice = [(key, value) for key, value in ranked if value["total"] and value["score"] / value["total"] < 0.8]
         available = courses.find({})
         course_rows = list(available)
         enrolled_ids = {row["course_id"] for row in enrollments.find({"student_id": user["_id"]})}
         course_rows.sort(key=lambda course: (course.get("course_id") not in enrolled_ids, course.get("title", "")))
-        needs_practice.sort(key=lambda pair: (pair[0][0] not in enrolled_ids, pair[1]["score"] / pair[1]["total"] if pair[1]["total"] else 0))
+        # Keep an adaptive plan grounded in the student's chosen learning path.
+        # If there are weak topics in enrolled courses, don't pad the plan with
+        # unrelated catalog courses. Otherwise use courses they have attempted.
+        attempted_course_ids = {course_id for course_id, _topic in topic_scores if course_id}
+        enrolled_weak = [pair for pair in needs_practice if pair[0][0] in enrolled_ids]
+        attempted_weak = [pair for pair in needs_practice if pair[0][0] in attempted_course_ids]
+        if enrolled_weak:
+            needs_practice = enrolled_weak
+        elif attempted_weak:
+            needs_practice = attempted_weak
         goal_mode = profile["goal_mode"]
         planned_topics = []
         seen_topics = set()
 
-        def add_topic(course_id, topic_name, activity):
+        def add_topic(course_id, topic_name, activity, reason_type, reason, baseline_mastery=None):
             key = (course_id, topic_name)
             if topic_name and key not in seen_topics:
-                planned_topics.append({"course_id": course_id, "topic": topic_name, "activity": activity})
+                if baseline_mastery is None:
+                    baseline_stats = topic_scores.get(key)
+                    if baseline_stats and baseline_stats.get("total"):
+                        baseline_mastery = int(math.floor(100 * baseline_stats["score"] / baseline_stats["total"] + 0.5))
+                baseline_stats = topic_scores.get(key)
+                planned_topics.append({
+                    "course_id": course_id, "topic": topic_name, "activity": activity,
+                    "reason_type": reason_type, "reason": reason,
+                    "baseline_mastery": baseline_mastery,
+                    "baseline_question_count": int(baseline_stats.get("total", 0)) if baseline_stats else 0,
+                })
                 seen_topics.add(key)
 
         if goal_mode == "explore_courses":
-            for course in course_rows:
+            explore_rows = [course for course in course_rows if course.get("course_id") in enrolled_ids] or course_rows
+            for course in explore_rows:
                 course_id = str(course.get("course_id", "")).upper()
                 course_topics = course.get("topics") or []
                 if course_topics:
-                    add_topic(course_id, course_topics[0], "Explore a course lesson, then try its practice quiz")
+                    add_topic(course_id, course_topics[0], "Explore a course lesson, then try its practice quiz", "explore", "A starter topic from a course in your current learning path.")
                 if len(planned_topics) >= 3:
                     break
         else:
@@ -1040,19 +1188,69 @@ def create_app(test_config=None):
                                     ancestors.append(prereq_doc)
                     # Add deeper prerequisites before their dependent topics.
                     for prerequisite_doc in reversed(ancestors):
-                        add_topic(course_id, prerequisite_doc["topic_name"], "Review this prerequisite before moving to the next concept")
+                        add_topic(course_id, prerequisite_doc["topic_name"], "Review this prerequisite before moving to the next concept", "prerequisite", f"This is a listed prerequisite for {topic}.", None)
                 elif topic_doc:
                     for edge in prerequisites.find({"topic_id": topic_doc["topic_id"]}):
                         prereq_doc = topics_collection.find_one({"topic_id": edge.get("prerequisite_topic_id")})
                         if prereq_doc:
-                            add_topic(course_id, prereq_doc["topic_name"], "Review a prerequisite foundation before the next quiz")
-                add_topic(course_id, topic, "Review the lesson, then try a focused practice quiz")
+                            add_topic(course_id, prereq_doc["topic_name"], "Review a prerequisite foundation before the next quiz", "prerequisite", f"This is a listed prerequisite for {topic}.", None)
+                stats = _stats
+                mastery = int(math.floor(100 * stats["score"] / stats["total"] + 0.5)) if stats.get("total") else None
+                assessment_count = stats.get("assessments", 0)
+                if mastery is not None:
+                    reason = f"Your quiz mastery is {mastery}% across {assessment_count} recent assessment{'s' if assessment_count != 1 else ''}."
+                else:
+                    reason = "This topic is in your learning path and is ready for a first check."
+                add_topic(course_id, topic, "Review the lesson, then try a focused practice quiz", "weak_score" if mastery is not None else "practice", reason, mastery)
+
+        try:
+            local_timezone = ZoneInfo(request.headers.get("X-Timezone", "UTC"))
+        except Exception:
+            local_timezone = timezone.utc
+        today = datetime.now(local_timezone).date()
+
+        # Bring topics back for spaced review after a completed session has a
+        # follow-up quiz. Shorter intervals are used when the check is weaker.
+        review_history = study_session_completions.find(
+            {"student_id": user["_id"], "follow_up_at": {"$exists": True}}
+        ).sort("follow_up_at", -1).limit(200)
+        latest_review_keys = set()
+        spaced_review_topics = []
+        for reviewed in review_history:
+            review_key = (reviewed.get("course_id", ""), reviewed.get("topic", ""))
+            if not review_key[0] or not review_key[1] or review_key in latest_review_keys:
+                continue
+            latest_review_keys.add(review_key)
+            score_pct = reviewed.get("follow_up_percentage")
+            if not isinstance(score_pct, (int, float)) or reviewed.get("follow_up_max_score", 0) < 3:
+                continue
+            interval_days = 1 if score_pct < 50 else 3 if score_pct < 80 else 7
+            follow_up_at = reviewed["follow_up_at"]
+            if follow_up_at.tzinfo is None:
+                follow_up_at = follow_up_at.replace(tzinfo=timezone.utc)
+            due_at = follow_up_at + timedelta(days=interval_days)
+            if due_at.astimezone(local_timezone).date() <= today:
+                baseline_stats = topic_scores.get(review_key)
+                baseline = int(math.floor(100 * baseline_stats["score"] / baseline_stats["total"] + 0.5)) if baseline_stats and baseline_stats["total"] else None
+                already_planned = review_key in seen_topics
+                add_topic(
+                    review_key[0], review_key[1], "Revisit this concept, then check what you still remember",
+                    "spaced_review",
+                    f"Spaced review is due: your last check was {score_pct}% on {follow_up_at.astimezone(local_timezone).strftime('%b %d')}.",
+                    baseline,
+                )
+                if not already_planned:
+                    spaced_review_topics.append(planned_topics[-1])
 
         if not planned_topics:
             starter_courses = [course for course in course_rows if not enrolled_ids or course.get("course_id") in enrolled_ids][:3]
             for course in starter_courses:
                 course_id = str(course.get("course_id", "")).upper()
-                add_topic(course_id, (course.get("topics") or ["Explore your next topic"])[0], "Study a lesson and complete a practice quiz")
+                add_topic(course_id, (course.get("topics") or ["Explore your next topic"])[0], "Study a lesson and complete a practice quiz", "starter", "A starting point while Nebula learns which topics you already know.")
+
+        if len(planned_topics) > 7:
+            non_review_topics = [item for item in planned_topics if item.get("reason_type") != "spaced_review"]
+            planned_topics = non_review_topics[:max(0, 7 - min(2, len(spaced_review_topics)))] + spaced_review_topics[:2]
 
         # Schedule sessions only on selected weekdays and cap each session at the
         # student's preferred length (or their smaller daily time budget).
@@ -1060,14 +1258,10 @@ def create_app(test_config=None):
         session_minutes = min(profile["preferred_session_minutes"], day_minutes)
         sessions_per_day = max(1, math.ceil(day_minutes / session_minutes))
         allowed_weekdays = {STUDY_DAYS.index(day) for day in profile["available_days"]}
-        try:
-            local_timezone = ZoneInfo(request.headers.get("X-Timezone", "UTC"))
-        except Exception:
-            local_timezone = timezone.utc
-        today = datetime.now(local_timezone).date()
         cursor = today
         daily_counts = {}
         tasks = []
+        plan_id = secrets.token_urlsafe(18)
         for item in planned_topics[:7]:
             while cursor.weekday() not in allowed_weekdays or daily_counts.get(cursor, 0) >= sessions_per_day:
                 cursor += timedelta(days=1)
@@ -1075,9 +1269,10 @@ def create_app(test_config=None):
             task_minutes = min(session_minutes, day_minutes - used_sessions * session_minutes)
             daily_counts[cursor] = used_sessions + 1
             day_label = "TODAY" if cursor == today else f"{cursor.strftime('%a').upper()} · {cursor.strftime('%b')} {cursor.day}"
-            tasks.append({**item, "day": len(tasks) + 1, "day_label": day_label, "scheduled_date": cursor.isoformat(), "minutes": task_minutes})
+            tasks.append({**item, "session_id": secrets.token_urlsafe(18), "day": len(tasks) + 1, "day_label": day_label, "scheduled_date": cursor.isoformat(), "minutes": task_minutes})
         plan = {
-            "student_id": user["_id"], "goal": profile["goal"], "goal_mode": goal_mode,
+            "student_id": user["_id"], "plan_id": plan_id, "learning_track": profile["learning_track"],
+            "learning_track_label": LEARNING_TRACK_LABEL, "goal": profile["goal"], "goal_mode": goal_mode,
             "daily_minutes": day_minutes, "available_days": profile["available_days"],
             "preferred_session_minutes": profile["preferred_session_minutes"], "session_minutes": session_minutes,
             "tasks": tasks, "generated_at": utcnow(),
@@ -1088,7 +1283,66 @@ def create_app(test_config=None):
     @app.get("/api/admin/overview")
     @role_required("admin")
     def admin_overview():
-        return jsonify({"students": users.count_documents({"role": "student"}), "admins": users.count_documents({"role": "admin"}), "courses": courses.count_documents({}), "quizzes": quizzes.count_documents({}), "attempts": attempts.count_documents({})})
+        today = utcnow().date()
+        tracking_start = pilot_tracking_started_at
+        if tracking_start.tzinfo is None:
+            tracking_start = tracking_start.replace(tzinfo=timezone.utc)
+        pilot_students = list(users.find(
+            {"role": "student", "created_at": {"$gte": tracking_start}},
+            {"_id": 1, "created_at": 1},
+        ))
+        student_ids = [student["_id"] for student in pilot_students]
+        target_days = {}
+        eligible_day1 = []
+        eligible_day7 = []
+        for student in pilot_students:
+            created_at = student.get("created_at")
+            if not created_at:
+                continue
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+            signup_day = created_at.astimezone(timezone.utc).date()
+            day1 = signup_day + timedelta(days=1)
+            day7 = signup_day + timedelta(days=7)
+            target_days[(student["_id"], "d1")] = day1.isoformat()
+            target_days[(student["_id"], "d7")] = day7.isoformat()
+            if day1 <= today:
+                eligible_day1.append(student["_id"])
+            if day7 <= today:
+                eligible_day7.append(student["_id"])
+        target_date_values = list(set(target_days.values()))
+        active_pairs = set()
+        if student_ids and target_date_values:
+            for activity in student_activity_days.find(
+                {"student_id": {"$in": student_ids}, "activity_date": {"$in": target_date_values}},
+                {"student_id": 1, "activity_date": 1},
+            ):
+                active_pairs.add((activity["student_id"], activity["activity_date"]))
+
+        def retention_metric(day_key, eligible):
+            returned = sum(1 for student_id in eligible if (student_id, target_days[(student_id, day_key)]) in active_pairs)
+            count = len(eligible)
+            return {"returned": returned, "eligible": count, "percent": round(100 * returned / count, 1) if count else None}
+
+        current_plans = list(plans.find({}, {"student_id": 1, "plan_id": 1, "tasks": 1}))
+        plan_ids = [plan.get("plan_id") for plan in current_plans if plan.get("plan_id")]
+        planned_sessions = sum(len(plan.get("tasks", [])) for plan in current_plans)
+        completed_sessions = study_session_completions.count_documents({"plan_id": {"$in": plan_ids}}) if plan_ids else 0
+        paired_outcomes = list(study_session_completions.aggregate([
+            {"$match": {"score_change_points": {"$type": "number"}}},
+            {"$group": {"_id": None, "count": {"$sum": 1}, "average": {"$avg": "$score_change_points"}, "improved": {"$sum": {"$cond": [{"$gt": ["$score_change_points", 0]}, 1, 0]}}}},
+        ]))
+        paired_outcomes = paired_outcomes[0] if paired_outcomes else {}
+        learning_pairs = study_session_completions.count_documents({"follow_up_attempt_id": {"$exists": True}})
+        tracking_day = tracking_start.astimezone(timezone.utc).date().isoformat()
+        pilot = {
+            "tracking_started_at": tracking_start,
+            "retention": {"d1": retention_metric("d1", eligible_day1), "d7": retention_metric("d7", eligible_day7), "cohort_tracking_since": tracking_day},
+            "current_plans": {"students": len(current_plans), "planned_sessions": planned_sessions, "completed_sessions": completed_sessions, "completion_percent": round(100 * completed_sessions / planned_sessions, 1) if planned_sessions else None},
+            "learning_checks": {"follow_up_pairs": learning_pairs, "eligible_score_pairs": paired_outcomes.get("count", 0), "average_score_change_points": round(paired_outcomes["average"], 1) if paired_outcomes.get("count") else None, "improved_pairs": paired_outcomes.get("improved", 0)},
+            "definitions": {"retention": "Student had an authenticated app visit or learning activity on the exact UTC day 1 or day 7 after signup.", "completion": "Completed sessions divided by sessions in each student's latest saved plan.", "score_change": "Descriptive topic score difference; at least three questions required in both baseline and follow-up."},
+        }
+        return jsonify({"students": users.count_documents({"role": "student"}), "admins": users.count_documents({"role": "admin"}), "courses": courses.count_documents({}), "quizzes": quizzes.count_documents({}), "published_quizzes": quizzes.count_documents({"published": True}), "attempts": attempts.count_documents({}), "pilot": serialize(pilot)})
 
     @app.errorhandler(400)
     def bad_request(_error):
