@@ -1,6 +1,6 @@
 <div align="center">
 
-# ✦ Nebula
+# ✦ Nebula 👾
 
 ### Learn in your own orbit.
 
