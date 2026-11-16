@@ -37,6 +37,8 @@ An adaptive B.Tech learning workspace that turns quiz results into a clear, mana
 
 Nebula is an AI-assisted learning MVP for students who want a more focused way to study B.Tech subjects. Students can explore a course, take a topic-based quiz, review their score, and use a personalized study plan to decide what to work on next. Administrators maintain the learning content and manage student access.
 
+**Current learning track:** B.Tech course fundamentals from the catalog shipped with the project. Course availability does not mean the material is mapped to a particular university, branch, or semester. Nebula is not yet a complete GATE or placement-preparation curriculum; those need their own reviewed syllabi, question banks, and resources.
+
 The product keeps recommendations explainable: a student's own quiz history and the curriculum prerequisite graph drive the study plan. The included machine-learning score estimator is experimental and is **not** treated as a reliable student-facing prediction.
 
 ## What it does
@@ -46,11 +48,13 @@ The product keeps recommendations explainable: a student's own quiz history and 
 - Sign up and sign in with a student account.
 - Choose a learning focus, degree/level, and daily study-time budget.
 - Set available study days and preferred session length in the profile.
+- Plans prioritize weak topics from enrolled courses, then fall back to courses the student has attempted.
 - Explore the B.Tech course catalog and enroll in courses.
 - Read published in-app pilot lessons where available; find topic-specific video resources through YouTube search links.
 - Take quizzes, see answer explanations after submission, and review saved attempts.
 - Track quiz averages, topic mastery, completed lessons, and study streaks.
-- Generate a study plan that prioritizes quiz performance and course prerequisites.
+- Generate a study plan with a reason for each session (quiz signal, prerequisite, or spaced review), then mark sessions complete.
+- Track follow-up quizzes on the same course topic and compare them with the pre-session topic baseline when both have at least three questions.
 
 ### Administrator workspace
 
@@ -153,6 +157,14 @@ To import or sync the curriculum into the configured MongoDB database, run from 
 python import_dataset.py
 ```
 
+To add the original pilot lessons and the focused practice sets for DSA, Python, DBMS, Computer Networks, and Operating Systems, run once from `backend/` after curriculum import:
+
+```powershell
+python seed_learning_content.py
+```
+
+The seeder is idempotent and only inserts content under its own seed keys; it leaves existing admin-authored content alone. The short baseline checks and focused practice sets are learning aids, not full-length semester, GATE, or placement mocks.
+
 Historical assessment rows are imported only when a private `DATASET_HASH_SALT` is configured. The importer omits student names and pseudonymizes student and interaction IDs. Imported historical identities are not connected to app login accounts.
 
 To retrain the experimental score estimator after changing the data:
@@ -212,10 +224,14 @@ Protected routes require `Authorization: Bearer <access_token>`. Admin-only rout
 | Enrollment and topics | `GET /api/enrollments`, `POST/DELETE /api/enrollments/:course_id`, `GET /api/courses/:course_id/topics` |
 | Lessons | `GET /api/courses/:course_id/lessons`, `GET/POST /api/admin/lessons`, `PUT/DELETE /api/admin/lessons/:id`, `POST /api/lessons/:id/complete` |
 | Quizzes | `GET /api/quizzes`, `GET /api/quizzes/:id`, `POST /api/quizzes`, `PUT/DELETE /api/quizzes/:id`, `POST /api/quizzes/:id/submit` |
-| Student learning | `GET /api/progress`, `GET /api/study-plan`, `POST /api/study-plan/generate`, `GET /api/recommendations` |
+| Student learning | `GET /api/progress`, `GET /api/study-plan`, `POST /api/study-plan/generate`, `POST /api/study-plan/sessions/:session_id/complete`, `GET /api/recommendations` |
 | Admin | `GET /api/admin/overview`, `GET /api/admin/students`, `PATCH /api/admin/students/:id/status` |
 
 Quiz answer keys are not sent with the student quiz. Grading feedback is returned after submission. Admin student views contain profile preferences and aggregate activity, not password hashes or answer selections. Draft lessons are only available to admins; published lessons are available to students.
+
+Study-session outcomes are descriptive before/after comparisons. They help monitor whether students return to a topic and how their later quiz score compares with a prior baseline; they do not prove that the plan caused a score change. Score-change summaries require at least three scored questions in both the baseline and follow-up.
+
+The administrator overview also reports pilot signals: exact UTC day-1/day-7 student return rates, completion across students' latest saved plans, and eligible paired topic-score changes. Return tracking starts when the backend first initializes this feature; earlier accounts are excluded from the retention denominator. Returns count an authenticated app visit or a learning action. These small pilot metrics are directional and should be interpreted with their eligible sample counts, not as evidence of causation or model accuracy.
 
 ## Project structure
 
@@ -257,8 +273,8 @@ The suite uses `mongomock` and does not write test users or attempts to your Atl
 ## Current scope
 
 - The catalog contains B.Tech learning subjects and topic/prerequisite metadata from the supplied CSVs.
-- In-app lesson content is a small pilot set for selected subjects; other topics can use generated YouTube search links until reviewed lessons are published.
-- The baseline quizzes are short diagnostic checks, not complete GATE, semester-exam, or placement-interview preparation material. Expand and review the question bank before using it for formal assessment.
+- In-app lesson content is a pilot set for DSA, Python, DBMS, Computer Networks, and Operating Systems; result pages open a matching published lesson where one exists and otherwise offer a YouTube topic search.
+- The focused practice sets for those five subjects have eight explained questions each. Baseline checks and practice sets are short formative checks, not complete GATE, semester-exam, or placement-interview mocks.
 - Rule-based study planning is active. The ML score estimator remains experimental and is not a promise of student performance.
 
 For the detailed launch checklist and verification status, see [`MVP_READINESS.md`](MVP_READINESS.md).
