@@ -1,62 +1,118 @@
-# Nebula
+<div align="center">
 
-**Personalized learning, one focused step at a time.**
+# ✦ Nebula
 
-Nebula is an AI-assisted learning MVP. Students take topic-based quizzes, see where they need practice, and get a study plan shaped by their results. Teachers and administrators manage the courses, lessons, quizzes, and student access.
+### Learn in your own orbit.
 
-## Live app
+An adaptive B.Tech learning workspace that turns quiz results into a clear, manageable next step.
 
-- **Student and admin app:** [nebula-orbit.netlify.app](https://nebula-orbit.netlify.app)
-- **Backend health:** [nebula-orbit.onrender.com/api/health](https://nebula-orbit.onrender.com/api/health)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/API-Flask-111111?logo=flask)](https://flask.palletsprojects.com/)
+[![MongoDB](https://img.shields.io/badge/Data-MongoDB%20Atlas-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/atlas)
+[![Netlify](https://img.shields.io/badge/Web-Netlify-00C7B7?logo=netlify&logoColor=white)](https://www.netlify.com/)
+[![Render](https://img.shields.io/badge/API%20hosting-Render-46E3B7?logo=render&logoColor=111111)](https://render.com/)
 
-The backend runs on Render and stores application data in MongoDB Atlas. Netlify serves the frontend and proxies `/api/*` requests to Render. The free Render instance can sleep when inactive, so the first request after a quiet period may take longer to respond.
+[Open Nebula](https://nebula-orbit.netlify.app) · [API health](https://nebula-orbit.onrender.com/api/health) · [Student system design](STUDENT_SYSTEM_DESIGN.md) · [Admin system design](ADMIN_SYSTEM_DESIGN.md)
 
-## What Nebula does
+</div>
 
-### For students
+---
 
-- Create an account and choose a supported B.Tech learning focus and daily study time.
-- Explore courses, enroll, and open topic-linked lessons and video resources.
-- Take quizzes, review results, and keep an attempt history.
-- Track progress and topic mastery over time.
-- Get a rule-based study plan and recommendations based on quiz scores and course prerequisites.
-- Set available weekdays and a preferred session length; generated sessions respect the selected days and daily time budget.
+## Contents
 
-### For administrators
+- [About](#about)
+- [What it does](#what-it-does)
+- [How personalization works](#how-personalization-works)
+- [Technology and architecture](#technology-and-architecture)
+- [Run locally](#run-locally)
+- [Dataset and model workflow](#dataset-and-model-workflow)
+- [Deployment](#deployment)
+- [API reference](#api-reference)
+- [Project structure](#project-structure)
+- [Run the backend acceptance suite](#run-the-backend-acceptance-suite)
+- [Security notes](#security-notes)
+- [Current scope](#current-scope)
 
-- Create and update courses, quizzes, and lessons.
-- Publish or edit learning content for students.
-- Review student account status and aggregate activity.
-- Suspend or restore student access.
+## About
 
-Admin signup requires the private `ADMIN_SIGNUP_KEY` configured on the server. Never put this key in frontend code or publish it in this README.
+Nebula is an AI-assisted learning MVP for students who want a more focused way to study B.Tech subjects. Students can explore a course, take a topic-based quiz, review their score, and use a personalized study plan to decide what to work on next. Administrators maintain the learning content and manage student access.
 
-## How recommendations work
+The product keeps recommendations explainable: a student's own quiz history and the curriculum prerequisite graph drive the study plan. The included machine-learning score estimator is experimental and is **not** treated as a reliable student-facing prediction.
 
-Study plans currently use quiz scores, weak topics, and prerequisite order. This keeps recommendations explainable and avoids presenting uncertain model output as fact.
+## What it does
 
-Nebula also includes an experimental score estimator trained on historical assessment data. It is evaluated using a chronological holdout, with metrics in [`backend/performance_model_metrics.json`](backend/performance_model_metrics.json). Its forecasts are withheld from students until the model demonstrates a meaningful improvement over a baseline. Score prediction metrics do not prove that a recommended lesson causes learning gains.
+### Student workspace
 
-## Technology
+- Sign up and sign in with a student account.
+- Choose a learning focus, degree/level, and daily study-time budget.
+- Set available study days and preferred session length in the profile.
+- Explore the B.Tech course catalog and enroll in courses.
+- Read published in-app pilot lessons where available; find topic-specific video resources through YouTube search links.
+- Take quizzes, see answer explanations after submission, and review saved attempts.
+- Track quiz averages, topic mastery, completed lessons, and study streaks.
+- Generate a study plan that prioritizes quiz performance and course prerequisites.
 
-| Area | Technology |
+### Administrator workspace
+
+- Create, edit, publish, and remove courses and quizzes.
+- Draft, publish, edit, and remove lessons linked to course topics.
+- Review student account status and high-level activity.
+- Suspend and restore student access.
+
+Administrator registration requires the private `ADMIN_SIGNUP_KEY` configured on the backend. It is never included in frontend code or this README.
+
+## How personalization works
+
+1. Quiz attempts are saved to the student's account.
+2. Topic-level performance highlights areas for more practice.
+3. Course prerequisites help order foundational work before dependent topics.
+4. The study planner schedules focused sessions around the student's selected days, session length, and daily time budget.
+5. New quiz results can refresh the plan and recommendations.
+
+These recommendations are rule-based and grounded in the student's app activity. They are guidance for study planning, not a guarantee of exam results.
+
+### Experimental ML model
+
+The repository includes a model that estimates a learner's next assessment score from historical assessment data. It uses a chronological train/validation/test split. In the current evaluation, proficiency-band accuracy equals the majority-class baseline, and the model's test R² is negative. The backend therefore does not treat its output as a dependable personalized forecast; score-based rules remain the active planning approach.
+
+See the evaluation details in [`backend/performance_model_metrics.json`](backend/performance_model_metrics.json) and data limitations in [`backend/DATASET_NOTES.md`](backend/DATASET_NOTES.md). Do not tune against the held-out test period.
+
+## Technology and architecture
+
+| Layer | Implementation |
 |---|---|
-| Frontend | HTML, CSS, JavaScript |
-| API | Python, Flask, Flask-JWT-Extended |
-| Database | MongoDB Atlas / MongoDB Community Server |
-| ML | pandas-compatible CSV workflow, scikit-learn |
-| Local production server | Gunicorn |
-| Hosting | Netlify (frontend), Render (API), MongoDB Atlas (database) |
+| Frontend | Static HTML, CSS, and JavaScript |
+| API and authentication | Python, Flask, Flask-JWT-Extended |
+| Database | MongoDB Atlas or local MongoDB |
+| Model workflow | pandas-compatible CSV input, scikit-learn |
+| Production API server | Gunicorn in Docker |
+| Hosting | Netlify frontend, Render API, MongoDB Atlas database |
+
+```mermaid
+flowchart LR
+    S[Student or admin browser] --> N[Netlify static frontend]
+    N -->|/api requests| R[Render Flask API]
+    R --> M[(MongoDB Atlas)]
+    R --> C[Courses, quizzes, lessons, plans]
+```
+
+The frontend sends requests to `/api`. Netlify routes those requests to the Render service, so the browser uses one site origin. The free Render instance may sleep when inactive; its first request after a quiet period can take longer.
 
 ## Run locally
 
-### MongoDB-backed development
+### MongoDB-backed app
 
-Requirements: Python 3.10+ and a running MongoDB instance or Atlas connection string.
+You need Python 3.10+ and either a running local MongoDB server or an Atlas connection string.
 
-1. Copy `backend/.env.example` to `backend/.env`.
-2. Set `MONGODB_URI`, `MONGODB_DB`, `JWT_SECRET_KEY`, and `ADMIN_SIGNUP_KEY` in `backend/.env`. Use private, random secrets; do not commit `.env`.
-3. Install dependencies and start the API from the repository root:
+1. Create a private environment file:
+
+   ```powershell
+   Copy-Item backend/.env.example backend/.env
+   ```
+
+2. Edit `backend/.env` locally. Set `MONGODB_URI`, `MONGODB_DB`, `JWT_SECRET_KEY`, `ADMIN_SIGNUP_KEY`, and `FRONTEND_ORIGIN` for your setup. Use private random secrets; do not paste them into chat or commit the file.
+
+3. Install dependencies and start the API from the `backend` directory:
 
    ```powershell
    cd backend
@@ -66,113 +122,143 @@ Requirements: Python 3.10+ and a running MongoDB instance or Atlas connection st
    python app.py
    ```
 
-4. Open [http://127.0.0.1:5000](http://127.0.0.1:5000). Check the database connection at [http://127.0.0.1:5000/api/health](http://127.0.0.1:5000/api/health).
+4. Open [http://127.0.0.1:5000](http://127.0.0.1:5000). Check API and database connectivity at [http://127.0.0.1:5000/api/health](http://127.0.0.1:5000/api/health).
 
-On macOS/Linux, activate the environment with `source .venv/bin/activate` instead.
+On macOS/Linux, activate the virtual environment with `source .venv/bin/activate`.
 
-### Local demo without MongoDB
+### Local demo mode
 
-From the repository root on Windows, run:
+For a local demo backed by the `.demo_data.json` snapshot, use Windows PowerShell from the repository root:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\backend\start-demo.ps1
 ```
 
-Demo mode uses a local `.demo_data.json` snapshot so accounts and quiz attempts survive a server restart. It is for one developer process only; use MongoDB for shared or real student data. Keep the demo snapshot as a backup until you have verified any migration you need.
+Demo mode is for one local developer process, not shared student accounts. Keep the snapshot private and backed up; it may contain personal demo data.
 
-## Dataset and model workflows
+## Dataset and model workflow
 
-The supplied CSV files live in `backend/`:
+The curriculum data and assessment history are in `backend/`:
 
-- `courses.csv` — course catalog
-- `topics.csv` — course topic catalog
-- `topic_prerequisite.csv` — prerequisite relationships
-- `student_interaction.csv` — historical assessment records
+| File | Purpose |
+|---|---|
+| `courses.csv` | Course catalog |
+| `topics.csv` | Topic catalog and study metadata |
+| `topic_prerequisite.csv` | Relationships used to sequence foundational topics |
+| `student_interaction.csv` | Historical assessment records for analysis/model evaluation |
 
-With MongoDB configured, import the curriculum from `backend/`:
+To import or sync the curriculum into the configured MongoDB database, run from `backend/`:
 
 ```powershell
 python import_dataset.py
 ```
 
-To include historical assessment rows, set a private `DATASET_HASH_SALT` with at least 24 characters before importing. The importer omits student names and pseudonymizes student and interaction IDs; historical rows are not linked to app login accounts.
+Historical assessment rows are imported only when a private `DATASET_HASH_SALT` is configured. The importer omits student names and pseudonymizes student and interaction IDs. Imported historical identities are not connected to app login accounts.
 
-To retrain the experimental score estimator after changing the assessment data:
+To retrain the experimental score estimator after changing the data:
 
 ```powershell
 python train_performance_model.py
 ```
 
-Review the reported holdout metrics and `performance_model_metrics.json` before using a new model. Training accuracy alone is not a reliable measure of future performance.
+Review the held-out metrics before using a new artifact. A stronger model needs genuinely predictive features and future learning outcomes; more rows alone do not guarantee better accuracy. Dataset definitions, privacy handling, and limitations are documented in [`backend/DATASET_NOTES.md`](backend/DATASET_NOTES.md).
 
-## Deployments
+## Deployment
 
 ### Frontend — Netlify
 
 - Connect the GitHub repository and deploy the `main` branch.
-- Set the publish directory to `frontend`; no frontend build command is required.
-- Keep the root [`netlify.toml`](netlify.toml) file. It maps the app's `/assets/*` paths to the published files, proxies `/api/*` to Render, and supports frontend routes.
-- The configured API proxy points to `https://nebula-orbit.onrender.com`.
+- Set the publish directory to `frontend`; no build command is required.
+- Keep the root `netlify.toml`: it serves `/assets/*`, proxies `/api/*` to Render, and routes frontend paths to `index.html`.
+- Configure `FRONTEND_ORIGIN` on Render to match the deployed site origin, without a trailing slash.
 
 ### Backend — Render
 
 - Create a Docker web service from the repository root using the root `Dockerfile`.
-- Add the required environment variables in Render's Environment settings (see below).
-- Set the health check path to `/api/health`.
-- Add the Render service's outbound IP ranges to the Atlas project's **Network Access** IP access list. Avoid `0.0.0.0/0` for production.
+- Configure the required environment variables in Render's Environment settings.
+- Set the health-check path to `/api/health`.
+- Add Render's documented outbound IP ranges to the Atlas Network Access list. Avoid broad `0.0.0.0/0` access for a production database.
 
 ### MongoDB Atlas
 
-- Use a dedicated database user with only the privileges Nebula needs.
-- Set the Atlas URI as the `MONGODB_URI` secret in Render and use `nebula` for `MONGODB_DB`.
-- Keep the cluster active and confirm Atlas network access allows the Render service's outbound ranges.
-- Configure backups/retention appropriate to your data before onboarding real students.
+- Use an application database user with only the permissions required by Nebula.
+- Store the connection string as the `MONGODB_URI` secret in Render; set `MONGODB_DB` to the intended database name.
+- Confirm Atlas network access permits the Render service to connect.
+- Configure backups and retention before onboarding real students.
 
-### Render environment variables
+### Backend environment variables
+
+Set these in the deployment provider's private environment settings. The values belong there, not in source control or README:
 
 | Variable | Purpose |
 |---|---|
-| `NEBULA_ENV` | Set to `production` |
-| `NEBULA_DEMO_MODE` | Set to `false` |
-| `MONGODB_URI` | Private Atlas connection string |
-| `MONGODB_DB` | Database name, normally `nebula` |
-| `JWT_SECRET_KEY` | Private signing secret, at least 32 characters |
-| `ADMIN_SIGNUP_KEY` | Private administrator invitation key, at least 24 characters |
-| `FRONTEND_ORIGIN` | `https://nebula-orbit.netlify.app` (no trailing slash) |
+| `NEBULA_ENV` | Use `production` for the hosted service |
+| `NEBULA_DEMO_MODE` | Keep `false` when using MongoDB |
+| `MONGODB_URI` | Private MongoDB connection string |
+| `MONGODB_DB` | MongoDB database name |
+| `JWT_SECRET_KEY` | Private token-signing secret |
+| `ADMIN_SIGNUP_KEY` | Private admin invitation key |
+| `FRONTEND_ORIGIN` | Exact deployed frontend origin, without trailing slash |
 
-Set secrets only in the hosting provider's secret/environment settings. Do not commit `.env`, database credentials, or signing keys. Rotate credentials that have been exposed in screenshots, chats, or logs.
+## API reference
 
-## API overview
+Protected routes require `Authorization: Bearer <access_token>`. Admin-only routes additionally require an administrator account.
 
-All routes are under `/api`. Protected endpoints require `Authorization: Bearer <access_token>`.
-
-| Feature | Routes |
+| Area | Endpoints |
 |---|---|
 | Health | `GET /api/health` |
-| Authentication and profile | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PATCH /api/auth/profile` |
-| Courses and enrollment | `GET /api/courses`, `POST /api/courses`, `PUT/DELETE /api/courses/:course_id`, `GET /api/enrollments`, `POST/DELETE /api/enrollments/:course_id` |
+| Accounts | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PATCH /api/auth/profile` |
+| Courses | `GET /api/courses`, `POST /api/courses`, `PUT/DELETE /api/courses/:course_id` |
+| Enrollment and topics | `GET /api/enrollments`, `POST/DELETE /api/enrollments/:course_id`, `GET /api/courses/:course_id/topics` |
 | Lessons | `GET /api/courses/:course_id/lessons`, `GET/POST /api/admin/lessons`, `PUT/DELETE /api/admin/lessons/:id`, `POST /api/lessons/:id/complete` |
 | Quizzes | `GET /api/quizzes`, `GET /api/quizzes/:id`, `POST /api/quizzes`, `PUT/DELETE /api/quizzes/:id`, `POST /api/quizzes/:id/submit` |
-| Learning | `GET /api/progress`, `GET/POST /api/study-plan`, `POST /api/study-plan/generate`, `GET /api/recommendations` |
+| Student learning | `GET /api/progress`, `GET /api/study-plan`, `POST /api/study-plan/generate`, `GET /api/recommendations` |
 | Admin | `GET /api/admin/overview`, `GET /api/admin/students`, `PATCH /api/admin/students/:id/status` |
 
-Student quiz responses omit answer keys. Grading feedback is returned after submission. Admin student views expose profile preferences and aggregate activity, not password hashes or quiz answers. Draft lessons are admin-only; published lessons are available to students.
+Quiz answer keys are not sent with the student quiz. Grading feedback is returned after submission. Admin student views contain profile preferences and aggregate activity, not password hashes or answer selections. Draft lessons are only available to admins; published lessons are available to students.
 
-## Project layout
+## Project structure
 
 ```text
-backend/       Flask API, data import, model workflow, and backend tests
-frontend/      Static app (index.html, app.js, style.css)
-Dockerfile     Render/Gunicorn container configuration
-netlify.toml   Frontend asset, API proxy, and route rules
+.
+├── backend/                 Flask API, CSV data, model workflow, and tests
+│   ├── app.py               API routes, authentication, study planner
+│   ├── tests/               Backend acceptance and regression tests
+│   ├── *.csv                Curriculum and historical assessment data
+│   ├── import_dataset.py    MongoDB curriculum/history importer
+│   └── train_performance_model.py
+├── frontend/                Static HTML, JavaScript, and CSS
+├── Dockerfile               Render/Gunicorn container setup
+├── netlify.toml             Netlify publishing, API proxy, and SPA routes
+├── STUDENT_SYSTEM_DESIGN.md  Student experience and flow
+├── ADMIN_SYSTEM_DESIGN.md   Admin experience and flow
+└── MVP_READINESS.md         Current MVP checklist and launch considerations
 ```
 
-## Tests
+## Run the backend acceptance suite
 
-Run the backend suite from `backend/`:
+From `backend/`, install the development dependencies and run the isolated API acceptance tests:
 
 ```powershell
+pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 ```
 
-The suite uses an isolated in-memory Mongo mock and does not write test data to Atlas.
+The suite uses `mongomock` and does not write test users or attempts to your Atlas database.
+
+## Security notes
+
+- `backend/.env` is private local configuration and is ignored by Git.
+- Never commit database URIs, passwords, JWT secrets, admin signup keys, or dataset salts.
+- Use provider-managed secret settings for Render and keep access limited to project maintainers.
+- Rotate any credential that was exposed in a screenshot, terminal capture, chat, or Git history.
+- Do not put real student data in public issues, screenshots, or sample files.
+
+## Current scope
+
+- The catalog contains B.Tech learning subjects and topic/prerequisite metadata from the supplied CSVs.
+- In-app lesson content is a small pilot set for selected subjects; other topics can use generated YouTube search links until reviewed lessons are published.
+- The baseline quizzes are short diagnostic checks, not complete GATE, semester-exam, or placement-interview preparation material. Expand and review the question bank before using it for formal assessment.
+- Rule-based study planning is active. The ML score estimator remains experimental and is not a promise of student performance.
+
+For the detailed launch checklist and verification status, see [`MVP_READINESS.md`](MVP_READINESS.md).
