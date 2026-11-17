@@ -4,7 +4,7 @@
 
 ### Learn in your own orbit.
 
-An adaptive B.Tech learning workspace that turns quiz results into a clear, manageable next step.
+An adaptive B.Tech and BCA learning workspace that turns quiz results into a clear, manageable next step.
 
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/API-Flask-111111?logo=flask)](https://flask.palletsprojects.com/)
@@ -35,9 +35,9 @@ An adaptive B.Tech learning workspace that turns quiz results into a clear, mana
 
 ## About
 
-Nebula is an AI-assisted learning MVP for students who want a more focused way to study B.Tech subjects. Students can explore a course, take a topic-based quiz, review their score, and use a personalized study plan to decide what to work on next. Administrators maintain the learning content and manage student access.
+Nebula is an AI-assisted learning MVP for students who want a more focused way to study B.Tech and BCA subjects. Students can choose a supported branch, explore a course, take a topic-based quiz, review their score, and use a personalized study plan to decide what to work on next. Administrators maintain the learning content and manage student access.
 
-**Current learning track:** B.Tech course fundamentals from the catalog shipped with the project. Course availability does not mean the material is mapped to a particular university, branch, or semester. Nebula is not yet a complete GATE or placement-preparation curriculum; those need their own reviewed syllabi, question banks, and resources.
+**Current learning tracks:** 35 B.Tech branch/specialization choices and a BCA track, backed by a common reference outline. The catalog is not a complete or semester-mapped syllabus for every university. Nebula is not yet a complete GATE or placement-preparation curriculum; those need their own reviewed syllabi, question banks, and resources.
 
 The product keeps recommendations explainable: a student's own quiz history and the curriculum prerequisite graph drive the study plan. The included machine-learning score estimator is experimental and is **not** treated as a reliable student-facing prediction.
 
@@ -49,12 +49,13 @@ The product keeps recommendations explainable: a student's own quiz history and 
 - Choose a learning focus, degree/level, and daily study-time budget.
 - Set available study days and preferred session length in the profile.
 - Plans prioritize weak topics from enrolled courses, then fall back to courses the student has attempted.
-- Explore the B.Tech course catalog and enroll in courses.
+- Nebula treats a topic as weak only after at least three distinct questions; smaller samples are shown as preliminary practice signals.
+- Choose a B.Tech branch/specialization or BCA track, then explore its assigned course catalog and enroll in courses.
 - Read published in-app pilot lessons where available; find topic-specific video resources through YouTube search links.
 - Take quizzes, see answer explanations after submission, and review saved attempts.
 - Track quiz averages, topic mastery, completed lessons, and study streaks.
 - Generate a study plan with a reason for each session (quiz signal, prerequisite, or spaced review), then mark sessions complete.
-- Track follow-up quizzes on the same course topic and compare them with the pre-session topic baseline when both have at least three questions.
+- Track follow-up quizzes on the same course topic and compare them with the pre-session topic baseline when both contain at least three distinct questions.
 
 ### Administrator workspace
 
@@ -149,7 +150,18 @@ The curriculum data and assessment history are in `backend/`:
 | `courses.csv` | Course catalog |
 | `topics.csv` | Topic catalog and study metadata |
 | `topic_prerequisite.csv` | Relationships used to sequence foundational topics |
+| `curriculum_tracks.csv` | Supported B.Tech branches/specializations and BCA learning track |
+| `course_tracks.csv` | Assigns existing catalog courses to eligible degree tracks |
+| `branch_curriculum.csv` | Shared foundations plus authored branch subject/topic outlines |
+| `curriculum_track_parents.csv` | Explicit course inheritance for related specializations |
+| `build_branch_curriculum.py` | Rebuilds shared engineering foundations and branch outline rows |
+| `build_core_course_practice.py` | Replaces generic topics for the shared computing course catalog and writes its topic-linked starter questions |
+| `expand_foundation_bca_practice.py` | Adds original, topic-balanced questions for shared B.Tech foundations and all BCA courses |
+| `expand_computing_practice.py` | Repeatable source for Nebula-authored question packs across computing and selected B.Tech branch courses |
+| `practice_question_bank.csv` | Topic-linked starter questions, choices, answer keys, explanations, and review evidence fields; all authored rows currently remain pending instructor review |
 | `student_interaction.csv` | Historical assessment records for analysis/model evaluation |
+
+The current catalog has 35 B.Tech branch/specialization tracks and one BCA track. It is a common reference outline, not a complete or semester-mapped syllabus for every university. Specialist tracks inherit only the parent courses listed in `curriculum_track_parents.csv`. Read [`backend/CURRICULUM_SOURCES.md`](backend/CURRICULUM_SOURCES.md) for the source scope and limitations before using it for exam planning. The question bank has 2,595 explained questions across 172 quiz sets: every quiz has at least 15 questions and all 860 active course-topic pairs have at least three distinct questions. All question records remain pending external instructor review, so treat these as formative starter practice rather than formal exam material. This is not a complete exam-preparation product. In-app lessons are still limited to the pilot subjects.
 
 To import or sync the curriculum into the configured MongoDB database, run from `backend/`:
 
@@ -157,13 +169,13 @@ To import or sync the curriculum into the configured MongoDB database, run from 
 python import_dataset.py
 ```
 
-To add the original pilot lessons and the focused practice sets for DSA, Python, DBMS, Computer Networks, and Operating Systems, run once from `backend/` after curriculum import:
+To add the pilot lessons and CSV-backed practice quizzes, run from `backend/` after curriculum import:
 
 ```powershell
 python seed_learning_content.py
 ```
 
-The seeder is idempotent and only inserts content under its own seed keys; it leaves existing admin-authored content alone. The short baseline checks and focused practice sets are learning aids, not full-length semester, GATE, or placement mocks.
+The seeder validates and imports 172 focused quizzes (2,595 questions) with answer explanations and topic links. Every quiz has at least 15 questions, and every active course-topic pair has at least three. Questions are Nebula-authored starter drafts and have not had external instructor review; they are not full-length semester, GATE, or placement mocks. The seeder is idempotent under its own seed keys, preserves admin-edited quiz content, and extends a source-controlled quiz only when its stored questions exactly match the beginning of the CSV set.
 
 Historical assessment rows are imported only when a private `DATASET_HASH_SALT` is configured. The importer omits student names and pseudonymizes student and interaction IDs. Imported historical identities are not connected to app login accounts.
 
@@ -229,7 +241,7 @@ Protected routes require `Authorization: Bearer <access_token>`. Admin-only rout
 
 Quiz answer keys are not sent with the student quiz. Grading feedback is returned after submission. Admin student views contain profile preferences and aggregate activity, not password hashes or answer selections. Draft lessons are only available to admins; published lessons are available to students.
 
-Study-session outcomes are descriptive before/after comparisons. They help monitor whether students return to a topic and how their later quiz score compares with a prior baseline; they do not prove that the plan caused a score change. Score-change summaries require at least three scored questions in both the baseline and follow-up.
+Study-session outcomes are descriptive before/after comparisons. They help monitor whether students return to a topic and how their later quiz score compares with a prior baseline; they do not prove that the plan caused a score change. Score-change summaries require at least three distinct questions in both the baseline and follow-up.
 
 The administrator overview also reports pilot signals: exact UTC day-1/day-7 student return rates, completion across students' latest saved plans, and eligible paired topic-score changes. Return tracking starts when the backend first initializes this feature; earlier accounts are excluded from the retention denominator. Returns count an authenticated app visit or a learning action. These small pilot metrics are directional and should be interpreted with their eligible sample counts, not as evidence of causation or model accuracy.
 
@@ -272,9 +284,9 @@ The suite uses `mongomock` and does not write test users or attempts to your Atl
 
 ## Current scope
 
-- The catalog contains B.Tech learning subjects and topic/prerequisite metadata from the supplied CSVs.
+- The catalog supports 35 B.Tech branch/specialization tracks and BCA, with common foundation and authored branch subject/topic outlines in CSV.
 - In-app lesson content is a pilot set for DSA, Python, DBMS, Computer Networks, and Operating Systems; result pages open a matching published lesson where one exists and otherwise offer a YouTube topic search.
-- The focused practice sets for those five subjects have eight explained questions each. Baseline checks and practice sets are short formative checks, not complete GATE, semester-exam, or placement-interview mocks.
+- The CSV-backed bank contains 172 short quizzes and 2,595 explained questions. Every quiz has at least 15 questions, with at least 3 distinct questions in each of 860 listed course-topic pairs. All questions remain pending external instructor review. In-app lessons remain a small pilot library. These are formative practice sets, not complete GATE, semester-exam, or placement-interview mocks.
 - Rule-based study planning is active. The ML score estimator remains experimental and is not a promise of student performance.
 
 For the detailed launch checklist and verification status, see [`MVP_READINESS.md`](MVP_READINESS.md).

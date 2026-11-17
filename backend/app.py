@@ -6,6 +6,7 @@ import re
 import json
 import math
 import secrets
+import csv
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 from pathlib import Path
@@ -47,15 +48,26 @@ def serialize(value):
 
 
 STUDY_GOALS = {
-    "weak_topics": "Strengthen my weak B.Tech topics",
-    "foundations": "Build strong B.Tech fundamentals",
+    "weak_topics": "Strengthen my weak topics",
+    "foundations": "Build strong fundamentals",
     "explore_courses": "Explore my enrolled courses",
 }
-LEARNING_TRACK = "btech_course_fundamentals"
-LEARNING_TRACK_LABEL = "B.Tech course fundamentals"
+TRACK_FILE = Path(__file__).with_name("curriculum_tracks.csv")
+try:
+    with TRACK_FILE.open("r", encoding="utf-8-sig", newline="") as track_stream:
+        CURRICULUM_TRACKS = {row["track_id"]: row for row in csv.DictReader(track_stream)}
+except (OSError, KeyError):
+    CURRICULUM_TRACKS = {"BTECH_CSE": {"track_id": "BTECH_CSE", "degree": "B.Tech", "branch": "Computer Science and Engineering", "display_name": "B.Tech · Computer Science & Engineering"}}
+DEFAULT_TRACK = "BTECH_CSE"
 STUDY_DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 DEFAULT_STUDY_DAYS = ["mon", "tue", "wed", "thu", "fri"]
 SESSION_LENGTHS = (15, 25, 30, 45, 60)
+MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL = 3
+
+
+def question_signature(prompt):
+    """Normalize a prompt so repeated attempts at one item do not inflate evidence."""
+    return re.sub(r"\s+", " ", str(prompt or "")).strip().casefold()
 
 
 def normalize_student_profile(profile, fallback=None):
@@ -83,11 +95,18 @@ def normalize_student_profile(profile, fallback=None):
     if session_minutes not in SESSION_LENGTHS:
         raise ValueError("Choose a supported session length.")
 
+    track_id = str(profile.get("program_track", fallback.get("program_track", DEFAULT_TRACK))).strip().upper()
+    if track_id not in CURRICULUM_TRACKS:
+        raise ValueError("Choose a supported degree and branch.")
+    track = CURRICULUM_TRACKS[track_id]
     return {
-        "learning_track": LEARNING_TRACK,
+        "learning_track": track_id,
+        "program_track": track_id,
+        "degree": track.get("degree", "B.Tech"),
+        "branch": track.get("branch", "Computer Science and Engineering"),
         "goal": STUDY_GOALS[mode],
         "goal_mode": mode,
-        "level": str(profile.get("level", fallback.get("level", "B.Tech")))[:80],
+        "level": str(profile.get("level", fallback.get("level", track.get("degree", "B.Tech"))))[:80],
         "daily_minutes": daily_minutes,
         "available_days": days,
         "preferred_session_minutes": session_minutes,
@@ -158,6 +177,8 @@ def create_app(test_config=None):
     attempts = db.attempts
     plans = db.study_plans
     study_session_completions = db.study_session_completions
+    course_video_completions = db.course_video_completions
+    course_completion_records = db.course_completion_records
     student_activity_days = db.student_activity_days
     app_metadata = db.app_metadata
     model_path = os.path.join(os.path.dirname(__file__), "performance_model.joblib")
@@ -208,6 +229,8 @@ def create_app(test_config=None):
     enrollments.create_index([("student_id", ASCENDING), ("course_id", ASCENDING)], unique=True)
     study_session_completions.create_index([("student_id", ASCENDING), ("session_id", ASCENDING)], unique=True)
     study_session_completions.create_index([("student_id", ASCENDING), ("course_id", ASCENDING), ("topic", ASCENDING), ("completed_at", ASCENDING)])
+    course_video_completions.create_index([("student_id", ASCENDING), ("course_id", ASCENDING), ("topic_id", ASCENDING)], unique=True)
+    course_completion_records.create_index([("student_id", ASCENDING), ("course_id", ASCENDING)], unique=True)
     student_activity_days.create_index([("student_id", ASCENDING), ("activity_date", ASCENDING)], unique=True)
     app_metadata.update_one(
         {"_id": "pilot_activity_tracking_started_at"},
@@ -249,9 +272,10 @@ def create_app(test_config=None):
             existing_quiz = quizzes.find_one({"course_id": starter_quiz["course_id"]})
             if not existing_quiz:
                 quizzes.insert_one(starter_quiz)
-            elif (existing_quiz.get("title") == starter_quiz["title"]
+            elif (existing_quiz.get("source") == "nebula_starter"
+                  and existing_quiz.get("title") == starter_quiz["title"]
                   and len(existing_quiz.get("questions", [])) < len(starter_quiz["questions"])):
-                # Upgrade older Nebula-generated starter diagnostics without touching admin quizzes.
+                # Upgrade only source-owned Nebula diagnostics, never admin-edited quizzes.
                 quizzes.update_one(
                     {"_id": existing_quiz["_id"], "title": starter_quiz["title"]},
                     {"$set": {"questions": starter_quiz["questions"], "source": "nebula_starter"}},
@@ -322,6 +346,14 @@ def create_app(test_config=None):
             "source": "admin",
         } for index, name in enumerate(topic_names)]
 
+    def normalize_program_tracks(value):
+        if not isinstance(value, list):
+            raise ValueError("Choose at least one degree or branch track for this course.")
+        normalized = list(dict.fromkeys(str(track).strip().upper() for track in value if str(track).strip()))
+        if not normalized or any(track not in CURRICULUM_TRACKS for track in normalized):
+            raise ValueError("Choose one or more supported degree or branch tracks.")
+        return normalized
+
     def current_user():
         identity = get_jwt_identity()
         try:
@@ -343,6 +375,16 @@ def create_app(test_config=None):
     def user_is_active(user):
         # Accounts created before status management are active by default.
         return user is not None and user.get("status", "active") == "active"
+
+    def student_can_access_course(user, course_id):
+        if not user or user.get("role") != "student":
+            return True
+        profile = normalize_student_profile(user.get("profile", {}))
+        return bool(courses.find_one({"course_id": str(course_id).upper(), "program_tracks": profile["program_track"]}, {"_id": 1}))
+
+    def student_track_course_ids(user):
+        profile = normalize_student_profile(user.get("profile", {}))
+        return [row["course_id"] for row in courses.find({"program_tracks": profile["program_track"]}, {"course_id": 1})]
 
     def role_required(*roles):
         def decorator(fn):
@@ -366,6 +408,14 @@ def create_app(test_config=None):
         except PyMongoError:
             return jsonify({"status": "degraded", "database": "unavailable"}), 503
 
+    @app.get("/api/curriculum-tracks")
+    def curriculum_tracks():
+        return jsonify({"tracks": [
+            {"track_id": track_id, "degree": row.get("degree", ""), "branch": row.get("branch", ""),
+             "display_name": row.get("display_name", track_id), "source_scope": row.get("source_scope", "")}
+            for track_id, row in CURRICULUM_TRACKS.items()
+        ]})
+
     @app.post("/api/auth/register")
     def register():
         body = request.get_json(silent=True) or {}
@@ -385,7 +435,7 @@ def create_app(test_config=None):
         if role == "admin":
             supplied_key = str(body.get("admin_signup_key", ""))
             expected_key = app.config["ADMIN_SIGNUP_KEY"]
-            if app.config["NEBULA_ENV"] != "production":
+            if not app.config.get("TESTING") and app.config["NEBULA_ENV"] != "production":
                 # In local development, read the project's .env at request time
                 # so edits take effect even if a stale Flask process is running.
                 expected_key = dotenv_values(ENV_FILE).get("ADMIN_SIGNUP_KEY") or expected_key
@@ -460,9 +510,14 @@ def create_app(test_config=None):
     @app.get("/api/courses")
     @jwt_required()
     def list_courses():
-        if not user_is_active(current_user()):
+        user = current_user()
+        if not user_is_active(user):
             return api_error("This account is suspended.", 403)
-        cursor = courses.find({}).sort("title", ASCENDING)
+        query = {}
+        if user.get("role") == "student":
+            profile = normalize_student_profile(user.get("profile", {}))
+            query["program_tracks"] = profile["program_track"]
+        cursor = courses.find(query).sort("title", ASCENDING)
         return jsonify({"courses": serialize(list(cursor))})
 
     @app.get("/api/enrollments")
@@ -477,7 +532,7 @@ def create_app(test_config=None):
     def enroll_in_course(course_id):
         user = current_user()
         course_id = course_id.upper()
-        if not courses.find_one({"course_id": course_id}):
+        if not student_can_access_course(user, course_id):
             return api_error("Course not found.", 404)
         enrollments.update_one({"student_id": user["_id"], "course_id": course_id}, {"$setOnInsert": {"student_id": user["_id"], "course_id": course_id, "created_at": utcnow()}}, upsert=True)
         return jsonify({"enrolled": True, "course_id": course_id})
@@ -493,10 +548,11 @@ def create_app(test_config=None):
     @app.get("/api/courses/<course_id>/topics")
     @jwt_required()
     def list_course_topics(course_id):
-        if not user_is_active(current_user()):
+        user = current_user()
+        if not user_is_active(user):
             return api_error("This account is suspended.", 403)
         course_id = course_id.upper()
-        if not courses.find_one({"course_id": course_id}):
+        if not student_can_access_course(user, course_id):
             return api_error("Course not found.", 404)
         rows = list(topics_collection.find({"course_id": course_id}).sort("topic_id", ASCENDING))
         for topic in rows:
@@ -508,6 +564,51 @@ def create_app(test_config=None):
                     topic["prerequisites"].append({"topic_id": required["topic_id"], "topic_name": required["topic_name"], "type": edge["prerequisite_type"]})
         return jsonify({"topics": serialize(rows)})
 
+    @app.get("/api/courses/<course_id>/video-progress")
+    @role_required("student")
+    def course_video_progress(course_id):
+        user = current_user()
+        course_id = course_id.upper()
+        if not student_can_access_course(user, course_id):
+            return api_error("Course not found.", 404)
+        topic_ids = [row["topic_id"] for row in topics_collection.find({"course_id": course_id}, {"topic_id": 1})]
+        rows = list(course_video_completions.find({"student_id": user["_id"], "course_id": course_id}))
+        completed_ids = {row["topic_id"] for row in rows}
+        record = course_completion_records.find_one({"student_id": user["_id"], "course_id": course_id})
+        return jsonify({"completed_topic_ids": sorted(completed_ids), "total_topics": len(topic_ids), "completed_count": len(completed_ids), "course_completed_at": serialize(record.get("completed_at")) if record else None, "revision_due_at": serialize(record.get("revision_due_at")) if record else None})
+
+    @app.post("/api/courses/<course_id>/topics/<topic_id>/video-complete")
+    @role_required("student")
+    def complete_course_video(course_id, topic_id):
+        user = current_user()
+        course_id = course_id.upper()
+        if not student_can_access_course(user, course_id):
+            return api_error("Course not found.", 404)
+        topic = topics_collection.find_one({"course_id": course_id, "topic_id": topic_id})
+        if not topic:
+            return api_error("Topic not found in this course.", 404)
+        completed_at = utcnow()
+        course_video_completions.update_one(
+            {"student_id": user["_id"], "course_id": course_id, "topic_id": topic_id},
+            {"$setOnInsert": {"student_id": user["_id"], "course_id": course_id, "topic_id": topic_id, "topic_name": topic.get("topic_name", ""), "completed_at": completed_at}},
+            upsert=True,
+        )
+        topic_ids = [row["topic_id"] for row in topics_collection.find({"course_id": course_id}, {"topic_id": 1})]
+        completed_rows = list(course_video_completions.find({"student_id": user["_id"], "course_id": course_id}))
+        completed_ids = {row["topic_id"] for row in completed_rows}
+        record = None
+        if topic_ids and set(topic_ids).issubset(completed_ids):
+            final_marked_at = max(row["completed_at"] for row in completed_rows if row["topic_id"] in topic_ids)
+            revision_due_at = final_marked_at + timedelta(days=7)
+            course_completion_records.update_one(
+                {"student_id": user["_id"], "course_id": course_id},
+                {"$setOnInsert": {"student_id": user["_id"], "course_id": course_id, "completed_at": final_marked_at, "revision_due_at": revision_due_at, "created_at": completed_at}},
+                upsert=True,
+            )
+            record = course_completion_records.find_one({"student_id": user["_id"], "course_id": course_id})
+        record_student_activity(user["_id"], "course_video_completion")
+        return jsonify({"completed": True, "topic_id": topic_id, "completed_topic_ids": sorted(completed_ids), "total_topics": len(topic_ids), "completed_count": len(completed_ids), "course_completed_at": record.get("completed_at") if record else None, "revision_due_at": record.get("revision_due_at") if record else None})
+
     @app.get("/api/courses/<course_id>/lessons")
     @jwt_required()
     def list_course_lessons(course_id):
@@ -515,7 +616,7 @@ def create_app(test_config=None):
         if not user_is_active(user):
             return api_error("This account is suspended.", 403)
         course_id = course_id.upper()
-        if not courses.find_one({"course_id": course_id}):
+        if not student_can_access_course(user, course_id):
             return api_error("Course not found.", 404)
         query = {"course_id": course_id}
         if user.get("role") != "admin":
@@ -640,6 +741,7 @@ def create_app(test_config=None):
         try:
             topic_names = normalize_course_topics(body.get("topics"))
             estimated_hours = parse_course_hours(body.get("estimated_hours", 1))
+            program_tracks = normalize_program_tracks(body.get("program_tracks"))
         except ValueError as error:
             return api_error(str(error))
         topic_docs = make_course_topic_docs(course_id, topic_names, estimated_hours)
@@ -657,6 +759,7 @@ def create_app(test_config=None):
             "estimated_hours": estimated_hours,
             "topics": topic_names,
             "topic_ids": [topic["topic_id"] for topic in topic_docs],
+            "program_tracks": program_tracks,
             "created_at": utcnow(),
         }
         try:
@@ -678,7 +781,7 @@ def create_app(test_config=None):
     @role_required("admin")
     def edit_course(course_id):
         body = request.get_json(silent=True) or {}
-        allowed = {"title", "subject", "level", "description", "estimated_hours", "topics"}
+        allowed = {"title", "subject", "level", "description", "estimated_hours", "topics", "program_tracks"}
         changes = {k: body[k] for k in allowed if k in body}
         if not changes:
             return api_error("No course fields were provided.")
@@ -694,6 +797,11 @@ def create_app(test_config=None):
         if "estimated_hours" in changes:
             try:
                 changes["estimated_hours"] = parse_course_hours(changes["estimated_hours"])
+            except ValueError as error:
+                return api_error(str(error))
+        if "program_tracks" in changes:
+            try:
+                changes["program_tracks"] = normalize_program_tracks(changes["program_tracks"])
             except ValueError as error:
                 return api_error(str(error))
         if "topics" in changes:
@@ -750,10 +858,17 @@ def create_app(test_config=None):
         if not user_is_active(user):
             return api_error("This account is suspended.", 403)
         is_student = user.get("role") == "student"
-        query = {"published": True} if is_student else {}
+        query = {"published": True, "content_review_status": {"$ne": "review_revisions_needed"}} if is_student else {}
+        if is_student:
+            profile = normalize_student_profile(user.get("profile", {}))
+            matching_courses = [course["course_id"] for course in courses.find({"program_tracks": profile["program_track"]}, {"course_id": 1})]
+            query["course_id"] = {"$in": matching_courses}
         items = list(quizzes.find(query).sort("title", ASCENDING))
         if is_student:
             for quiz in items:
+                if (quiz.get("seed_key", "").startswith("nebula-practice-")
+                        or quiz.get("source") == "Nebula curated practice v1"):
+                    quiz.setdefault("content_review_status", "instructor_review_pending")
                 kind = str(quiz.get("assessment_type", "")).strip().lower()
                 if kind not in {"baseline", "topic_practice"}:
                     title = str(quiz.get("title", "")).lower()
@@ -772,9 +887,14 @@ def create_app(test_config=None):
             quiz = quizzes.find_one({"_id": ObjectId(quiz_id)})
         except Exception:
             quiz = None
-        if not quiz or (user.get("role") == "student" and not quiz.get("published")):
+        if not quiz or (user.get("role") == "student" and (not quiz.get("published") or quiz.get("content_review_status") == "review_revisions_needed")):
+            return api_error("Quiz not found.", 404)
+        if not student_can_access_course(user, quiz.get("course_id", "")):
             return api_error("Quiz not found.", 404)
         if user.get("role") == "student":
+            if (quiz.get("seed_key", "").startswith("nebula-practice-")
+                    or quiz.get("source") == "Nebula curated practice v1"):
+                quiz.setdefault("content_review_status", "instructor_review_pending")
             kind = str(quiz.get("assessment_type", "")).strip().lower()
             if kind not in {"baseline", "topic_practice"}:
                 title = str(quiz.get("title", "")).lower()
@@ -800,7 +920,7 @@ def create_app(test_config=None):
             if type(answer) is not int or answer < 0 or answer >= len(options) or any(not option for option in options):
                 return api_error("Each question needs a valid answer index.")
             cleaned.append({"prompt": str(question["prompt"]).strip()[:1000], "topic": str(question.get("topic", "")).strip()[:160], "options": options, "answer_index": answer, "explanation": str(question.get("explanation", ""))[:1000]})
-        doc = {"title": title[:120], "course_id": str(body.get("course_id", ""))[:40], "topic": str(body.get("topic", "General"))[:100], "difficulty": str(body.get("difficulty", "medium")), "questions": cleaned, "published": bool(body.get("published", False)), "created_at": utcnow()}
+        doc = {"title": title[:120], "course_id": str(body.get("course_id", ""))[:40], "topic": str(body.get("topic", "General"))[:100], "difficulty": str(body.get("difficulty", "medium")), "questions": cleaned, "published": bool(body.get("published", False)), "created_at": utcnow(), "updated_at": utcnow()}
         result = quizzes.insert_one(doc)
         doc["_id"] = result.inserted_id
         return jsonify({"quiz": serialize(doc)}), 201
@@ -826,6 +946,7 @@ def create_app(test_config=None):
                     return api_error("Each question needs a prompt, two choices and a valid answer.")
                 cleaned.append({"prompt": str(question["prompt"]).strip()[:1000], "topic": str(question.get("topic", "")).strip()[:160], "options": options, "answer_index": answer, "explanation": str(question.get("explanation", ""))[:1000]})
             changes["questions"] = cleaned
+        changes["updated_at"] = utcnow()
         try:
             result = quizzes.update_one({"_id": ObjectId(quiz_id)}, {"$set": changes})
         except Exception:
@@ -847,10 +968,16 @@ def create_app(test_config=None):
     @role_required("student")
     def submit_quiz(quiz_id):
         try:
-            quiz = quizzes.find_one({"_id": ObjectId(quiz_id), "published": True})
+            quiz = quizzes.find_one({
+                "_id": ObjectId(quiz_id),
+                "published": True,
+                "content_review_status": {"$ne": "review_revisions_needed"},
+            })
         except Exception:
             quiz = None
         if not quiz:
+            return api_error("Quiz not found.", 404)
+        if not student_can_access_course(current_user(), quiz.get("course_id", "")):
             return api_error("Quiz not found.", 404)
         body = request.get_json(silent=True) or {}
         answers = body.get("answers")
@@ -873,11 +1000,12 @@ def create_app(test_config=None):
         for i, question in enumerate(questions):
             topic_name = str(question.get("topic") or quiz.get("topic", "General"))
             is_correct = answers[i] == question["answer_index"]
-            bucket = topic_breakdown.setdefault(topic_name, {"score": 0, "max_score": 0})
+            bucket = topic_breakdown.setdefault(topic_name, {"score": 0, "max_score": 0, "question_signatures": set()})
             bucket["score"] += int(is_correct)
             bucket["max_score"] += 1
+            bucket["question_signatures"].add(question_signature(question.get("prompt")))
             response_snapshot.append({"prompt": question["prompt"], "topic": topic_name, "options": question["options"], "selected_index": answers[i], "is_correct": is_correct})
-        topic_scores = [{"topic": name, **score} for name, score in topic_breakdown.items()]
+        topic_scores = [{"topic": name, "score": score["score"], "max_score": score["max_score"], "distinct_question_count": len(score["question_signatures"])} for name, score in topic_breakdown.items()]
         submitted_at = utcnow()
         attempt = {"student_id": user["_id"], "quiz_id": quiz["_id"], "quiz_title": quiz.get("title", "Practice quiz"), "course_id": quiz.get("course_id", ""), "topic": quiz.get("topic", "General"), "topic_scores": topic_scores, "score": correct, "max_score": total, "percentage": int(math.floor(100 * correct / total + 0.5)), "answers": answers, "responses": response_snapshot, "elapsed_seconds": elapsed_seconds, "created_at": submitted_at}
         result = attempts.insert_one(attempt)
@@ -901,33 +1029,47 @@ def create_app(test_config=None):
                 "follow_up_at": submitted_at,
                 "follow_up_score": topic_result["score"],
                 "follow_up_max_score": topic_result["max_score"],
+                "follow_up_unique_question_count": topic_result["distinct_question_count"],
                 "follow_up_percentage": percentage,
             }
             baseline_questions = int(completed_session.get("baseline_question_count", 0))
-            if isinstance(baseline, (int, float)) and baseline_questions >= 3 and topic_result["max_score"] >= 3:
+            if isinstance(baseline, (int, float)) and baseline_questions >= MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL and topic_result["distinct_question_count"] >= MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL:
                 outcome["score_change_points"] = percentage - baseline
             linked = study_session_completions.update_one(
                 {"_id": completed_session["_id"], "follow_up_attempt_id": {"$exists": False}},
                 {"$set": outcome},
             )
             linked_outcomes += linked.modified_count
-        return jsonify({"attempt": serialize(attempt), "learning_outcomes_linked": linked_outcomes, "review": [{"prompt": q["prompt"], "topic": q.get("topic", quiz.get("topic", "General")), "options": q["options"], "answer_index": q["answer_index"], "explanation": q.get("explanation", ""), "selected_index": answers[i], "correct": answers[i] == q["answer_index"]} for i, q in enumerate(questions)]})
+        if course_id:
+            course_completion_records.update_one(
+                {"student_id": user["_id"], "course_id": course_id, "revision_due_at": {"$lte": submitted_at}, "revision_attempt_id": {"$exists": False}},
+                {"$set": {"revision_attempt_id": result.inserted_id, "revision_attempted_at": submitted_at}},
+            )
+        return jsonify({"attempt": serialize(attempt), "learning_outcomes_linked": linked_outcomes, "review": [{"prompt": q["prompt"], "topic": q.get("topic", quiz.get("topic", "General")), "options": q["options"], "answer_index": q["answer_index"], "explanation": q.get("explanation", ""), "selected_index": answers[i], "correct": answers[i] == q["answer_index"], "review_status": q.get("review_status", "pending"), "reviewer_name": q.get("reviewer_name", ""), "reviewer_role": q.get("reviewer_role", ""), "source_url": q.get("source_url", ""), "review_date": q.get("review_date", "")} for i, q in enumerate(questions)]})
 
     @app.get("/api/progress")
     @role_required("student")
     def progress():
         user = current_user()
-        recent = list(attempts.find({"student_id": user["_id"]}).sort("created_at", -1).limit(100))
+        recent = list(attempts.find({"student_id": user["_id"], "course_id": {"$in": student_track_course_ids(user)}}).sort("created_at", -1).limit(100))
         topic_scores = {}
         for item in recent:
             course_id = str(item.get("course_id", "")).upper()
             breakdown = item.get("topic_scores") or [{"topic": item.get("topic", "General"), "score": item.get("score", 0), "max_score": item.get("max_score", 0)}]
             for result in breakdown:
-                group = topic_scores.setdefault((course_id, result.get("topic", "General")), {"attempts": 0, "score": 0, "max_score": 0})
+                group = topic_scores.setdefault((course_id, result.get("topic", "General")), {"attempts": 0, "score": 0, "max_score": 0, "question_signatures": set()})
                 group["attempts"] += 1
                 group["score"] += result.get("score", 0)
                 group["max_score"] += result.get("max_score", 0)
-        topics = [{"course_id": course_id, "topic": name, **values, "mastery": int(math.floor(100 * values["score"] / values["max_score"] + 0.5)) if values["max_score"] else 0} for (course_id, name), values in topic_scores.items()]
+            for response in item.get("responses", []):
+                group = topic_scores.setdefault((course_id, response.get("topic", "General")), {"attempts": 0, "score": 0, "max_score": 0, "question_signatures": set()})
+                signature = question_signature(response.get("prompt"))
+                if signature:
+                    group["question_signatures"].add(signature)
+        topics = []
+        for (course_id, name), values in topic_scores.items():
+            unique_question_count = len(values["question_signatures"])
+            topics.append({"course_id": course_id, "topic": name, "attempts": values["attempts"], "score": values["score"], "max_score": values["max_score"], "mastery": int(math.floor(100 * values["score"] / values["max_score"] + 0.5)) if values["max_score"] else 0, "distinct_question_count": unique_question_count, "evidence_status": "reliable" if unique_question_count >= MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL else "preliminary"})
         topics.sort(key=lambda item: (item["mastery"], item["topic"], item["course_id"]))
         total = sum(x.get("max_score", 0) for x in recent)
         score = sum(x.get("score", 0) for x in recent)
@@ -948,7 +1090,7 @@ def create_app(test_config=None):
             day -= timedelta(days=1)
         all_session_completions = study_session_completions.count_documents({"student_id": user["_id"]})
         outcome_summary = list(study_session_completions.aggregate([
-            {"$match": {"student_id": user["_id"], "score_change_points": {"$type": "number"}}},
+            {"$match": {"student_id": user["_id"], "score_change_points": {"$type": "number"}, "baseline_question_count": {"$gte": MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL}, "follow_up_unique_question_count": {"$gte": MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL}}},
             {"$group": {"_id": None, "count": {"$sum": 1}, "average": {"$avg": "$score_change_points"}, "improved": {"$sum": {"$cond": [{"$gt": ["$score_change_points", 0]}, 1, 0]}}}},
         ]))
         outcome_summary = outcome_summary[0] if outcome_summary else {}
@@ -970,7 +1112,7 @@ def create_app(test_config=None):
     def complete_lesson(lesson_id):
         user = current_user()
         lesson = lessons.find_one({"_id": ObjectId(lesson_id), "published": True}) if ObjectId.is_valid(lesson_id) else None
-        if not lesson:
+        if not lesson or not student_can_access_course(user, lesson.get("course_id", "")):
             return api_error("Published lesson not found.", 404)
         db.lesson_completions.update_one(
             {"student_id": user["_id"], "lesson_id": lesson_id},
@@ -984,6 +1126,8 @@ def create_app(test_config=None):
     def get_study_plan():
         user = current_user()
         plan = plans.find_one({"student_id": user["_id"]})
+        if plan and plan.get("learning_track") != normalize_student_profile(user.get("profile", {}))["program_track"]:
+            plan = None
         if plan and plan.get("plan_id"):
             completion_rows = study_session_completions.find({"student_id": user["_id"], "plan_id": plan["plan_id"]})
             completed_by_id = {row["session_id"]: row for row in completion_rows}
@@ -994,16 +1138,21 @@ def create_app(test_config=None):
                     task["completed_at"] = completion.get("completed_at")
                     task["follow_up_percentage"] = completion.get("follow_up_percentage")
                     task["follow_up_max_score"] = completion.get("follow_up_max_score")
+                    task["follow_up_unique_question_count"] = completion.get("follow_up_unique_question_count")
                     task["score_change_points"] = completion.get("score_change_points")
                     task["follow_up_at"] = completion.get("follow_up_at")
-        return jsonify({"plan": serialize(plan)})
+        reminders = []
+        for record in course_completion_records.find({"student_id": user["_id"], "revision_due_at": {"$lte": utcnow()}, "revision_attempt_id": {"$exists": False}}).sort("revision_due_at", ASCENDING):
+            course = courses.find_one({"course_id": record["course_id"]}, {"title": 1, "subject": 1}) or {}
+            reminders.append({"course_id": record["course_id"], "course_title": course.get("title", record["course_id"]), "subject": course.get("subject", "Course"), "completed_at": record.get("completed_at"), "revision_due_at": record.get("revision_due_at")})
+        return jsonify({"plan": serialize(plan), "revision_reminders": serialize(reminders)})
 
     @app.post("/api/study-plan/sessions/<session_id>/complete")
     @role_required("student")
     def complete_study_session(session_id):
         user = current_user()
         plan = plans.find_one({"student_id": user["_id"], "tasks.session_id": session_id})
-        if not plan:
+        if not plan or plan.get("learning_track") != normalize_student_profile(user.get("profile", {}))["program_track"]:
             return api_error("This session is not part of your current study plan.", 404)
         task = next((item for item in plan.get("tasks", []) if item.get("session_id") == session_id), None)
         if not task:
@@ -1029,16 +1178,22 @@ def create_app(test_config=None):
     @role_required("student")
     def recommendations():
         user = current_user()
-        rows = list(attempts.find({"student_id": user["_id"]}).sort("created_at", -1).limit(100))
+        rows = list(attempts.find({"student_id": user["_id"], "course_id": {"$in": student_track_course_ids(user)}}).sort("created_at", -1).limit(100))
         by_topic = {}
         for row in rows:
             breakdown = row.get("topic_scores") or [{"topic": row.get("topic", "General"), "score": row.get("score", 0), "max_score": row.get("max_score", 0)}]
             for result in breakdown:
                 key = (row.get("course_id", "").upper(), result.get("topic", "General"))
-                stat = by_topic.setdefault(key, [0, 0, 0])
+                stat = by_topic.setdefault(key, [0, 0, 0, set()])
                 stat[0] += result.get("score", 0)
                 stat[1] += result.get("max_score", 0)
                 stat[2] += 1
+            for response in row.get("responses", []):
+                key = (row.get("course_id", "").upper(), response.get("topic", "General"))
+                stat = by_topic.setdefault(key, [0, 0, 0, set()])
+                signature = question_signature(response.get("prompt"))
+                if signature:
+                    stat[3].add(signature)
         student_history = []
         for row in reversed(rows):
             breakdown = row.get("topic_scores") or [{"topic": row.get("topic", "General"), "score": row.get("score", 0), "max_score": row.get("max_score", 0)}]
@@ -1062,11 +1217,13 @@ def create_app(test_config=None):
         predicted_by_topic = {(item["course_id"], item["topic"]): item["predicted_next_score"] for item in model_predictions}
         guidance = []
         weak_by_course = {}
-        for (course_id, topic_name), (score, maximum, count) in by_topic.items():
+        for (course_id, topic_name), (score, maximum, count, question_signatures) in by_topic.items():
             if not maximum:
                 continue
             mastery = round(100 * score / maximum)
-            status = "Weak" if mastery < 50 else "Intermediate" if mastery < 80 else "Mastered"
+            distinct_question_count = len(question_signatures)
+            has_reliable_signal = distinct_question_count >= MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL
+            status = ("Weak" if mastery < 50 else "Intermediate" if mastery < 80 else "Mastered") if has_reliable_signal else "Preliminary"
             topic_doc = topics_collection.find_one({"course_id": course_id, "topic_name": topic_name}) if course_id else None
             prereq_names = []
             if topic_doc:
@@ -1074,16 +1231,19 @@ def create_app(test_config=None):
                     prerequisite_topic = topics_collection.find_one({"topic_id": edge["prerequisite_topic_id"]})
                     if prerequisite_topic:
                         prereq_names.append({"topic": prerequisite_topic["topic_name"], "type": edge["prerequisite_type"]})
-            if status == "Weak":
+            if not has_reliable_signal:
+                action = f"Answer at least {MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL} different questions on this topic before judging mastery."
+            elif status == "Weak":
                 action = "Revisit the foundations, then try a guided practice set."
             elif status == "Intermediate":
                 action = "Practice this topic again, then retake a short quiz."
             else:
                 action = "Try an applied project or move on to an advanced topic."
-            guidance.append({"course_id": course_id, "topic": topic_name, "mastery": mastery, "predicted_next_score": predicted_by_topic.get((course_id, topic_name)), "proficiency_status": status, "attempts": count, "next_step": action, "prerequisites": prereq_names})
-            if mastery < 80 and course_id:
+            guidance.append({"course_id": course_id, "topic": topic_name, "mastery": mastery, "question_responses": maximum, "distinct_question_count": distinct_question_count, "predicted_next_score": predicted_by_topic.get((course_id, topic_name)), "proficiency_status": status, "attempts": count, "next_step": action, "prerequisites": prereq_names})
+            if has_reliable_signal and mastery < 80 and course_id:
                 weak_by_course.setdefault(course_id, set()).add(topic_name)
-        catalog = list(courses.find({}))
+        profile = normalize_student_profile(user.get("profile", {}))
+        catalog = list(courses.find({"program_tracks": profile["program_track"]}))
         ranked = []
         for course in catalog:
             course_id = course.get("course_id", "").upper()
@@ -1102,33 +1262,48 @@ def create_app(test_config=None):
             "target": "next assessment score (0–100)",
             "metrics": performance_model.metrics if performance_model else None,
         }
-        return jsonify({"recommendations": serialize(ranked[:6]), "topic_guidance": serialize(sorted(guidance, key=lambda x: x["mastery"])), "model_predictions": serialize(model_predictions[:30]), "model": model_info, "proficiency_bands": {"Weak": "0–49%", "Intermediate": "50–79%", "Mastered": "80–100%"}, "based_on_attempts": len(rows)})
+        return jsonify({"recommendations": serialize(ranked[:6]), "topic_guidance": serialize(sorted(guidance, key=lambda x: (x["proficiency_status"] != "Preliminary", x["mastery"]))), "model_predictions": serialize(model_predictions[:30]), "model": model_info, "proficiency_bands": {"Weak": "0–49% with 3+ distinct questions", "Intermediate": "50–79% with 3+ distinct questions", "Mastered": "80–100% with 3+ distinct questions", "Preliminary": "Fewer than 3 distinct questions"}, "based_on_attempts": len(rows)})
 
     @app.post("/api/study-plan/generate")
     @role_required("student")
     def generate_plan():
         user = current_user()
         profile = normalize_student_profile(user.get("profile", {}))
-        past = list(attempts.find({"student_id": user["_id"]}).sort("created_at", -1).limit(100))
+        track_course_ids = student_track_course_ids(user)
+        past = list(attempts.find({"student_id": user["_id"], "course_id": {"$in": track_course_ids}}).sort("created_at", -1).limit(100))
         topic_scores = {}
         for item in past:
             course_id = item.get("course_id", "").upper()
             breakdown = item.get("topic_scores") or [{"topic": item.get("topic", "General"), "score": item.get("score", 0), "max_score": item.get("max_score", 0)}]
             for result in breakdown:
-                row = topic_scores.setdefault((course_id, result.get("topic", "General")), {"score": 0, "total": 0, "assessments": 0})
+                row = topic_scores.setdefault((course_id, result.get("topic", "General")), {"score": 0, "total": 0, "assessments": 0, "question_signatures": set()})
                 row["score"] += result.get("score", 0)
                 row["total"] += result.get("max_score", 0)
                 row["assessments"] += 1
+            for response in item.get("responses", []):
+                row = topic_scores.setdefault((course_id, response.get("topic", "General")), {"score": 0, "total": 0, "assessments": 0, "question_signatures": set()})
+                signature = question_signature(response.get("prompt"))
+                if signature:
+                    row["question_signatures"].add(signature)
         ranked = sorted(topic_scores.items(), key=lambda pair: pair[1]["score"] / pair[1]["total"] if pair[1]["total"] else 0)
-        needs_practice = [(key, value) for key, value in ranked if value["total"] and value["score"] / value["total"] < 0.8]
-        available = courses.find({})
-        course_rows = list(available)
+        # One or two answers are too little evidence to label a topic weak.
+        # Keep those topics eligible for a first-check plan, but only use a
+        # weak-score recommendation once the student has answered at least
+        # three distinct questions tagged to that topic.
+        needs_practice = [
+            (key, value) for key, value in ranked
+            if len(value["question_signatures"]) >= MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL
+            and value["score"] / value["total"] < 0.8
+        ]
+        course_rows = list(courses.find({"program_tracks": profile["program_track"]}))
+        active_course_ids = {course["course_id"] for course in course_rows}
         enrolled_ids = {row["course_id"] for row in enrollments.find({"student_id": user["_id"]})}
         course_rows.sort(key=lambda course: (course.get("course_id") not in enrolled_ids, course.get("title", "")))
         # Keep an adaptive plan grounded in the student's chosen learning path.
         # If there are weak topics in enrolled courses, don't pad the plan with
         # unrelated catalog courses. Otherwise use courses they have attempted.
-        attempted_course_ids = {course_id for course_id, _topic in topic_scores if course_id}
+        attempted_course_ids = {course_id for course_id, _topic in topic_scores if course_id in active_course_ids}
+        needs_practice = [pair for pair in needs_practice if pair[0][0] in active_course_ids]
         enrolled_weak = [pair for pair in needs_practice if pair[0][0] in enrolled_ids]
         attempted_weak = [pair for pair in needs_practice if pair[0][0] in attempted_course_ids]
         if enrolled_weak:
@@ -1144,14 +1319,14 @@ def create_app(test_config=None):
             if topic_name and key not in seen_topics:
                 if baseline_mastery is None:
                     baseline_stats = topic_scores.get(key)
-                    if baseline_stats and baseline_stats.get("total"):
+                    if baseline_stats and len(baseline_stats.get("question_signatures", set())) >= MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL:
                         baseline_mastery = int(math.floor(100 * baseline_stats["score"] / baseline_stats["total"] + 0.5))
                 baseline_stats = topic_scores.get(key)
                 planned_topics.append({
                     "course_id": course_id, "topic": topic_name, "activity": activity,
                     "reason_type": reason_type, "reason": reason,
                     "baseline_mastery": baseline_mastery,
-                    "baseline_question_count": int(baseline_stats.get("total", 0)) if baseline_stats else 0,
+                    "baseline_question_count": len(baseline_stats.get("question_signatures", set())) if baseline_stats else 0,
                 })
                 seen_topics.add(key)
 
@@ -1197,11 +1372,18 @@ def create_app(test_config=None):
                 stats = _stats
                 mastery = int(math.floor(100 * stats["score"] / stats["total"] + 0.5)) if stats.get("total") else None
                 assessment_count = stats.get("assessments", 0)
-                if mastery is not None:
+                unique_question_count = len(stats.get("question_signatures", set()))
+                if unique_question_count >= MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL and mastery is not None:
                     reason = f"Your quiz mastery is {mastery}% across {assessment_count} recent assessment{'s' if assessment_count != 1 else ''}."
+                    reason_type = "weak_score"
+                elif unique_question_count:
+                    reason = f"This is a preliminary signal from {unique_question_count} distinct question{'s' if unique_question_count != 1 else ''}; collect at least {MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL} before Nebula treats it as a weak topic."
+                    reason_type = "practice"
                 else:
                     reason = "This topic is in your learning path and is ready for a first check."
-                add_topic(course_id, topic, "Review the lesson, then try a focused practice quiz", "weak_score" if mastery is not None else "practice", reason, mastery)
+                    reason_type = "practice"
+                reliable_baseline = mastery if unique_question_count >= MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL else None
+                add_topic(course_id, topic, "Review the lesson, then try a focused practice quiz", reason_type, reason, reliable_baseline)
 
         try:
             local_timezone = ZoneInfo(request.headers.get("X-Timezone", "UTC"))
@@ -1221,8 +1403,10 @@ def create_app(test_config=None):
             if not review_key[0] or not review_key[1] or review_key in latest_review_keys:
                 continue
             latest_review_keys.add(review_key)
+            if review_key[0] not in active_course_ids:
+                continue
             score_pct = reviewed.get("follow_up_percentage")
-            if not isinstance(score_pct, (int, float)) or reviewed.get("follow_up_max_score", 0) < 3:
+            if not isinstance(score_pct, (int, float)) or reviewed.get("follow_up_unique_question_count", 0) < MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL:
                 continue
             interval_days = 1 if score_pct < 50 else 3 if score_pct < 80 else 7
             follow_up_at = reviewed["follow_up_at"]
@@ -1272,7 +1456,7 @@ def create_app(test_config=None):
             tasks.append({**item, "session_id": secrets.token_urlsafe(18), "day": len(tasks) + 1, "day_label": day_label, "scheduled_date": cursor.isoformat(), "minutes": task_minutes})
         plan = {
             "student_id": user["_id"], "plan_id": plan_id, "learning_track": profile["learning_track"],
-            "learning_track_label": LEARNING_TRACK_LABEL, "goal": profile["goal"], "goal_mode": goal_mode,
+            "learning_track_label": CURRICULUM_TRACKS[profile["program_track"]].get("display_name", profile["program_track"]), "goal": profile["goal"], "goal_mode": goal_mode,
             "daily_minutes": day_minutes, "available_days": profile["available_days"],
             "preferred_session_minutes": profile["preferred_session_minutes"], "session_minutes": session_minutes,
             "tasks": tasks, "generated_at": utcnow(),
@@ -1329,7 +1513,7 @@ def create_app(test_config=None):
         planned_sessions = sum(len(plan.get("tasks", [])) for plan in current_plans)
         completed_sessions = study_session_completions.count_documents({"plan_id": {"$in": plan_ids}}) if plan_ids else 0
         paired_outcomes = list(study_session_completions.aggregate([
-            {"$match": {"score_change_points": {"$type": "number"}}},
+            {"$match": {"score_change_points": {"$type": "number"}, "baseline_question_count": {"$gte": MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL}, "follow_up_unique_question_count": {"$gte": MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL}}},
             {"$group": {"_id": None, "count": {"$sum": 1}, "average": {"$avg": "$score_change_points"}, "improved": {"$sum": {"$cond": [{"$gt": ["$score_change_points", 0]}, 1, 0]}}}},
         ]))
         paired_outcomes = paired_outcomes[0] if paired_outcomes else {}
@@ -1340,7 +1524,7 @@ def create_app(test_config=None):
             "retention": {"d1": retention_metric("d1", eligible_day1), "d7": retention_metric("d7", eligible_day7), "cohort_tracking_since": tracking_day},
             "current_plans": {"students": len(current_plans), "planned_sessions": planned_sessions, "completed_sessions": completed_sessions, "completion_percent": round(100 * completed_sessions / planned_sessions, 1) if planned_sessions else None},
             "learning_checks": {"follow_up_pairs": learning_pairs, "eligible_score_pairs": paired_outcomes.get("count", 0), "average_score_change_points": round(paired_outcomes["average"], 1) if paired_outcomes.get("count") else None, "improved_pairs": paired_outcomes.get("improved", 0)},
-            "definitions": {"retention": "Student had an authenticated app visit or learning activity on the exact UTC day 1 or day 7 after signup.", "completion": "Completed sessions divided by sessions in each student's latest saved plan.", "score_change": "Descriptive topic score difference; at least three questions required in both baseline and follow-up."},
+            "definitions": {"retention": "Student had an authenticated app visit or learning activity on the exact UTC day 1 or day 7 after signup.", "completion": "Completed sessions divided by sessions in each student's latest saved plan.", "score_change": "Descriptive topic score difference; at least three distinct questions required in both baseline and follow-up."},
         }
         return jsonify({"students": users.count_documents({"role": "student"}), "admins": users.count_documents({"role": "admin"}), "courses": courses.count_documents({}), "quizzes": quizzes.count_documents({}), "published_quizzes": quizzes.count_documents({"published": True}), "attempts": attempts.count_documents({}), "pilot": serialize(pilot)})
 

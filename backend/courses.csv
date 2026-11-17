@@ -1,26 +1,26 @@
 course_code,course_name,category,total_topics
-CN,Computer Networks,Systems,15
-OOPS,Object-Oriented Programming,Core CS,15
-DSA,Data Structures & Algorithms,Core CS,15
-DBMS,Database Management Systems,Core CS,15
-OS,Operating Systems,Systems,15
-AI,Artificial Intelligence & ML,Advanced,15
-SE,Software Engineering,Core CS,15
-WT,Web Technologies,Development,15
-CD,Compiler Design,Systems,15
-COA,Computer Organization & Architecture,Systems,15
-CC,Cloud Computing,Advanced,15
-TOC,Theory of Computation,Core CS,15
-C,C Programming & Problem Solving,Core CS,15
-CPP,Advanced C++ Programming,Core CS,15
-JAVA,Java Application Development,Core CS,15
-PY,Python for Data Science,Development,15
-CS,Cyber Security & Cryptography,Security,15
-BD,Big Data Analytics,Advanced,15
-DE,Digital Electronics & Logic Design,Hardware,15
-MP,Microprocessors & Interfacing,Hardware,15
-DL,Deep Learning & Neural Networks,Advanced,15
-NLP,Natural Language Processing,Advanced,15
-DevOps,DevOps & CI/CD Pipelines,Development,15
-BC,Blockchain & Distributed Ledgers,Advanced,15
-DGA,Design & Analysis of Algorithms,Core CS,15
+CN,Computer Networks,Systems,5
+OOPS,Object-Oriented Programming,Core CS,5
+DSA,Data Structures & Algorithms,Core CS,5
+DBMS,Database Management Systems,Core CS,5
+OS,Operating Systems,Systems,5
+AI,Artificial Intelligence & ML,Advanced,5
+SE,Software Engineering,Core CS,5
+WT,Web Technologies,Development,5
+CD,Compiler Design,Systems,5
+COA,Computer Organization & Architecture,Systems,5
+CC,Cloud Computing,Advanced,5
+TOC,Theory of Computation,Core CS,5
+C,C Programming & Problem Solving,Core CS,5
+CPP,Advanced C++ Programming,Core CS,5
+JAVA,Java Application Development,Core CS,5
+PY,Python for Data Science,Development,5
+CS,Cyber Security & Cryptography,Security,5
+BD,Big Data Analytics,Advanced,5
+DE,Digital Electronics & Logic Design,Hardware,5
+MP,Microprocessors & Interfacing,Hardware,5
+DL,Deep Learning & Neural Networks,Advanced,5
+NLP,Natural Language Processing,Advanced,5
+DevOps,DevOps & CI/CD Pipelines,Development,5
+BC,Blockchain & Distributed Ledgers,Advanced,5
+DGA,Design & Analysis of Algorithms,Core CS,5

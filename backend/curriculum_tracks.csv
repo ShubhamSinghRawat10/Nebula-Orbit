@@ -1,0 +1,37 @@
+track_id,degree,branch,display_name,source_scope
+BTECH_CSE,B.Tech,Computer Science and Engineering,B.Tech · Computer Science & Engineering,AICTE UG model curriculum + common core
+BTECH_IT,B.Tech,Information Technology,B.Tech · Information Technology,Common core + standard IT foundations
+BTECH_ECE,B.Tech,Electronics and Communication Engineering,B.Tech · Electronics & Communication,AICTE UG model curriculum + common core
+BTECH_EE,B.Tech,Electrical Engineering,B.Tech · Electrical Engineering,AICTE UG model curriculum + common core
+BTECH_ME,B.Tech,Mechanical Engineering,B.Tech · Mechanical Engineering,AICTE revised model curriculum + common core
+BTECH_CE,B.Tech,Civil Engineering,B.Tech · Civil Engineering,AICTE UG model curriculum + common core
+BTECH_CHE,B.Tech,Chemical Engineering,B.Tech · Chemical Engineering,AICTE UG model curriculum + common core
+BTECH_MME,B.Tech,Metallurgical and Materials Engineering,B.Tech · Metallurgical & Materials,AICTE UG model curriculum
+BTECH_BIOTECH,B.Tech,Biotechnology,B.Tech · Biotechnology,Common core + standard biotechnology foundations
+BTECH_AERO,B.Tech,Aerospace Engineering,B.Tech · Aerospace Engineering,Common core + standard aerospace foundations
+BTECH_AGRI,B.Tech,Agricultural Engineering,B.Tech · Agricultural Engineering,Common core + standard agricultural engineering foundations
+BTECH_BIOMED,B.Tech,Biomedical Engineering,B.Tech · Biomedical Engineering,Common core + standard biomedical foundations
+BTECH_ENV,B.Tech,Environmental Engineering,B.Tech · Environmental Engineering,Common core + standard environmental engineering foundations
+BTECH_AUTO,B.Tech,Automobile Engineering,B.Tech · Automobile Engineering,Common core + standard automobile foundations
+BTECH_PROD,B.Tech,Production Engineering,B.Tech · Production Engineering,Common core + standard production foundations
+BTECH_MINING,B.Tech,Mining Engineering,B.Tech · Mining Engineering,Common core + standard mining foundations
+BTECH_PETRO,B.Tech,Petroleum Engineering,B.Tech · Petroleum Engineering,Common core + standard petroleum foundations
+BTECH_TEXTILE,B.Tech,Textile Engineering,B.Tech · Textile Engineering,Common core + standard textile foundations
+BTECH_AI_DS,B.Tech,Artificial Intelligence and Data Science,B.Tech · Artificial Intelligence & Data Science,Common core + AI/data foundations
+BTECH_CSE_AIML,B.Tech,Computer Science Engineering (AI and Machine Learning),B.Tech · CSE (AI & Machine Learning),Common core + CSE and machine-learning foundations
+BTECH_CSE_CYBER,B.Tech,Computer Science Engineering (Cyber Security),B.Tech · CSE (Cyber Security),Common core + CSE and cybersecurity foundations
+BTECH_COMPENG,B.Tech,Computer Engineering,B.Tech · Computer Engineering,Common core + computer engineering foundations
+BTECH_CCE,B.Tech,Computer and Communication Engineering,B.Tech · Computer & Communication Engineering,Common core + computing and communication foundations
+BTECH_VLSI,B.Tech,Electronics Engineering (VLSI Design),B.Tech · Electronics (VLSI Design),Common core + electronics and VLSI foundations
+BTECH_MECHATRONICS,B.Tech,Mechatronics Engineering,B.Tech · Mechatronics Engineering,Common core + mechanical/electrical/control foundations
+BTECH_ROBOTICS,B.Tech,Robotics and Automation,B.Tech · Robotics & Automation,Common core + robotics and automation foundations
+BTECH_INSTR,B.Tech,Instrumentation and Control Engineering,B.Tech · Instrumentation & Control,Common core + instrumentation and control foundations
+BTECH_INDUSTRIAL,B.Tech,Industrial Engineering,B.Tech · Industrial Engineering,Common core + production/operations foundations
+BTECH_MARINE,B.Tech,Marine Engineering,B.Tech · Marine Engineering,Common core + marine systems foundations
+BTECH_FOODTECH,B.Tech,Food Technology,B.Tech · Food Technology,Common core + food process foundations
+BTECH_DAIRY,B.Tech,Dairy Technology,B.Tech · Dairy Technology,Common core + food/bioprocess foundations
+BTECH_CERAMIC,B.Tech,Ceramic Engineering,B.Tech · Ceramic Engineering,Common core + materials processing foundations
+BTECH_POLYMER,B.Tech,Polymer Engineering,B.Tech · Polymer Engineering,Common core + polymer/materials foundations
+BTECH_ENERGY,B.Tech,Energy Engineering,B.Tech · Energy Engineering,Common core + energy conversion foundations
+BTECH_GEO,B.Tech,Geoinformatics and Surveying,B.Tech · Geoinformatics & Surveying,Common core + surveying/GIS foundations
+BCA,BCA,Computer Applications,BCA · Computer Applications,Common core + standard BCA foundations

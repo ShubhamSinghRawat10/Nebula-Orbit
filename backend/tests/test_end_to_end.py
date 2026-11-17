@@ -48,7 +48,7 @@ class NebulaAcceptanceTests(unittest.TestCase):
             "subject": "Computer Science", "level": "Beginner",
             "description": "Core data structures and algorithms.",
             "estimated_hours": 30, "topics": ["Foundations", "Algorithm analysis"],
-            "topic_ids": ["DSA_T1", "DSA_T2"],
+            "topic_ids": ["DSA_T1", "DSA_T2"], "program_tracks": ["BTECH_CSE"],
         })
         self.db.topics.insert_many([
             {"topic_id": "DSA_T1", "course_id": "DSA", "topic_name": "DSA - Foundations", "difficulty_level": "Beginner"},
@@ -132,6 +132,7 @@ class NebulaAcceptanceTests(unittest.TestCase):
         admin_headers = auth(admin.json["access_token"])
         duplicate_course = self.client.post("/api/courses", headers=admin_headers, json={
             "course_id": "DSA", "title": "Would overwrite DSA", "topics": ["Wrong topic"],
+            "program_tracks": ["BTECH_CSE"],
         })
         self.assertEqual(duplicate_course.status_code, 409)
         self.assertEqual(self.db.courses.count_documents({"course_id": "DSA"}), 1)
@@ -139,7 +140,7 @@ class NebulaAcceptanceTests(unittest.TestCase):
         course = self.client.post("/api/courses", headers=admin_headers, json={
             "course_id": "WEB-101", "title": "Web Foundations", "subject": "Web",
             "level": "Beginner", "description": "HTML and browser basics.", "estimated_hours": 8,
-            "topics": ["HTML", "CSS"],
+            "topics": ["HTML", "CSS"], "program_tracks": ["BTECH_CSE"],
         })
         self.assertEqual(course.status_code, 201)
         course_topics = self.client.get("/api/courses/WEB-101/topics", headers=student_headers)
@@ -194,6 +195,16 @@ class NebulaAcceptanceTests(unittest.TestCase):
         self.assertNotIn("answer_index", visible_quiz.json["quiz"]["questions"][0])
         self.assertEqual(self.client.delete(f"/api/quizzes/{quiz_id}", headers=admin_headers).status_code, 200)
 
+        held_quiz = self.db.quizzes.insert_one({
+            "title": "Quiz awaiting revision", "course_id": "DSA", "topic": "DSA - Foundations",
+            "difficulty": "mixed", "published": True, "content_review_status": "review_revisions_needed",
+            "questions": [{"prompt": "Held item", "topic": "DSA - Foundations", "options": ["A", "B"], "answer_index": 0}],
+        }).inserted_id
+        listed_ids = {item["_id"] for item in self.client.get("/api/quizzes", headers=student_headers).json["quizzes"]}
+        self.assertNotIn(str(held_quiz), listed_ids)
+        self.assertEqual(self.client.get(f"/api/quizzes/{held_quiz}", headers=student_headers).status_code, 404)
+        self.assertEqual(self.client.post(f"/api/quizzes/{held_quiz}/submit", headers=student_headers, json={"answers": [0]}).status_code, 404)
+
         student_id = student.json["user"]["_id"]
         self.assertEqual(self.client.patch(f"/api/admin/students/{student_id}/status", headers=admin_headers, json={"status": "suspended"}).status_code, 200)
         self.assertEqual(self.client.post("/api/auth/login", json={"email": "learner@example.test", "password": "Long-test-password-2026"}).status_code, 403)
@@ -240,6 +251,13 @@ class NebulaAcceptanceTests(unittest.TestCase):
             )
             (root / "topic_prerequisite.csv").write_text(
                 "id,topic_id,prerequisite_topic_id,prerequisite_type\nTST_EDGE,TST_T2,TST_T1,Direct\n", encoding="utf-8"
+            )
+            (root / "curriculum_tracks.csv").write_text(
+                "track_id,degree,branch,display_name,source_scope\n"
+                "BTECH_CSE,B.Tech,Computer Science and Engineering,B.Tech CSE,Test fixture\n", encoding="utf-8"
+            )
+            (root / "course_tracks.csv").write_text(
+                "course_code,track_id\nTST,BTECH_CSE\n", encoding="utf-8"
             )
             self.db.prerequisites.insert_one({
                 "edge_id": "ADMIN_EDGE", "topic_id": "ADMIN_T2",
