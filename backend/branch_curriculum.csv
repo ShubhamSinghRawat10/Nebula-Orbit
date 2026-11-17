@@ -1,0 +1,523 @@
+course_code,course_name,category,track_id,topics
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_CSE,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_IT,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_ECE,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_EE,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_ME,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_CE,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_CHE,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_MME,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_BIOTECH,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_AERO,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_AGRI,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_BIOMED,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_ENV,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_AUTO,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_PROD,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_MINING,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_PETRO,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_TEXTILE,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_AI_DS,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_CSE_AIML,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_CSE_CYBER,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_COMPENG,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_CCE,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_VLSI,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_MECHATRONICS,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_ROBOTICS,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_INSTR,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_INDUSTRIAL,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_MARINE,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_FOODTECH,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_DAIRY,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_CERAMIC,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_POLYMER,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_ENERGY,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGMATH1,Engineering Mathematics I,Engineering Foundation,BTECH_GEO,Single-variable calculus|Differential calculus and applications|Integral calculus|Matrices and linear systems|Complex numbers
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_CSE,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_IT,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_ECE,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_EE,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_ME,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_CE,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_CHE,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_MME,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_BIOTECH,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_AERO,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_AGRI,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_BIOMED,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_ENV,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_AUTO,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_PROD,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_MINING,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_PETRO,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_TEXTILE,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_AI_DS,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_CSE_AIML,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_CSE_CYBER,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_COMPENG,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_CCE,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_VLSI,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_MECHATRONICS,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_ROBOTICS,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_INSTR,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_INDUSTRIAL,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_MARINE,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_FOODTECH,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_DAIRY,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_CERAMIC,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_POLYMER,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_ENERGY,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGPHY1,Engineering Physics,Engineering Foundation,BTECH_GEO,Wave optics and interference|Electromagnetism|Quantum physics foundations|Semiconductor physics|Lasers and fibre optics
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_CSE,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_IT,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_ECE,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_EE,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_ME,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_CE,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_CHE,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_MME,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_BIOTECH,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_AERO,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_AGRI,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_BIOMED,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_ENV,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_AUTO,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_PROD,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_MINING,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_PETRO,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_TEXTILE,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_AI_DS,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_CSE_AIML,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_CSE_CYBER,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_COMPENG,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_CCE,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_VLSI,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_MECHATRONICS,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_ROBOTICS,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_INSTR,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_INDUSTRIAL,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_MARINE,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_FOODTECH,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_DAIRY,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_CERAMIC,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_POLYMER,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_ENERGY,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGCHEM1,Engineering Chemistry,Engineering Foundation,BTECH_GEO,Atomic structure and bonding|Chemical thermodynamics|Electrochemistry and corrosion|Water chemistry and treatment|Polymers and engineering materials
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_CSE,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_IT,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_ECE,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_EE,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_ME,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_CE,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_CHE,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_MME,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_BIOTECH,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_AERO,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_AGRI,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_BIOMED,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_ENV,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_AUTO,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_PROD,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_MINING,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_PETRO,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_TEXTILE,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_AI_DS,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_CSE_AIML,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_CSE_CYBER,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_COMPENG,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_CCE,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_VLSI,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_MECHATRONICS,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_ROBOTICS,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_INSTR,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_INDUSTRIAL,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_MARINE,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_FOODTECH,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_DAIRY,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_CERAMIC,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_POLYMER,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_ENERGY,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+ENGPROG,Programming for Problem Solving,Engineering Foundation,BTECH_GEO,"Algorithms and flowcharts|Data types and expressions|Selection and iteration|Arrays and strings|Functions, pointers and structures"
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_CSE,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_IT,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_ECE,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_EE,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_ME,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_CE,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_CHE,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_MME,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_BIOTECH,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_AERO,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_AGRI,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_BIOMED,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_ENV,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_AUTO,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_PROD,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_MINING,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_PETRO,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_TEXTILE,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_AI_DS,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_CSE_AIML,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_CSE_CYBER,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_COMPENG,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_CCE,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_VLSI,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_MECHATRONICS,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_ROBOTICS,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_INSTR,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_INDUSTRIAL,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_MARINE,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_FOODTECH,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_DAIRY,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_CERAMIC,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_POLYMER,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_ENERGY,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+BASICEE,Basic Electrical Engineering,Engineering Foundation,BTECH_GEO,DC circuit laws and network theorems|Single-phase AC circuits|Magnetic circuits and transformers|Electrical machines overview|Electrical safety and measurements
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_CSE,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_IT,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_ECE,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_EE,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_ME,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_CE,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_CHE,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_MME,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_BIOTECH,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_AERO,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_AGRI,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_BIOMED,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_ENV,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_AUTO,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_PROD,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_MINING,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_PETRO,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_TEXTILE,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_AI_DS,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_CSE_AIML,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_CSE_CYBER,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_COMPENG,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_CCE,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_VLSI,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_MECHATRONICS,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_ROBOTICS,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_INSTR,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_INDUSTRIAL,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_MARINE,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_FOODTECH,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_DAIRY,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_CERAMIC,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_POLYMER,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_ENERGY,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGGRAPH,Engineering Graphics,Engineering Foundation,BTECH_GEO,Engineering drawing standards|Orthographic projections|Isometric projections|Sectional views|Computer-aided drafting basics
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_CSE,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_IT,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_ECE,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_EE,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_ME,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_CE,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_CHE,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_MME,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_BIOTECH,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_AERO,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_AGRI,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_BIOMED,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_ENV,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_AUTO,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_PROD,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_MINING,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_PETRO,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_TEXTILE,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_AI_DS,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_CSE_AIML,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_CSE_CYBER,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_COMPENG,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_CCE,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_VLSI,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_MECHATRONICS,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_ROBOTICS,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_INSTR,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_INDUSTRIAL,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_MARINE,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_FOODTECH,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_DAIRY,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_CERAMIC,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_POLYMER,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_ENERGY,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+ENGMECH,Engineering Mechanics,Engineering Foundation,BTECH_GEO,"Force systems and equilibrium|Centroids and moments of inertia|Friction|Kinematics of particles|Work, energy and impulse"
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_CSE,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_IT,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_ECE,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_EE,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_ME,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_CE,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_CHE,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_MME,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_BIOTECH,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_AERO,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_AGRI,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_BIOMED,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_ENV,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_AUTO,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_PROD,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_MINING,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_PETRO,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_TEXTILE,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_AI_DS,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_CSE_AIML,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_CSE_CYBER,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_COMPENG,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_CCE,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_VLSI,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_MECHATRONICS,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_ROBOTICS,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_INSTR,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_INDUSTRIAL,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_MARINE,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_FOODTECH,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_DAIRY,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_CERAMIC,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_POLYMER,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_ENERGY,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+TECHCOMM,Communication and Technical Writing,Engineering Foundation,BTECH_GEO,Technical reading and note-making|Clear technical paragraphs|Reports and proposals|Oral presentations|Professional and ethical communication
+IT01,Information Systems,IT,BTECH_IT,Information system components|Transaction and decision support systems|Enterprise systems|Systems analysis and design|IT governance and service management
+IT02,Data Communication,IT,BTECH_IT,Signals and transmission media|Data encoding and multiplexing|Error detection and correction|Switching and routing concepts|Link protocols and performance
+IT03,IT Infrastructure and Services,IT,BTECH_IT,Server and storage architecture|Virtualization and containers|IT service lifecycle|Availability and incident management|Capacity and continuity planning
+IT04,Web Application Engineering,IT,BTECH_IT,HTTP and browser architecture|Client-side application structure|Server-side web patterns|API design and integration|Web security and deployment
+ECE01,Electronic Devices,ECE,BTECH_ECE,PN junction and diode circuits|Bipolar junction transistor|Field-effect transistors|Biasing and small-signal models|Optoelectronic devices
+ECE02,Analog Circuits,ECE,BTECH_ECE,Amplifier frequency response|Feedback and stability|Operational amplifier circuits|Oscillators and waveform generators|Power amplifier classes
+ECE03,Signals and Systems,ECE,BTECH_ECE,Continuous and discrete signals|Linear time-invariant systems|Convolution and impulse response|Fourier series and transforms|Laplace and Z transforms
+ECE04,Digital Communication,ECE,BTECH_ECE,Sampling and pulse modulation|Baseband line coding|Digital modulation schemes|Detection and error probability|Information theory and channel coding
+ECE05,Electromagnetic Fields,ECE,BTECH_ECE,Vector calculus for fields|Electrostatics and boundary conditions|Magnetostatics|Maxwell equations|Uniform plane waves and transmission lines
+EE01,Electrical Circuit Analysis,EE,BTECH_EE,Network laws and topology|Network theorems|Transient response of circuits|Sinusoidal steady-state analysis|Two-port networks
+EE02,Electrical Machines,EE,BTECH_EE,Transformers and equivalent circuits|DC machine principles|Three-phase induction machines|Synchronous machines|Machine testing and efficiency
+EE03,Power Systems,EE,BTECH_EE,Generation and load characteristics|Transmission line parameters|Power flow fundamentals|Fault analysis and protection|Economic operation and grid basics
+EE04,Power Electronics,EE,BTECH_EE,Power semiconductor devices|Controlled rectifiers|DC-DC converters|Inverters and PWM|Drives and applications
+EE05,Control Systems,EE,BTECH_EE,System modelling and block diagrams|Time-domain response|Stability criteria|Root locus and frequency response|PID control and compensation
+ME01,Engineering Thermodynamics,ME,BTECH_ME,Properties of pure substances|First law for closed and open systems|Second law and entropy|Power and refrigeration cycles|Combustion and availability
+ME02,Fluid Mechanics,ME,BTECH_ME,Fluid properties and statics|Continuity and momentum equations|Bernoulli equation and applications|Internal pipe flow and losses|Boundary layers and dimensional analysis
+ME03,Strength of Materials,ME,BTECH_ME,"Stress, strain and elastic constants|Axial loading and thermal stress|Shear force and bending moment|Bending and shear stresses|Torsion and column buckling"
+ME04,Manufacturing Processes,ME,BTECH_ME,Casting processes and defects|Forming and metalworking|Machining mechanics and tools|Joining processes|Additive manufacturing fundamentals
+ME05,Theory of Machines,ME,BTECH_ME,"Kinematic pairs and mechanisms|Velocity and acceleration analysis|Gears and gear trains|Balancing of rotating masses|Governors, flywheels and vibration"
+CE01,Structural Analysis,CE,BTECH_CE,Determinate beams and frames|Deflection of beams|Influence lines|Indeterminate structures|Matrix methods and structural idealization
+CE02,Geotechnical Engineering,CE,BTECH_CE,Soil formation and index properties|Soil classification and compaction|Permeability and seepage|Effective stress and consolidation|Shear strength and bearing capacity
+CE03,Surveying,CE,BTECH_CE,"Chain and compass surveying|Levelling and contouring|Traversing and error adjustment|Theodolite and total station|GNSS, photogrammetry and GIS basics"
+CE04,Fluid Mechanics and Hydraulics,CE,BTECH_CE,Fluid statics and pressure measurement|Flow kinematics and dynamics|Pipe networks and losses|Open-channel flow|Hydraulic machines and measurements
+CE05,Transportation Engineering,CE,BTECH_CE,Highway planning and alignment|Geometric design|Pavement materials and design|Traffic flow and intersections|Railway and airport engineering overview
+CHE01,Chemical Engineering Thermodynamics,CHE,BTECH_CHE,First-law energy balances|Second law and entropy|Pure-fluid property relations|Phase equilibrium|Thermodynamic cycles and applications
+CHE02,Fluid Flow Operations,CHE,BTECH_CHE,Fluid statics and dimensional analysis|Continuity and momentum balances|Flow in pipes and fittings|Pumps and flow measurement|Packed beds and fluidization
+CHE03,Heat Transfer,CHE,BTECH_CHE,"Steady-state conduction|Convection correlations|Thermal radiation|Heat exchanger analysis|Boiling, condensation and evaporation"
+CHE04,Mass Transfer Operations,CHE,BTECH_CHE,Diffusion and mass-transfer coefficients|Equilibrium stages|Distillation|Gas absorption and stripping|Liquid-liquid extraction and drying
+CHE05,Chemical Reaction Engineering,CHE,BTECH_CHE,Rate laws and reaction kinetics|Ideal batch and flow reactors|Reactor design equations|Non-isothermal reactors|Catalysis and residence-time effects
+MME01,Physical Metallurgy,MME,BTECH_MME,Crystal structures and defects|Diffusion in solids|Phase diagrams and lever rule|Solidification and microstructure|Mechanical behaviour of materials
+MME02,Extractive Metallurgy,MME,BTECH_MME,Ore preparation and concentration|Pyrometallurgical principles|Hydrometallurgical leaching|Electrometallurgical extraction|Metal refining and process selection
+MME03,Heat Treatment of Materials,MME,BTECH_MME,Iron-carbon equilibrium diagram|Austenitizing and transformation products|Annealing and normalizing|Quenching and tempering|Hardenability and surface treatment
+MME04,Materials Characterization,MME,BTECH_MME,Optical microscopy and specimen preparation|X-ray diffraction principles|Scanning electron microscopy|Mechanical and hardness testing|Failure analysis and fractography
+BIOTECH01,Cell Biology,BIOTECH,BTECH_BIOTECH,Cell structure and organelles|Membrane transport and signalling|Cell cycle and division|Cytoskeleton and motility|Cell death and disease
+BIOTECH02,Biochemistry,BIOTECH,BTECH_BIOTECH,Biomolecules and molecular interactions|Enzyme kinetics and inhibition|Carbohydrate and lipid metabolism|Bioenergetics and ATP|Protein structure and function
+BIOTECH03,Genetics and Molecular Biology,BIOTECH,BTECH_BIOTECH,Mendelian inheritance|DNA replication and repair|Transcription and RNA processing|Translation and gene regulation|Mutation and genetic variation
+BIOTECH04,Microbiology,BIOTECH,BTECH_BIOTECH,Microbial cell structure|Growth kinetics and culture methods|Microbial genetics|Pathogenesis and host response|Sterilization and antimicrobial control
+BIOTECH05,Bioprocess Engineering,BIOTECH,BTECH_BIOTECH,Material and energy balances|Bioreactor configurations|Sterilization and aseptic operation|Scale-up and mass transfer|Downstream processing
+AERO01,Aerodynamics,AERO,BTECH_AERO,"Atmospheric properties and airfoils|Incompressible potential flow|Lift, drag and boundary layers|Compressible flow and shock waves|Finite-wing and aircraft performance"
+AERO02,Aircraft Structures,AERO,BTECH_AERO,"Loads and structural idealization|Stress analysis of beams and thin-walled members|Airframe joints and fittings|Buckling and stability|Fatigue, fracture and damage tolerance"
+AERO03,Flight Mechanics,AERO,BTECH_AERO,Aircraft geometry and performance|Static stability and control|Equations of motion|Longitudinal and lateral dynamics|Flight envelope and manoeuvres
+AERO04,Propulsion Systems,AERO,BTECH_AERO,Thrust and propulsion cycles|Gas turbine components|Compressor and turbine performance|Combustion and nozzle flow|Propeller and rocket propulsion overview
+AGRI01,Soil and Water Engineering,AGRI,BTECH_AGRI,Soil-water relationships|Infiltration and soil erosion|Watershed hydrology|Groundwater and wells|Soil and water conservation structures
+AGRI02,Irrigation and Drainage,AGRI,BTECH_AGRI,Crop water requirement|Canal and field irrigation|Pumps and water conveyance|Drainage design|Irrigation scheduling and efficiency
+AGRI03,Farm Power and Machinery,AGRI,BTECH_AGRI,Farm power sources|Tractor systems and performance|Tillage and seedbed implements|Planting and crop protection equipment|Machinery selection and field capacity
+AGRI04,Post-Harvest Engineering,AGRI,BTECH_AGRI,"Crop properties and quality|Cleaning, grading and handling|Drying and moisture relations|Storage and preservation|Processing systems and losses"
+BIOMED01,Human Physiology for Engineers,BIOMED,BTECH_BIOMED,Cell and tissue organization|Cardiovascular system|Respiratory system|Nervous system and bioelectricity|Homeostasis and physiological signals
+BIOMED02,Biomedical Instrumentation,BIOMED,BTECH_BIOMED,"Bio-potential electrodes|ECG, EEG and EMG acquisition|Signal conditioning and isolation|Medical sensors and transducers|Patient safety and instrument standards"
+BIOMED03,Biomaterials,BIOMED,BTECH_BIOMED,"Material classes and host response|Biocompatibility and testing|Metallic and polymeric implants|Ceramics and tissue engineering scaffolds|Degradation, wear and implant failure"
+BIOMED04,Medical Imaging Systems,BIOMED,BTECH_BIOMED,X-ray generation and radiography|Computed tomography principles|Ultrasound imaging|Magnetic resonance imaging|Image quality and radiation safety
+ENV01,Environmental Chemistry,ENV,BTECH_ENV,Water chemistry and equilibria|Acid-base and redox systems|Chemical oxygen demand and BOD|Nutrient cycles and eutrophication|Environmental sampling and analysis
+ENV02,Water and Wastewater Treatment,ENV,BTECH_ENV,"Water quality and treatment objectives|Coagulation, flocculation and sedimentation|Filtration and disinfection|Biological wastewater treatment|Sludge treatment and reuse"
+ENV03,Air Pollution Control,ENV,BTECH_ENV,Atmospheric structure and pollutant sources|Dispersion and air quality metrics|Particulate control devices|Gas absorption and emission control|Monitoring and regulatory concepts
+ENV04,Solid Waste Management,ENV,BTECH_ENV,Waste characterization and hierarchy|Collection and transport systems|Composting and biological treatment|Thermal treatment and energy recovery|Landfill design and leachate control
+AUTO01,Automotive Powertrains,AUTO,BTECH_AUTO,Internal-combustion engine cycles|Fuel injection and combustion|Engine performance and emissions|Electric and hybrid powertrains|Powertrain testing and calibration
+AUTO02,Vehicle Dynamics,AUTO,BTECH_AUTO,Tyre forces and vehicle models|Longitudinal dynamics and braking|Ride and suspension response|Steering and handling|Vehicle stability and control
+AUTO03,Automotive Transmission Systems,AUTO,BTECH_AUTO,Clutch and torque transfer|Manual and automatic gearboxes|Differentials and final drives|Continuously variable transmissions|Transmission efficiency and selection
+AUTO04,Automotive Electrical and Electronics,AUTO,BTECH_AUTO,Vehicle electrical architecture|Sensors and actuators|Engine and body control units|Communication buses and diagnostics|Functional safety and fault diagnosis
+PROD01,Production and Operations Research,PROD,BTECH_PROD,Linear programming models|Simplex and sensitivity analysis|Transportation and assignment|Inventory control|Project scheduling with PERT and CPM
+PROD02,Manufacturing Systems,PROD,BTECH_PROD,Process planning and routing|Production system layouts|Group technology and cellular manufacturing|Flexible manufacturing systems|Lean systems and bottleneck analysis
+PROD03,Quality Engineering,PROD,BTECH_PROD,Quality principles and cost|Statistical process control|Process capability|Acceptance sampling|Reliability and continuous improvement
+PROD04,Metrology and Inspection,PROD,BTECH_PROD,"Measurement standards and errors|Limits, fits and tolerances|Gauges and comparators|Coordinate measuring systems|Inspection planning and uncertainty"
+MINING01,Mining Geology,MINING,BTECH_MINING,"Minerals, rocks and structures|Ore deposit formation|Geological mapping and sampling|Exploration methods|Reserve estimation fundamentals"
+MINING02,Surface Mining,MINING,BTECH_MINING,Surface mine planning|Drilling and blasting|Excavation and haulage systems|Slope stability and waste dumps|Mine reclamation and environmental control
+MINING03,Underground Mining,MINING,BTECH_MINING,Underground mine development|Room-and-pillar methods|Longwall mining|Ground support and strata control|Production planning and mechanization
+MINING04,Mine Ventilation and Safety,MINING,BTECH_MINING,"Mine air properties and flow|Ventilation networks and fans|Heat, humidity and contaminant control|Gas detection and fire prevention|Risk assessment and emergency response"
+PETRO01,Petroleum Geoscience,PETRO,BTECH_PETRO,"Sedimentary basins and petroleum systems|Source rocks and maturation|Reservoir rocks and petrophysics|Traps, seals and migration|Well logs and subsurface correlation"
+PETRO02,Drilling Engineering,PETRO,BTECH_PETRO,Rig systems and well planning|Drilling fluids and hydraulics|Drill-string mechanics|Casing and cementing|Well control and drilling hazards
+PETRO03,Reservoir Engineering,PETRO,BTECH_PETRO,"Porosity, permeability and saturation|Fluid properties and phase behaviour|Material balance concepts|Darcy flow and well productivity|Waterflooding and enhanced recovery"
+PETRO04,Petroleum Production Engineering,PETRO,BTECH_PETRO,Well completion design|Reservoir inflow and tubing flow|Artificial lift methods|Production testing and allocation|Flow assurance and surface facilities
+TEXTILE01,Textile Fibre Science,TEXTILE,BTECH_TEXTILE,Natural and manufactured fibres|Polymer structure and fibre properties|Fibre identification and testing|Spinning preparation and fibre blends|Sustainable and technical fibres
+TEXTILE02,Yarn Manufacturing,TEXTILE,BTECH_TEXTILE,"Opening, cleaning and carding|Combing and drawing|Ring spinning|Rotor and air-jet spinning|Yarn count, twist and quality"
+TEXTILE03,Fabric Structure and Weaving,TEXTILE,BTECH_TEXTILE,Yarn and fabric geometry|Weave notation and basic weaves|Loom mechanisms|Knitted and nonwoven structures|Fabric defects and structural testing
+TEXTILE04,Textile Chemical Processing,TEXTILE,BTECH_TEXTILE,Preparation and pretreatment|Dye-fibre interactions|Dyeing methods and fastness|Printing and finishing|Effluent management and process safety
+AI_DS01,Applied Statistics for Data Science,AI DS,BTECH_AI_DS,Probability distributions|Sampling and estimation|Hypothesis testing|Regression and correlation|Experimental design and uncertainty
+AI_DS02,Data Engineering,AI DS,BTECH_AI_DS,Data formats and ingestion|Relational and NoSQL storage|ETL and data quality|Batch and stream processing|Data pipeline reliability
+AI_DS03,Machine Learning Foundations,AI DS,BTECH_AI_DS,"Supervised learning and validation|Linear and logistic models|Tree-based methods|Clustering and dimensionality reduction|Bias, variance and evaluation metrics"
+AI_DS04,Data Visualization,AI DS,BTECH_AI_DS,Data types and visual encoding|Exploratory plots|Uncertainty and statistical graphics|Interactive dashboard design|Responsible and accessible visualization
+CSE_AIML01,Artificial Intelligence,CSE AIML,BTECH_CSE_AIML,State-space search|Uninformed and informed search|Constraint satisfaction|Knowledge representation|Planning and decision making
+CSE_AIML02,Machine Learning,CSE AIML,BTECH_CSE_AIML,Learning objectives and data splits|Linear models and regularization|Classification and evaluation|Tree ensembles|Clustering and model selection
+CSE_AIML03,Deep Learning,CSE AIML,BTECH_CSE_AIML,Neural network foundations|Backpropagation and optimization|Convolutional networks|Sequence models and attention|Regularization and deployment
+CSE_AIML04,Natural Language Processing,CSE AIML,BTECH_CSE_AIML,Text normalization and tokenization|Language modelling|Word and sentence representations|Sequence tagging and classification|Attention and transformer basics
+CSE_CYBER01,Computer Security,CSE CYBER,BTECH_CSE_CYBER,Threat models and security goals|Authentication and access control|Operating-system security|Web application vulnerabilities|Secure development and testing
+CSE_CYBER02,Cryptography and Network Security,CSE CYBER,BTECH_CSE_CYBER,Symmetric encryption and modes|Public-key cryptography|Hashing and digital signatures|TLS and secure channels|Key management and protocol pitfalls
+CSE_CYBER03,Security Operations,CSE CYBER,BTECH_CSE_CYBER,Logging and monitoring|Indicators of compromise|Incident response lifecycle|Vulnerability management|Evidence handling and reporting
+CSE_CYBER04,Cyber Risk and Governance,CSE CYBER,BTECH_CSE_CYBER,"Asset and risk identification|Threat and likelihood analysis|Security policies and controls|Business continuity planning|Privacy, compliance and ethics"
+VLSI01,CMOS Digital Design,VLSI,BTECH_VLSI,"MOS transistor switching|CMOS inverter characteristics|Combinational logic design|Sequential logic and timing|Power, performance and area trade-offs"
+VLSI02,Verilog Hardware Description,VLSI,BTECH_VLSI,Modules and data types|Combinational RTL|Sequential RTL|Testbenches and simulation|Synthesis-aware coding
+VLSI03,VLSI Design Flow,VLSI,BTECH_VLSI,"Specification and architecture|RTL synthesis|Static timing analysis|Floorplanning and placement|Routing, verification and sign-off"
+VLSI04,Semiconductor Devices for VLSI,VLSI,BTECH_VLSI,MOS capacitor and threshold voltage|Short-channel effects|CMOS scaling|Process variation and leakage|Device reliability
+MECHATRONICS01,Embedded Systems,MECHATRONICS,BTECH_MECHATRONICS,Microcontroller architecture|Interrupts and timers|Peripheral interfaces|Real-time scheduling|Embedded system debugging
+MECHATRONICS02,Sensors and Actuators,MECHATRONICS,BTECH_MECHATRONICS,Sensor characteristics and calibration|Position and motion sensors|Hydraulic and pneumatic actuators|Electric drives and motors|Signal conditioning and noise
+MECHATRONICS03,Mechatronic System Design,MECHATRONICS,BTECH_MECHATRONICS,System requirements and block models|Mechanical-electrical integration|Microcontroller-based control|Safety and fault handling|Prototyping and validation
+MECHATRONICS04,Industrial Automation,MECHATRONICS,BTECH_MECHATRONICS,PLC architecture and ladder logic|Industrial sensors and actuators|SCADA fundamentals|Industrial communication networks|Safety interlocks and commissioning
+ROBOTICS01,Robot Kinematics,ROBOTICS,BTECH_ROBOTICS,Coordinate frames and transformations|Forward kinematics|Inverse kinematics|Jacobian and velocity mapping|Manipulator singularities
+ROBOTICS02,Robot Dynamics and Control,ROBOTICS,BTECH_ROBOTICS,Rigid-body motion|Manipulator dynamic models|Trajectory generation|Joint-space control|Stability and force control
+ROBOTICS03,Robot Perception,ROBOTICS,BTECH_ROBOTICS,Camera models and calibration|Image features and geometry|Range sensing and point clouds|Localization and mapping|Sensor fusion and uncertainty
+ROBOTICS04,Autonomous Mobile Robots,ROBOTICS,BTECH_ROBOTICS,Mobile robot kinematics|Mapping and localization|Path planning|Obstacle avoidance|Navigation and system evaluation
+INSTR01,Industrial Instrumentation,INSTR,BTECH_INSTR,"Measurement system characteristics|Pressure, flow and level measurement|Temperature measurement|Calibration and uncertainty|Industrial signal standards"
+INSTR02,Process Control,INSTR,BTECH_INSTR,Process models and dynamics|Feedback control loops|PID tuning|Stability and performance|Multivariable and cascade control
+INSTR03,Sensors and Transducers,INSTR,BTECH_INSTR,Resistive and capacitive sensors|Inductive and magnetic sensors|Optical and thermal sensors|Signal conditioning|Smart sensors and calibration
+INSTR04,Control System Design,INSTR,BTECH_INSTR,Transfer-function modelling|Transient and steady-state response|Root-locus methods|Frequency-response methods|Digital control implementation
+INDUSTRIAL01,Operations Research,INDUSTRIAL,BTECH_INDUSTRIAL,Linear programming formulation|Simplex and duality|Transportation and assignment|Inventory and queueing models|Project scheduling and networks
+INDUSTRIAL02,Supply Chain Systems,INDUSTRIAL,BTECH_INDUSTRIAL,Demand forecasting|Procurement and supplier selection|Inventory policies|Distribution network design|Resilience and sustainability
+INDUSTRIAL03,Industrial Quality and Reliability,INDUSTRIAL,BTECH_INDUSTRIAL,Statistical process control|Capability and measurement systems|Reliability models|Acceptance sampling|Root-cause and improvement methods
+INDUSTRIAL04,Work Systems and Ergonomics,INDUSTRIAL,BTECH_INDUSTRIAL,Work study and method design|Time standards|Human factors and ergonomics|Facility layout|Safety and productivity analysis
+MARINE01,Marine Propulsion,MARINE,BTECH_MARINE,Marine diesel engine cycles|Propeller characteristics|Engine-propeller matching|Fuel and lubrication systems|Performance and emissions
+MARINE02,Marine Auxiliary Systems,MARINE,BTECH_MARINE,Pumps and piping aboard ships|Boilers and heat exchangers|Refrigeration and HVAC|Steering and hydraulic systems|Maintenance and fault diagnosis
+MARINE03,Naval Architecture,MARINE,BTECH_MARINE,Ship geometry and hydrostatics|Buoyancy and stability|Resistance and powering|Ship structures and loads|Seakeeping fundamentals
+MARINE04,Marine Electrical Systems,MARINE,BTECH_MARINE,Shipboard power generation|Distribution and protection|Electric propulsion|Control and alarm systems|Electrical safety at sea
+FOODTECH01,Food Process Engineering,FOODTECH,BTECH_FOODTECH,Food properties and material balances|Heat processing and pasteurization|Evaporation and concentration|Drying and dehydration|Refrigeration and cold chain
+FOODTECH02,Food Microbiology and Safety,FOODTECH,BTECH_FOODTECH,Foodborne microorganisms|Microbial growth and preservation|Hygiene and sanitation|Hazard analysis and critical control points|Food safety verification
+FOODTECH03,Food Chemistry,FOODTECH,BTECH_FOODTECH,"Water and food stability|Carbohydrates and proteins|Lipids and oxidation|Pigments, flavours and additives|Chemical changes during processing"
+FOODTECH04,Food Quality and Packaging,FOODTECH,BTECH_FOODTECH,Sensory evaluation|Food quality measurements|Packaging materials and properties|Modified-atmosphere packaging|Shelf-life and traceability
+DAIRY01,Dairy Chemistry,DAIRY,BTECH_DAIRY,Milk composition and properties|Milk proteins and casein|Milk fat and emulsion|Lactose and minerals|Chemical changes during processing
+DAIRY02,Dairy Processing,DAIRY,BTECH_DAIRY,Milk reception and clarification|Pasteurization and sterilization|Homogenization and separation|Fermented dairy products|Cleaning-in-place systems
+DAIRY03,Dairy Microbiology,DAIRY,BTECH_DAIRY,Raw milk microbiology|Starter cultures|Fermentation control|Spoilage and pathogens|Hygiene and dairy plant sanitation
+DAIRY04,Dairy Plant Engineering,DAIRY,BTECH_DAIRY,Heat and mass balances|Refrigeration systems|Pumps and hygienic piping|Process equipment selection|Plant layout and utilities
+CERAMIC01,Ceramic Materials,CERAMIC,BTECH_CERAMIC,Crystal structures and bonding|Phase diagrams|Powders and particle-size control|Sintering and densification|Mechanical and thermal properties
+CERAMIC02,Ceramic Processing,CERAMIC,BTECH_CERAMIC,Raw material preparation|Powder forming methods|Drying and firing|Glazes and surface treatments|Defects and process control
+CERAMIC03,Refractories and Glass,CERAMIC,BTECH_CERAMIC,Refractory classes and properties|Slag and corrosion resistance|Glass forming and annealing|Thermal shock behaviour|Applications in high-temperature processes
+CERAMIC04,Advanced Ceramics,CERAMIC,BTECH_CERAMIC,Structural ceramic applications|Electrical and electronic ceramics|Bioceramics|Ceramic composites|Characterization and failure analysis
+POLYMER01,Polymer Science,POLYMER,BTECH_POLYMER,Polymer structure and molecular weight|Polymerization mechanisms|Crystallinity and thermal transitions|Viscoelasticity and rheology|Structure-property relationships
+POLYMER02,Polymer Processing,POLYMER,BTECH_POLYMER,Extrusion and die flow|Injection moulding|Blow moulding and thermoforming|Compression and transfer moulding|Process defects and troubleshooting
+POLYMER03,Polymer Materials and Testing,POLYMER,BTECH_POLYMER,Thermoplastics and thermosets|Elastomers and blends|Mechanical and thermal testing|Degradation and stabilization|Recycling and circular design
+POLYMER04,Composite Materials,POLYMER,BTECH_POLYMER,Fibre and matrix selection|Laminate mechanics|Manufacturing processes|Interface and failure modes|Testing and applications
+ENERGY01,Energy Conversion Systems,ENERGY,BTECH_ENERGY,Thermal power cycles|Combustion and boiler systems|Gas turbines and combined cycles|Cogeneration and efficiency|Energy auditing and balances
+ENERGY02,Renewable Energy Systems,ENERGY,BTECH_ENERGY,Solar resource and photovoltaic systems|Solar thermal conversion|Wind energy conversion|Bioenergy systems|Grid integration and storage
+ENERGY03,Energy Storage and Power Systems,ENERGY,BTECH_ENERGY,Battery chemistry and performance|Fuel cells and hydrogen|Thermal energy storage|Power electronics for renewables|Microgrids and dispatch
+ENERGY04,Energy Policy and Sustainability,ENERGY,BTECH_ENERGY,Energy demand and supply|Efficiency metrics and auditing|Life-cycle assessment|Emissions and decarbonization|Energy economics and policy
+GEO01,Geospatial Data and GIS,GEO,BTECH_GEO,Coordinate systems and projections|Spatial data models|GIS analysis and overlays|Cartography and map design|Accuracy and metadata
+GEO02,Remote Sensing,GEO,BTECH_GEO,Electromagnetic spectrum and sensors|Image acquisition and resolution|Image enhancement and classification|Change detection|Applications and validation
+GEO03,Surveying and GNSS,GEO,BTECH_GEO,Control networks and error adjustment|GNSS positioning principles|Total station and field workflows|Photogrammetry fundamentals|Survey data quality
+GEO04,Spatial Analysis,GEO,BTECH_GEO,Raster and vector operations|Terrain and hydrologic analysis|Network analysis|Spatial statistics|Geospatial project design and ethics
+BCA01,Discrete Mathematics for Computing,BCA,BCA,"Logic and propositions|Sets, relations and functions|Counting and recurrence relations|Graphs and trees|Boolean algebra"
+BCA02,Computer Organization,BCA,BCA,Number systems and data representation|Boolean logic and combinational circuits|Sequential circuits and registers|CPU organization and instruction cycles|Memory hierarchy and input-output
+BCA03,Web Programming,BCA,BCA,"HTML document structure and accessibility|CSS layout and responsive design|JavaScript fundamentals and DOM|Server-side requests and APIs|Web forms, validation and security"
+BCA04,Database Application Development,BCA,BCA,Relational modelling and keys|SQL queries and constraints|Normalization and transactions|Application-to-database connectivity|Access control and backup fundamentals
+BCA05,Software Project and Testing,BCA,BCA,"Problem definition and requirements|Use cases and design models|Version control and collaboration|Unit and integration testing|Deployment, maintenance and documentation"
+ECE01,Electronic Devices,ECE,BTECH_CCE,PN junction and diode circuits|Bipolar junction transistor|Field-effect transistors|Biasing and small-signal models|Optoelectronic devices
+ECE02,Analog Circuits,ECE,BTECH_CCE,Amplifier frequency response|Feedback and stability|Operational amplifier circuits|Oscillators and waveform generators|Power amplifier classes
+ECE03,Signals and Systems,ECE,BTECH_CCE,Continuous and discrete signals|Linear time-invariant systems|Convolution and impulse response|Fourier series and transforms|Laplace and Z transforms
+ECE04,Digital Communication,ECE,BTECH_CCE,Sampling and pulse modulation|Baseband line coding|Digital modulation schemes|Detection and error probability|Information theory and channel coding
+ECE05,Electromagnetic Fields,ECE,BTECH_CCE,Vector calculus for fields|Electrostatics and boundary conditions|Magnetostatics|Maxwell equations|Uniform plane waves and transmission lines
+ECE01,Electronic Devices,ECE,BTECH_VLSI,PN junction and diode circuits|Bipolar junction transistor|Field-effect transistors|Biasing and small-signal models|Optoelectronic devices
+ECE02,Analog Circuits,ECE,BTECH_VLSI,Amplifier frequency response|Feedback and stability|Operational amplifier circuits|Oscillators and waveform generators|Power amplifier classes
+ECE03,Signals and Systems,ECE,BTECH_VLSI,Continuous and discrete signals|Linear time-invariant systems|Convolution and impulse response|Fourier series and transforms|Laplace and Z transforms
+ECE04,Digital Communication,ECE,BTECH_VLSI,Sampling and pulse modulation|Baseband line coding|Digital modulation schemes|Detection and error probability|Information theory and channel coding
+ECE05,Electromagnetic Fields,ECE,BTECH_VLSI,Vector calculus for fields|Electrostatics and boundary conditions|Magnetostatics|Maxwell equations|Uniform plane waves and transmission lines
+ME01,Engineering Thermodynamics,ME,BTECH_MECHATRONICS,Properties of pure substances|First law for closed and open systems|Second law and entropy|Power and refrigeration cycles|Combustion and availability
+ME02,Fluid Mechanics,ME,BTECH_MECHATRONICS,Fluid properties and statics|Continuity and momentum equations|Bernoulli equation and applications|Internal pipe flow and losses|Boundary layers and dimensional analysis
+ME03,Strength of Materials,ME,BTECH_MECHATRONICS,"Stress, strain and elastic constants|Axial loading and thermal stress|Shear force and bending moment|Bending and shear stresses|Torsion and column buckling"
+ME04,Manufacturing Processes,ME,BTECH_MECHATRONICS,Casting processes and defects|Forming and metalworking|Machining mechanics and tools|Joining processes|Additive manufacturing fundamentals
+ME05,Theory of Machines,ME,BTECH_MECHATRONICS,"Kinematic pairs and mechanisms|Velocity and acceleration analysis|Gears and gear trains|Balancing of rotating masses|Governors, flywheels and vibration"
+EE01,Electrical Circuit Analysis,EE,BTECH_MECHATRONICS,Network laws and topology|Network theorems|Transient response of circuits|Sinusoidal steady-state analysis|Two-port networks
+EE02,Electrical Machines,EE,BTECH_MECHATRONICS,Transformers and equivalent circuits|DC machine principles|Three-phase induction machines|Synchronous machines|Machine testing and efficiency
+EE03,Power Systems,EE,BTECH_MECHATRONICS,Generation and load characteristics|Transmission line parameters|Power flow fundamentals|Fault analysis and protection|Economic operation and grid basics
+EE04,Power Electronics,EE,BTECH_MECHATRONICS,Power semiconductor devices|Controlled rectifiers|DC-DC converters|Inverters and PWM|Drives and applications
+EE05,Control Systems,EE,BTECH_MECHATRONICS,System modelling and block diagrams|Time-domain response|Stability criteria|Root locus and frequency response|PID control and compensation
+ECE01,Electronic Devices,ECE,BTECH_MECHATRONICS,PN junction and diode circuits|Bipolar junction transistor|Field-effect transistors|Biasing and small-signal models|Optoelectronic devices
+ECE02,Analog Circuits,ECE,BTECH_MECHATRONICS,Amplifier frequency response|Feedback and stability|Operational amplifier circuits|Oscillators and waveform generators|Power amplifier classes
+ECE03,Signals and Systems,ECE,BTECH_MECHATRONICS,Continuous and discrete signals|Linear time-invariant systems|Convolution and impulse response|Fourier series and transforms|Laplace and Z transforms
+ECE04,Digital Communication,ECE,BTECH_MECHATRONICS,Sampling and pulse modulation|Baseband line coding|Digital modulation schemes|Detection and error probability|Information theory and channel coding
+ECE05,Electromagnetic Fields,ECE,BTECH_MECHATRONICS,Vector calculus for fields|Electrostatics and boundary conditions|Magnetostatics|Maxwell equations|Uniform plane waves and transmission lines
+ME01,Engineering Thermodynamics,ME,BTECH_ROBOTICS,Properties of pure substances|First law for closed and open systems|Second law and entropy|Power and refrigeration cycles|Combustion and availability
+ME02,Fluid Mechanics,ME,BTECH_ROBOTICS,Fluid properties and statics|Continuity and momentum equations|Bernoulli equation and applications|Internal pipe flow and losses|Boundary layers and dimensional analysis
+ME03,Strength of Materials,ME,BTECH_ROBOTICS,"Stress, strain and elastic constants|Axial loading and thermal stress|Shear force and bending moment|Bending and shear stresses|Torsion and column buckling"
+ME04,Manufacturing Processes,ME,BTECH_ROBOTICS,Casting processes and defects|Forming and metalworking|Machining mechanics and tools|Joining processes|Additive manufacturing fundamentals
+ME05,Theory of Machines,ME,BTECH_ROBOTICS,"Kinematic pairs and mechanisms|Velocity and acceleration analysis|Gears and gear trains|Balancing of rotating masses|Governors, flywheels and vibration"
+ECE01,Electronic Devices,ECE,BTECH_ROBOTICS,PN junction and diode circuits|Bipolar junction transistor|Field-effect transistors|Biasing and small-signal models|Optoelectronic devices
+ECE02,Analog Circuits,ECE,BTECH_ROBOTICS,Amplifier frequency response|Feedback and stability|Operational amplifier circuits|Oscillators and waveform generators|Power amplifier classes
+ECE03,Signals and Systems,ECE,BTECH_ROBOTICS,Continuous and discrete signals|Linear time-invariant systems|Convolution and impulse response|Fourier series and transforms|Laplace and Z transforms
+ECE04,Digital Communication,ECE,BTECH_ROBOTICS,Sampling and pulse modulation|Baseband line coding|Digital modulation schemes|Detection and error probability|Information theory and channel coding
+ECE05,Electromagnetic Fields,ECE,BTECH_ROBOTICS,Vector calculus for fields|Electrostatics and boundary conditions|Magnetostatics|Maxwell equations|Uniform plane waves and transmission lines
+EE01,Electrical Circuit Analysis,EE,BTECH_INSTR,Network laws and topology|Network theorems|Transient response of circuits|Sinusoidal steady-state analysis|Two-port networks
+EE02,Electrical Machines,EE,BTECH_INSTR,Transformers and equivalent circuits|DC machine principles|Three-phase induction machines|Synchronous machines|Machine testing and efficiency
+EE03,Power Systems,EE,BTECH_INSTR,Generation and load characteristics|Transmission line parameters|Power flow fundamentals|Fault analysis and protection|Economic operation and grid basics
+EE04,Power Electronics,EE,BTECH_INSTR,Power semiconductor devices|Controlled rectifiers|DC-DC converters|Inverters and PWM|Drives and applications
+EE05,Control Systems,EE,BTECH_INSTR,System modelling and block diagrams|Time-domain response|Stability criteria|Root locus and frequency response|PID control and compensation
+ECE01,Electronic Devices,ECE,BTECH_INSTR,PN junction and diode circuits|Bipolar junction transistor|Field-effect transistors|Biasing and small-signal models|Optoelectronic devices
+ECE02,Analog Circuits,ECE,BTECH_INSTR,Amplifier frequency response|Feedback and stability|Operational amplifier circuits|Oscillators and waveform generators|Power amplifier classes
+ECE03,Signals and Systems,ECE,BTECH_INSTR,Continuous and discrete signals|Linear time-invariant systems|Convolution and impulse response|Fourier series and transforms|Laplace and Z transforms
+ECE04,Digital Communication,ECE,BTECH_INSTR,Sampling and pulse modulation|Baseband line coding|Digital modulation schemes|Detection and error probability|Information theory and channel coding
+ECE05,Electromagnetic Fields,ECE,BTECH_INSTR,Vector calculus for fields|Electrostatics and boundary conditions|Magnetostatics|Maxwell equations|Uniform plane waves and transmission lines
+PROD01,Production and Operations Research,PROD,BTECH_INDUSTRIAL,Linear programming models|Simplex and sensitivity analysis|Transportation and assignment|Inventory control|Project scheduling with PERT and CPM
+PROD02,Manufacturing Systems,PROD,BTECH_INDUSTRIAL,Process planning and routing|Production system layouts|Group technology and cellular manufacturing|Flexible manufacturing systems|Lean systems and bottleneck analysis
+PROD03,Quality Engineering,PROD,BTECH_INDUSTRIAL,Quality principles and cost|Statistical process control|Process capability|Acceptance sampling|Reliability and continuous improvement
+PROD04,Metrology and Inspection,PROD,BTECH_INDUSTRIAL,"Measurement standards and errors|Limits, fits and tolerances|Gauges and comparators|Coordinate measuring systems|Inspection planning and uncertainty"
+ME01,Engineering Thermodynamics,ME,BTECH_INDUSTRIAL,Properties of pure substances|First law for closed and open systems|Second law and entropy|Power and refrigeration cycles|Combustion and availability
+ME02,Fluid Mechanics,ME,BTECH_INDUSTRIAL,Fluid properties and statics|Continuity and momentum equations|Bernoulli equation and applications|Internal pipe flow and losses|Boundary layers and dimensional analysis
+ME03,Strength of Materials,ME,BTECH_INDUSTRIAL,"Stress, strain and elastic constants|Axial loading and thermal stress|Shear force and bending moment|Bending and shear stresses|Torsion and column buckling"
+ME04,Manufacturing Processes,ME,BTECH_INDUSTRIAL,Casting processes and defects|Forming and metalworking|Machining mechanics and tools|Joining processes|Additive manufacturing fundamentals
+ME05,Theory of Machines,ME,BTECH_INDUSTRIAL,"Kinematic pairs and mechanisms|Velocity and acceleration analysis|Gears and gear trains|Balancing of rotating masses|Governors, flywheels and vibration"
+ME01,Engineering Thermodynamics,ME,BTECH_MARINE,Properties of pure substances|First law for closed and open systems|Second law and entropy|Power and refrigeration cycles|Combustion and availability
+ME02,Fluid Mechanics,ME,BTECH_MARINE,Fluid properties and statics|Continuity and momentum equations|Bernoulli equation and applications|Internal pipe flow and losses|Boundary layers and dimensional analysis
+ME03,Strength of Materials,ME,BTECH_MARINE,"Stress, strain and elastic constants|Axial loading and thermal stress|Shear force and bending moment|Bending and shear stresses|Torsion and column buckling"
+ME04,Manufacturing Processes,ME,BTECH_MARINE,Casting processes and defects|Forming and metalworking|Machining mechanics and tools|Joining processes|Additive manufacturing fundamentals
+ME05,Theory of Machines,ME,BTECH_MARINE,"Kinematic pairs and mechanisms|Velocity and acceleration analysis|Gears and gear trains|Balancing of rotating masses|Governors, flywheels and vibration"
+CHE01,Chemical Engineering Thermodynamics,CHE,BTECH_FOODTECH,First-law energy balances|Second law and entropy|Pure-fluid property relations|Phase equilibrium|Thermodynamic cycles and applications
+CHE02,Fluid Flow Operations,CHE,BTECH_FOODTECH,Fluid statics and dimensional analysis|Continuity and momentum balances|Flow in pipes and fittings|Pumps and flow measurement|Packed beds and fluidization
+CHE03,Heat Transfer,CHE,BTECH_FOODTECH,"Steady-state conduction|Convection correlations|Thermal radiation|Heat exchanger analysis|Boiling, condensation and evaporation"
+CHE04,Mass Transfer Operations,CHE,BTECH_FOODTECH,Diffusion and mass-transfer coefficients|Equilibrium stages|Distillation|Gas absorption and stripping|Liquid-liquid extraction and drying
+CHE05,Chemical Reaction Engineering,CHE,BTECH_FOODTECH,Rate laws and reaction kinetics|Ideal batch and flow reactors|Reactor design equations|Non-isothermal reactors|Catalysis and residence-time effects
+BIOTECH01,Cell Biology,BIOTECH,BTECH_FOODTECH,Cell structure and organelles|Membrane transport and signalling|Cell cycle and division|Cytoskeleton and motility|Cell death and disease
+BIOTECH02,Biochemistry,BIOTECH,BTECH_FOODTECH,Biomolecules and molecular interactions|Enzyme kinetics and inhibition|Carbohydrate and lipid metabolism|Bioenergetics and ATP|Protein structure and function
+BIOTECH03,Genetics and Molecular Biology,BIOTECH,BTECH_FOODTECH,Mendelian inheritance|DNA replication and repair|Transcription and RNA processing|Translation and gene regulation|Mutation and genetic variation
+BIOTECH04,Microbiology,BIOTECH,BTECH_FOODTECH,Microbial cell structure|Growth kinetics and culture methods|Microbial genetics|Pathogenesis and host response|Sterilization and antimicrobial control
+BIOTECH05,Bioprocess Engineering,BIOTECH,BTECH_FOODTECH,Material and energy balances|Bioreactor configurations|Sterilization and aseptic operation|Scale-up and mass transfer|Downstream processing
+BIOTECH01,Cell Biology,BIOTECH,BTECH_DAIRY,Cell structure and organelles|Membrane transport and signalling|Cell cycle and division|Cytoskeleton and motility|Cell death and disease
+BIOTECH02,Biochemistry,BIOTECH,BTECH_DAIRY,Biomolecules and molecular interactions|Enzyme kinetics and inhibition|Carbohydrate and lipid metabolism|Bioenergetics and ATP|Protein structure and function
+BIOTECH03,Genetics and Molecular Biology,BIOTECH,BTECH_DAIRY,Mendelian inheritance|DNA replication and repair|Transcription and RNA processing|Translation and gene regulation|Mutation and genetic variation
+BIOTECH04,Microbiology,BIOTECH,BTECH_DAIRY,Microbial cell structure|Growth kinetics and culture methods|Microbial genetics|Pathogenesis and host response|Sterilization and antimicrobial control
+BIOTECH05,Bioprocess Engineering,BIOTECH,BTECH_DAIRY,Material and energy balances|Bioreactor configurations|Sterilization and aseptic operation|Scale-up and mass transfer|Downstream processing
+CHE01,Chemical Engineering Thermodynamics,CHE,BTECH_DAIRY,First-law energy balances|Second law and entropy|Pure-fluid property relations|Phase equilibrium|Thermodynamic cycles and applications
+CHE02,Fluid Flow Operations,CHE,BTECH_DAIRY,Fluid statics and dimensional analysis|Continuity and momentum balances|Flow in pipes and fittings|Pumps and flow measurement|Packed beds and fluidization
+CHE03,Heat Transfer,CHE,BTECH_DAIRY,"Steady-state conduction|Convection correlations|Thermal radiation|Heat exchanger analysis|Boiling, condensation and evaporation"
+CHE04,Mass Transfer Operations,CHE,BTECH_DAIRY,Diffusion and mass-transfer coefficients|Equilibrium stages|Distillation|Gas absorption and stripping|Liquid-liquid extraction and drying
+CHE05,Chemical Reaction Engineering,CHE,BTECH_DAIRY,Rate laws and reaction kinetics|Ideal batch and flow reactors|Reactor design equations|Non-isothermal reactors|Catalysis and residence-time effects
+MME01,Physical Metallurgy,MME,BTECH_CERAMIC,Crystal structures and defects|Diffusion in solids|Phase diagrams and lever rule|Solidification and microstructure|Mechanical behaviour of materials
+MME02,Extractive Metallurgy,MME,BTECH_CERAMIC,Ore preparation and concentration|Pyrometallurgical principles|Hydrometallurgical leaching|Electrometallurgical extraction|Metal refining and process selection
+MME03,Heat Treatment of Materials,MME,BTECH_CERAMIC,Iron-carbon equilibrium diagram|Austenitizing and transformation products|Annealing and normalizing|Quenching and tempering|Hardenability and surface treatment
+MME04,Materials Characterization,MME,BTECH_CERAMIC,Optical microscopy and specimen preparation|X-ray diffraction principles|Scanning electron microscopy|Mechanical and hardness testing|Failure analysis and fractography
+CHE01,Chemical Engineering Thermodynamics,CHE,BTECH_POLYMER,First-law energy balances|Second law and entropy|Pure-fluid property relations|Phase equilibrium|Thermodynamic cycles and applications
+CHE02,Fluid Flow Operations,CHE,BTECH_POLYMER,Fluid statics and dimensional analysis|Continuity and momentum balances|Flow in pipes and fittings|Pumps and flow measurement|Packed beds and fluidization
+CHE03,Heat Transfer,CHE,BTECH_POLYMER,"Steady-state conduction|Convection correlations|Thermal radiation|Heat exchanger analysis|Boiling, condensation and evaporation"
+CHE04,Mass Transfer Operations,CHE,BTECH_POLYMER,Diffusion and mass-transfer coefficients|Equilibrium stages|Distillation|Gas absorption and stripping|Liquid-liquid extraction and drying
+CHE05,Chemical Reaction Engineering,CHE,BTECH_POLYMER,Rate laws and reaction kinetics|Ideal batch and flow reactors|Reactor design equations|Non-isothermal reactors|Catalysis and residence-time effects
+EE01,Electrical Circuit Analysis,EE,BTECH_ENERGY,Network laws and topology|Network theorems|Transient response of circuits|Sinusoidal steady-state analysis|Two-port networks
+EE02,Electrical Machines,EE,BTECH_ENERGY,Transformers and equivalent circuits|DC machine principles|Three-phase induction machines|Synchronous machines|Machine testing and efficiency
+EE03,Power Systems,EE,BTECH_ENERGY,Generation and load characteristics|Transmission line parameters|Power flow fundamentals|Fault analysis and protection|Economic operation and grid basics
+EE04,Power Electronics,EE,BTECH_ENERGY,Power semiconductor devices|Controlled rectifiers|DC-DC converters|Inverters and PWM|Drives and applications
+EE05,Control Systems,EE,BTECH_ENERGY,System modelling and block diagrams|Time-domain response|Stability criteria|Root locus and frequency response|PID control and compensation
+ME01,Engineering Thermodynamics,ME,BTECH_ENERGY,Properties of pure substances|First law for closed and open systems|Second law and entropy|Power and refrigeration cycles|Combustion and availability
+ME02,Fluid Mechanics,ME,BTECH_ENERGY,Fluid properties and statics|Continuity and momentum equations|Bernoulli equation and applications|Internal pipe flow and losses|Boundary layers and dimensional analysis
+ME03,Strength of Materials,ME,BTECH_ENERGY,"Stress, strain and elastic constants|Axial loading and thermal stress|Shear force and bending moment|Bending and shear stresses|Torsion and column buckling"
+ME04,Manufacturing Processes,ME,BTECH_ENERGY,Casting processes and defects|Forming and metalworking|Machining mechanics and tools|Joining processes|Additive manufacturing fundamentals
+ME05,Theory of Machines,ME,BTECH_ENERGY,"Kinematic pairs and mechanisms|Velocity and acceleration analysis|Gears and gear trains|Balancing of rotating masses|Governors, flywheels and vibration"
+CE01,Structural Analysis,CE,BTECH_GEO,Determinate beams and frames|Deflection of beams|Influence lines|Indeterminate structures|Matrix methods and structural idealization
+CE02,Geotechnical Engineering,CE,BTECH_GEO,Soil formation and index properties|Soil classification and compaction|Permeability and seepage|Effective stress and consolidation|Shear strength and bearing capacity
+CE03,Surveying,CE,BTECH_GEO,"Chain and compass surveying|Levelling and contouring|Traversing and error adjustment|Theodolite and total station|GNSS, photogrammetry and GIS basics"
+CE04,Fluid Mechanics and Hydraulics,CE,BTECH_GEO,Fluid statics and pressure measurement|Flow kinematics and dynamics|Pipe networks and losses|Open-channel flow|Hydraulic machines and measurements
+CE05,Transportation Engineering,CE,BTECH_GEO,Highway planning and alignment|Geometric design|Pavement materials and design|Traffic flow and intersections|Railway and airport engineering overview

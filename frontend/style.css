@@ -149,7 +149,7 @@ body{background:var(--bg);color:var(--ink)}.sidebar{background:#0c1017;border-co
 /* Keep the full signup flow inside one viewport without hiding fields. */
 .auth-page.auth-signup{height:100vh;height:100dvh;min-height:0;grid-template-columns:1fr;overflow:hidden}
 .auth-page.auth-signup .auth-side{display:none}
-.auth-page.auth-signup .auth-left{height:100vh;height:100dvh;min-height:0;overflow:hidden;padding:18px 28px 12px;align-items:stretch}
+.auth-page.auth-signup .auth-left{height:100vh;height:100dvh;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable;padding:18px 28px 12px;align-items:stretch}
 .auth-page.auth-signup .auth-left .brand{align-self:flex-start;margin:0;padding:0}
 .auth-page.auth-signup .auth-card{width:min(820px,100%);margin:auto;padding:8px 0}
 .auth-page.auth-signup .auth-card h1{font-size:30px;margin-bottom:3px}
@@ -335,6 +335,9 @@ button:focus-visible,a:focus-visible{outline:3px solid #baff3f;outline-offset:3p
 .practice-card-course{margin-top:12px;color:#8192aa;font-size:8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase}
 .practice-card-title{position:relative;margin-top:4px;color:#f3f6fc;font:700 15px/1.35 Manrope;letter-spacing:-.035em}
 .practice-card-topic{margin-top:4px;color:#a2b0c3;font-size:10px;line-height:1.5}
+.practice-review-status,.practice-review-note{color:#b6c5da;font-size:10px;line-height:1.45}
+.practice-review-status{margin-top:3px}
+.practice-review-note{margin:0 0 10px;padding:8px 11px;border:1px solid #33445d;border-radius:10px;background:#121c29}
 .practice-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:14px}
 .practice-card-facts{display:flex;align-items:center;flex-wrap:wrap;gap:5px;color:#aab7c9;font-size:8px}
 .practice-card-facts b{color:#eef3fc;font-size:10px}
@@ -354,3 +357,6 @@ button:focus-visible,a:focus-visible{outline:3px solid #baff3f;outline-offset:3p
 @media(prefers-reduced-motion:reduce){.practice-quiz-card{transition:none}.practice-quiz-card:hover{transform:none}}
 .quiz-builder-back{min-height:38px;padding:0 14px;border:1px solid #3a5277;border-radius:11px;background:linear-gradient(145deg,#1b2a40,#141e2d);color:#dbe7fa;font:700 10px Manrope,sans-serif;white-space:nowrap}.quiz-builder-back:hover{border-color:#82a4ff;background:#223656;color:#fff}.quiz-builder-back:focus-visible{outline:3px solid var(--lime);outline-offset:3px}@media(max-width:540px){.quiz-modal .modal-heading{gap:10px}.quiz-builder-back{padding:0 10px;font-size:9px}}
 .quiz-modal{width:min(900px,100%);max-height:calc(100vh - 36px);overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#526987 #111923}.quiz-modal .modal-heading{position:sticky;top:-25px;z-index:5;margin:-25px -25px 18px;padding:20px 25px 15px;border-bottom:1px solid #2a394d;background:#141d2a}.quiz-question-list-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:18px 0 10px;padding:12px 14px;border:1px solid #2b3d58;border-radius:13px;background:linear-gradient(110deg,#17253b,#121a27)}.quiz-question-list-head strong,.quiz-question-list-head small{display:block}.quiz-question-list-head strong{color:#f0f5ff;font:700 12px Manrope,sans-serif}.quiz-question-list-head small{margin-top:3px;color:#9eafc8;font-size:10px}.quiz-question-list-head>span{flex:none;padding:6px 9px;border:1px solid #3d5d91;border-radius:20px;background:#1a2c4b;color:#c6d8ff;font-size:9px;font-weight:800}.quiz-modal #quiz-question-list{scroll-margin-top:70px}.quiz-modal .quiz-question-editor{scroll-margin-top:78px}@media(max-width:700px){.quiz-modal{max-height:calc(100vh - 20px);padding:18px}.quiz-modal .modal-heading{top:-18px;margin:-18px -18px 15px;padding:15px 18px 13px}.quiz-modal .modal-heading h2{font-size:18px}.quiz-builder-back{font-size:9px;padding:0 10px}}
+
+.progress-fill.preliminary{background:linear-gradient(90deg,#8290a1,#b3bdc9);opacity:.62}
+.revision-reminder-card{border-color:#516fa8;background:radial-gradient(ellipse at top right,#1b2d4c88,transparent 55%),linear-gradient(145deg,#151f2c,#10161f)}.revision-reminder-card h3{margin:7px 0;color:#f4f7ff}.revision-reminder-card>p{color:#9eacc0}.revision-reminder-card .lesson-row{border-top:1px solid #2a374a}.revision-reminder-card .btn{white-space:nowrap}

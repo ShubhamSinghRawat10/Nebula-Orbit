@@ -1,6 +1,8 @@
-"""Original short diagnostic quizzes for Nebula's demo curriculum.
+"""Nebula-authored 15-question diagnostic quizzes for the pilot curriculum.
 
 These are baseline checks, not a replacement for a complete course question bank.
+Questions added beyond the original diagnostic set are drawn from Nebula's
+topic-linked, source-controlled practice bank and retain its review metadata.
 Question wording and distractors are authored for Nebula.
 """
 from datetime import datetime, timezone
@@ -47,7 +49,7 @@ def _quiz(course_id, course_name, questions):
 
 
 def starter_quizzes():
-    """Return starter quizzes for courses without an existing seed diagnostic."""
+    """Return 15-question starter quizzes for courses without a seed diagnostic."""
     q = _question
     quizzes = [
         _quiz("CN", "Computer Networks", [
@@ -343,4 +345,25 @@ def starter_quizzes():
             }
             for prompt, options, answer, explanation, topic_index in additions
         )
+    # Keep the short baseline questions, then top each diagnostic up with
+    # distinct, topic-mapped items from the reviewed source bank. This keeps
+    # every generated course quiz at the agreed minimum without copying items
+    # into the CSV a second time.
+    from curated_practice import curated_practice_quizzes
+
+    bank_by_course = {quiz["course_id"].upper(): quiz for quiz in curated_practice_quizzes()}
+    for quiz in quizzes:
+        bank_quiz = bank_by_course.get(quiz["course_id"].upper())
+        if not bank_quiz:
+            raise ValueError(f"No curated question bank exists for starter course {quiz['course_id']}.")
+        seen = {question["prompt"].strip().casefold() for question in quiz["questions"]}
+        for source_question in bank_quiz["questions"]:
+            if len(quiz["questions"]) >= 15:
+                break
+            if source_question["prompt"].strip().casefold() in seen:
+                continue
+            quiz["questions"].append({key: value for key, value in source_question.items() if not key.startswith("_")})
+            seen.add(source_question["prompt"].strip().casefold())
+        if len(quiz["questions"]) < 15:
+            raise ValueError(f"Starter quiz {quiz['title']!r} has fewer than 15 distinct questions.")
     return quizzes
