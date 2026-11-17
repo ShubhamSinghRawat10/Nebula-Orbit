@@ -362,7 +362,8 @@ button:focus-visible,a:focus-visible{outline:3px solid #baff3f;outline-offset:3p
 .revision-reminder-card{border-color:#516fa8;background:radial-gradient(ellipse at top right,#1b2d4c88,transparent 55%),linear-gradient(145deg,#151f2c,#10161f)}.revision-reminder-card h3{margin:7px 0;color:#f4f7ff}.revision-reminder-card>p{color:#9eacc0}.revision-reminder-card .lesson-row{border-top:1px solid #2a374a}.revision-reminder-card .btn{white-space:nowrap}
 
 /* Nebula ambient fibers: keep the motion behind the interface and text. */
-.ghost-fibers-background{position:fixed;inset:0;z-index:0;width:100%;height:100%;pointer-events:none;opacity:.78}
+.ghost-fibers-container{position:fixed;inset:0;z-index:0;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.ghost-fibers-canvas{position:absolute;inset:0;display:block;width:100%;height:100%}
 #app{position:relative;z-index:1;min-height:100vh}
 #toast{z-index:20}
 .shell,.auth-page{background:transparent}
@@ -376,4 +377,4 @@ button:focus-visible,a:focus-visible{outline:3px solid #baff3f;outline-offset:3p
 .auth-left{background:radial-gradient(ellipse at 15% 0,rgba(19,32,58,.91),transparent 42%),rgba(11,16,24,.88);backdrop-filter:blur(18px)}
 .auth-side{background:radial-gradient(ellipse at 60% 30%,rgba(26,49,90,.56),rgba(16,24,39,.35) 60%,rgba(11,16,23,.28))}
 .auth-card{position:relative}
-@media(prefers-reduced-motion:reduce){.ghost-fibers-background{opacity:.48}}
+@media(prefers-reduced-motion:reduce){.ghost-fibers-container{opacity:.62}}
