@@ -32,11 +32,11 @@ def mean_stats(scores):
     return {"mean": sum(scores) / len(scores), "count": len(scores)} if scores else {"mean": 60.0, "count": 0}
 
 
-def main():
+def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
     with TOPICS.open("r", encoding="utf-8-sig", newline="") as stream:
         topic_rows = list(csv.DictReader(stream))
     topic_info = {row["topic_id"]: {"course_id": row["course_code"].upper(), "difficulty": row["difficulty_level"]} for row in topic_rows}
-    with DATASET.open("r", encoding="utf-8-sig", newline="") as stream:
+    with Path(dataset_path).open("r", encoding="utf-8-sig", newline="") as stream:
         raw_rows = list(csv.DictReader(stream))
     rows = []
     for row in raw_rows:
@@ -51,10 +51,12 @@ def main():
     rows.sort(key=lambda row: (row["date"], row["student_id"], row["interaction_id"]))
 
     dates = sorted({row["date"] for row in rows})
-    train_cutoff = dates[max(1, int(len(dates) * 0.7))]
-    test_cutoff = dates[max(2, int(len(dates) * 0.8))]
-    if not train_cutoff < test_cutoff:
+    train_index = max(1, int(len(dates) * 0.7))
+    test_index = max(train_index + 1, max(2, int(len(dates) * 0.8)))
+    if test_index >= len(dates):
         raise RuntimeError("Not enough assessment dates for chronological train/validation/test splits.")
+    train_cutoff = dates[train_index]
+    test_cutoff = dates[test_index]
     learner_history = defaultdict(list)
     train_population_topic = defaultdict(list)
     train_population_course = defaultdict(list)
@@ -217,10 +219,13 @@ def main():
         "candidate_comparison": comparisons,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
-    joblib.dump({"vectorizer": vectorizer, "estimator": estimator, "population": population, "metrics": metrics}, ARTIFACT, compress=3)
-    METRICS.write_text(json.dumps(metrics, indent=2) + "\n", encoding="utf-8")
+    Path(artifact_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(metrics_path).parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump({"vectorizer": vectorizer, "estimator": estimator, "population": population, "metrics": metrics}, artifact_path, compress=3)
+    Path(metrics_path).write_text(json.dumps(metrics, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(metrics, indent=2))
-    print(f"Saved model: {ARTIFACT}")
+    print(f"Saved model: {artifact_path}")
+    return metrics
 
 
 if __name__ == "__main__":

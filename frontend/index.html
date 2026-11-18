@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="/assets/style.css" />
   </head>
   <body>
-    <canvas id="ghost-fibers-background" class="ghost-fibers-background" aria-hidden="true"></canvas>
+    <div id="ghost-fibers-background" class="ghost-fibers-container" aria-hidden="true">
+      <canvas class="ghost-fibers-canvas"></canvas>
+    </div>
     <div id="app" aria-live="polite"></div>
     <div id="toast" role="status" class="toast"></div>
     <script src="/assets/ghost-fibers.js" defer></script>
