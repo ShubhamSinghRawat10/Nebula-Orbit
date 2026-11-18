@@ -4,7 +4,7 @@
 
 ### Learn in your own orbit.
 
-An adaptive B.Tech and BCA learning workspace that turns quiz results into a clear, manageable next step.
+**An adaptive learning workspace for B.Tech and BCA students.** Nebula turns a student's quiz history into transparent topic feedback and a practical study plan. The current planner uses score rules and curriculum prerequisites; the experimental ML score estimator is evaluated offline and is not used to make student-facing predictions.
 
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/API-Flask-111111?logo=flask)](https://flask.palletsprojects.com/)
@@ -18,69 +18,68 @@ An adaptive B.Tech and BCA learning workspace that turns quiz results into a cle
 
 ---
 
-## Contents
+## At a glance
 
-- [About](#about)
-- [What it does](#what-it-does)
-- [How personalization works](#how-personalization-works)
-- [Technology and architecture](#technology-and-architecture)
-- [Run locally](#run-locally)
-- [Dataset and model workflow](#dataset-and-model-workflow)
-- [Deployment](#deployment)
-- [API reference](#api-reference)
-- [Project structure](#project-structure)
-- [Run the backend acceptance suite](#run-the-backend-acceptance-suite)
-- [Security notes](#security-notes)
-- [Current scope](#current-scope)
+| Area | Current repository coverage |
+|---|---|
+| Learning tracks | 35 B.Tech branches/specializations and 1 BCA track |
+| Curriculum sources | 522 track-to-course rows across 147 branch-outline course codes, plus 25 shared catalog courses |
+| Practice bank | 172 quiz sets and 2,595 explained questions in CSV |
+| Topic practice coverage | 860 course-topic pairs have at least 3 distinct questions |
+| In-app lessons | 10 pilot lessons across DSA, Python, DBMS, Computer Networks, and Operating Systems |
+| Personalization | Transparent score thresholds, learner history, prerequisites, and study-time preferences |
+| ML status | Experimental next-score model; currently below the evidence gate and hidden from student forecasts |
 
-## About
+Counts describe source-controlled project data. The expanded CSV question bank is not automatically present in a hosted MongoDB database: seed and verify the target database before claiming the hosted app has these counts. The course outlines are common references, not complete semester-by-semester curricula for every institution. All 2,595 authored question records are pending external instructor review.
 
-Nebula is an AI-assisted learning MVP for students who want a more focused way to study B.Tech and BCA subjects. Students can choose a supported branch, explore a course, take a topic-based quiz, review their score, and use a personalized study plan to decide what to work on next. Administrators maintain the learning content and manage student access.
-
-**Current learning tracks:** 35 B.Tech branch/specialization choices and a BCA track, backed by a common reference outline. The catalog is not a complete or semester-mapped syllabus for every university. Nebula is not yet a complete GATE or placement-preparation curriculum; those need their own reviewed syllabi, question banks, and resources.
-
-The product keeps recommendations explainable: a student's own quiz history and the curriculum prerequisite graph drive the study plan. The included machine-learning score estimator is experimental and is **not** treated as a reliable student-facing prediction.
-
-## What it does
+## What Nebula does
 
 ### Student workspace
 
-- Sign up and sign in with a student account.
-- Choose a learning focus, degree/level, and daily study-time budget.
-- Set available study days and preferred session length in the profile.
-- Plans prioritize weak topics from enrolled courses, then fall back to courses the student has attempted.
-- Nebula treats a topic as weak only after at least three distinct questions; smaller samples are shown as preliminary practice signals.
-- Choose a B.Tech branch/specialization or BCA track, then explore its assigned course catalog and enroll in courses.
-- Read published in-app pilot lessons where available; find topic-specific video resources through YouTube search links.
-- Take quizzes, see answer explanations after submission, and review saved attempts.
-- Track quiz averages, topic mastery, completed lessons, and study streaks.
-- Generate a study plan with a reason for each session (quiz signal, prerequisite, or spaced review), then mark sessions complete.
-- Track follow-up quizzes on the same course topic and compare them with the pre-session topic baseline when both contain at least three distinct questions.
+- Create an account and select a supported B.Tech branch/specialization or BCA track.
+- Explore the track's available course catalog and enroll in courses.
+- Take a topic-linked quiz and see the score, correct answers, and explanations after submission.
+- Review topic mastery and saved quiz attempts. A topic is labelled weak only after at least 3 distinct questions; smaller samples are marked preliminary.
+- Read a published in-app lesson when one is available, or open a topic-specific YouTube search for other topics. Students can manually mark each external video as watched; Nebula cannot verify playback or watch time.
+- Generate a study plan that prioritizes weak topics in enrolled courses, prerequisite topics, available study days, and the student's time budget. Each session explains why it was selected.
+- Mark study sessions and in-app lessons complete. When a suitable later quiz exists, compare its topic score with the earlier baseline.
+- Review quiz averages, topic progress, completed sessions, and study streaks.
+
+After every topic video in a course has been manually marked watched, Nebula schedules a course revision check-in for 7 days later. A follow-up quiz can show a later score difference, but that difference alone does not prove the video or plan caused improvement.
 
 ### Administrator workspace
 
 - Create, edit, publish, and remove courses and quizzes.
 - Draft, publish, edit, and remove lessons linked to course topics.
-- Review student account status and high-level activity.
-- Suspend and restore student access.
+- Review student account status and high-level activity, and suspend or restore access.
+- View small pilot signals such as return activity, plan completion, and eligible paired quiz results. These are descriptive product metrics, not proof of learning effectiveness.
 
-Administrator registration requires the private `ADMIN_SIGNUP_KEY` configured on the backend. It is never included in frontend code or this README.
+Administrator registration uses the private `ADMIN_SIGNUP_KEY` configured on the backend. Keep its value in environment settings; never place secrets in this README or frontend code.
 
-## How personalization works
+## How the study plan adapts
 
-1. Quiz attempts are saved to the student's account.
-2. Topic-level performance highlights areas for more practice.
-3. Course prerequisites help order foundational work before dependent topics.
-4. The study planner schedules focused sessions around the student's selected days, session length, and daily time budget.
-5. New quiz results can refresh the plan and recommendations.
+1. The student completes a quiz; Nebula saves the attempt to that account.
+2. Scores across distinct questions provide topic-level signals. Small samples stay preliminary.
+3. Low-scoring topics, course prerequisites, and enrollment guide what appears next.
+4. The plan fits sessions around the student's study days, preferred session length, and daily study-time budget.
+5. After a completed study session, a later quiz on the same course and topic may be paired with its earlier baseline. At least 3 distinct questions are required on both sides for the score-change signal.
+6. New quiz activity can refresh study priorities and schedule spaced review.
 
-These recommendations are rule-based and grounded in the student's app activity. They are guidance for study planning, not a guarantee of exam results.
+The planner is rule-based and explainable. Its guidance is not a guarantee of exam results.
 
-### Experimental ML model
+## ML model: experimental, not powering recommendations
 
-The repository includes a model that estimates a learner's next assessment score from historical assessment data. It uses a chronological train/validation/test split. In the current evaluation, proficiency-band accuracy equals the majority-class baseline, and the model's test R² is negative. The backend therefore does not treat its output as a dependable personalized forecast; score-based rules remain the active planning approach.
+The repository includes a scikit-learn model that estimates a learner's next assessment score from earlier assessment history. It uses a chronological train/validation/test split to avoid training on future attempts. The checked-in evaluation reports:
 
-See the evaluation details in [`backend/performance_model_metrics.json`](backend/performance_model_metrics.json) and data limitations in [`backend/DATASET_NOTES.md`](backend/DATASET_NOTES.md). Do not tune against the held-out test period.
+- **Model:** `RandomForestRegressor`, selected from the candidates using validation data.
+- **Evaluation data:** 25,000 historical/synthetic assessment rows, grouped by assessment date for a 70/10/20 split.
+- **Held-out score MAE:** 14.166 points, compared with 14.159 for the global-mean baseline.
+- **Proficiency-band accuracy:** 59.13%, equal to the majority-class baseline.
+- **R²:** −0.0012.
+
+These results show no meaningful predictive lift. The backend therefore disables student-facing score forecasts; quiz-score rules and prerequisites remain the active study-planning logic. Do not describe Nebula as an AI-powered tutor or claim that its ML model improves learning outcomes. Better evidence needs real, repeated student assessments and recorded learning outcomes after recommendations, followed by a fresh untouched evaluation.
+
+See [`backend/performance_model_metrics.json`](backend/performance_model_metrics.json), [`backend/DATASET_NOTES.md`](backend/DATASET_NOTES.md), and the model trainer at [`backend/train_performance_model.py`](backend/train_performance_model.py). Do not tune against the held-out test period.
 
 ## Technology and architecture
 
@@ -89,35 +88,54 @@ See the evaluation details in [`backend/performance_model_metrics.json`](backend
 | Frontend | Static HTML, CSS, and JavaScript |
 | API and authentication | Python, Flask, Flask-JWT-Extended |
 | Database | MongoDB Atlas or local MongoDB |
-| Model workflow | pandas-compatible CSV input, scikit-learn |
+| Offline model workflow | scikit-learn, CSV assessment history |
 | Production API server | Gunicorn in Docker |
-| Hosting | Netlify frontend, Render API, MongoDB Atlas database |
+| Hosting configuration | Netlify frontend, Render API, MongoDB Atlas database |
 
 ```mermaid
 flowchart LR
     S[Student or admin browser] --> N[Netlify static frontend]
     N -->|/api requests| R[Render Flask API]
     R --> M[(MongoDB Atlas)]
-    R --> C[Courses, quizzes, lessons, plans]
+    R --> C[Courses, quizzes, lessons, and plans]
 ```
 
-The frontend sends requests to `/api`. Netlify routes those requests to the Render service, so the browser uses one site origin. The free Render instance may sleep when inactive; its first request after a quiet period can take longer.
+The browser sends requests to `/api` on the same site origin. Netlify forwards API requests to the Render service, which reads and writes MongoDB. A free hosting plan may spin down after inactivity, making the first request slower.
+
+## Curriculum and question bank
+
+Curriculum source files are in `backend/`:
+
+| File | Purpose |
+|---|---|
+| `curriculum_tracks.csv` | 35 B.Tech branch/specialization tracks and the BCA track |
+| `courses.csv`, `topics.csv` | Shared course catalog and topic metadata |
+| `course_tracks.csv` | Assigns shared catalog courses to applicable tracks |
+| `branch_curriculum.csv` | Track-specific course and topic outlines |
+| `curriculum_track_parents.csv` | Explicit inheritance between related specializations |
+| `topic_prerequisite.csv` | Prerequisite relationships used by the planner |
+| `practice_question_bank.csv` | Question text, choices, answer keys, explanations, and review fields |
+| `student_interaction.csv` | Historical/synthetic assessment data used for offline model analysis |
+
+The 35 B.Tech options and BCA track follow a common reference outline. The catalog is not mapped to a specific university's semesters, credits, or electives, and it is not a complete GATE, placement, or degree-exam course. See [`backend/CURRICULUM_SOURCES.md`](backend/CURRICULUM_SOURCES.md) for source scope and limitations.
+
+The CSV question bank has 172 quiz sets, each with at least 15 questions; 860 listed course-topic pairs have at least 3 distinct questions. These are Nebula-authored starter questions, not copied question-bank material. Structural and course/topic-linkage checks do not replace subject-matter review: every question is still pending external instructor review. Treat these as formative practice, not certified exam material or full-length mocks. Lessons are currently limited to the five-subject pilot listed above.
+
+The app's quiz catalog is stored in MongoDB. Import and seed commands modify the configured database, so first confirm `MONGODB_URI` and `MONGODB_DB` point to the intended environment. The repository readiness checklist records live seeding and browser verification as outstanding; verify the hosted database before assuming the expanded question bank is visible online.
 
 ## Run locally
 
-### MongoDB-backed app
+You need Python 3.10+ and either a local MongoDB server or a MongoDB Atlas connection string.
 
-You need Python 3.10+ and either a running local MongoDB server or an Atlas connection string.
-
-1. Create a private environment file:
+1. Create a private backend environment file:
 
    ```powershell
    Copy-Item backend/.env.example backend/.env
    ```
 
-2. Edit `backend/.env` locally. Set `MONGODB_URI`, `MONGODB_DB`, `JWT_SECRET_KEY`, `ADMIN_SIGNUP_KEY`, and `FRONTEND_ORIGIN` for your setup. Use private random secrets; do not paste them into chat or commit the file.
+2. Set `MONGODB_URI`, `MONGODB_DB`, `JWT_SECRET_KEY`, `ADMIN_SIGNUP_KEY`, and `FRONTEND_ORIGIN` in `backend/.env`. Use private random secrets. Do not paste them into chat or commit the file.
 
-3. Install dependencies and start the API from the `backend` directory:
+3. Install backend dependencies and start the API:
 
    ```powershell
    cd backend
@@ -127,106 +145,84 @@ You need Python 3.10+ and either a running local MongoDB server or an Atlas conn
    python app.py
    ```
 
-4. Open [http://127.0.0.1:5000](http://127.0.0.1:5000). Check API and database connectivity at [http://127.0.0.1:5000/api/health](http://127.0.0.1:5000/api/health).
+4. Confirm the API and database connection at [http://127.0.0.1:5000/api/health](http://127.0.0.1:5000/api/health).
 
-On macOS/Linux, activate the virtual environment with `source .venv/bin/activate`.
+The frontend calls the relative `/api` path, so a plain static server such as `python -m http.server` will not proxy API requests to the local backend. Use a same-origin development proxy for a complete local UI/API session. The deployed Netlify configuration already provides the `/api` proxy.
 
-### Local demo mode
+For macOS/Linux, activate the virtual environment with `source .venv/bin/activate` and use `python app.py` from `backend/`.
 
-For a local demo backed by the `.demo_data.json` snapshot, use Windows PowerShell from the repository root:
+### Optional local demo mode
+
+From the repository root, run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\backend\start-demo.ps1
 ```
 
-Demo mode is for one local developer process, not shared student accounts. Keep the snapshot private and backed up; it may contain personal demo data.
+Demo mode uses an in-memory Mongo mock and may restore or create the ignored `backend/.demo_data.json` snapshot. It is for one local demonstration, not multiple users or production. Keep any snapshot private; it may contain personal demo data.
 
-## Dataset and model workflow
+## Import and seed curriculum content
 
-The curriculum data and assessment history are in `backend/`:
-
-| File | Purpose |
-|---|---|
-| `courses.csv` | Course catalog |
-| `topics.csv` | Topic catalog and study metadata |
-| `topic_prerequisite.csv` | Relationships used to sequence foundational topics |
-| `curriculum_tracks.csv` | Supported B.Tech branches/specializations and BCA learning track |
-| `course_tracks.csv` | Assigns existing catalog courses to eligible degree tracks |
-| `branch_curriculum.csv` | Shared foundations plus authored branch subject/topic outlines |
-| `curriculum_track_parents.csv` | Explicit course inheritance for related specializations |
-| `build_branch_curriculum.py` | Rebuilds shared engineering foundations and branch outline rows |
-| `build_core_course_practice.py` | Replaces generic topics for the shared computing course catalog and writes its topic-linked starter questions |
-| `expand_foundation_bca_practice.py` | Adds original, topic-balanced questions for shared B.Tech foundations and all BCA courses |
-| `expand_computing_practice.py` | Repeatable source for Nebula-authored question packs across computing and selected B.Tech branch courses |
-| `practice_question_bank.csv` | Topic-linked starter questions, choices, answer keys, explanations, and review evidence fields; all authored rows currently remain pending instructor review |
-| `student_interaction.csv` | Historical assessment records for analysis/model evaluation |
-
-The current catalog has 35 B.Tech branch/specialization tracks and one BCA track. It is a common reference outline, not a complete or semester-mapped syllabus for every university. Specialist tracks inherit only the parent courses listed in `curriculum_track_parents.csv`. Read [`backend/CURRICULUM_SOURCES.md`](backend/CURRICULUM_SOURCES.md) for the source scope and limitations before using it for exam planning. The question bank has 2,595 explained questions across 172 quiz sets: every quiz has at least 15 questions and all 860 active course-topic pairs have at least three distinct questions. All question records remain pending external instructor review, so treat these as formative starter practice rather than formal exam material. This is not a complete exam-preparation product. In-app lessons are still limited to the pilot subjects.
-
-To import or sync the curriculum into the configured MongoDB database, run from `backend/`:
+Run these only after verifying that the environment points to the intended MongoDB database. From `backend/`:
 
 ```powershell
 python import_dataset.py
-```
-
-To add the pilot lessons and CSV-backed practice quizzes, run from `backend/` after curriculum import:
-
-```powershell
 python seed_learning_content.py
 ```
 
-The seeder validates and imports 172 focused quizzes (2,595 questions) with answer explanations and topic links. Every quiz has at least 15 questions, and every active course-topic pair has at least three. Questions are Nebula-authored starter drafts and have not had external instructor review; they are not full-length semester, GATE, or placement mocks. The seeder is idempotent under its own seed keys, preserves admin-edited quiz content, and extends a source-controlled quiz only when its stored questions exactly match the beginning of the CSV set.
+The first command syncs the CSV curriculum. The second adds source-controlled pilot lessons and quizzes. The seeder preserves admin-edited quizzes and only expands unchanged seeded content under its signature checks. Re-run safely only after confirming the target database; then verify course, quiz, and lesson counts in the app.
 
-Historical assessment rows are imported only when a private `DATASET_HASH_SALT` is configured. The importer omits student names and pseudonymizes student and interaction IDs. Imported historical identities are not connected to app login accounts.
+Historical assessment rows are imported only when a private `DATASET_HASH_SALT` is configured. The importer omits the `student_name` field and HMAC-pseudonymizes student and interaction IDs. These imported identities are not linked to app accounts. Do not commit real student data or credentials.
 
-To retrain the experimental score estimator after changing the data:
+## Retrain and evaluate the experimental model
+
+From `backend/`:
 
 ```powershell
 python train_performance_model.py
 ```
 
-Review the held-out metrics before using a new artifact. A stronger model needs genuinely predictive features and future learning outcomes; more rows alone do not guarantee better accuracy. Dataset definitions, privacy handling, and limitations are documented in [`backend/DATASET_NOTES.md`](backend/DATASET_NOTES.md).
+This retrains on `student_interaction.csv` and rewrites the model artifact and evaluation metrics. Review the chronological held-out results before considering any change to the student-facing evidence gate. More rows alone do not guarantee better model performance.
 
-## Deployment
+## Deployment configuration
 
-### Frontend — Netlify
+The repository includes configuration for the existing hosting layout:
 
-- Connect the GitHub repository and deploy the `main` branch.
-- Set the publish directory to `frontend`; no build command is required.
-- Keep the root `netlify.toml`: it serves `/assets/*`, proxies `/api/*` to Render, and routes frontend paths to `index.html`.
-- Configure `FRONTEND_ORIGIN` on Render to match the deployed site origin, without a trailing slash.
+### Netlify frontend
 
-### Backend — Render
+- Deploy the repository's `main` branch with publish directory `frontend` and no build command.
+- Keep the root `netlify.toml`; it serves assets, proxies `/api/*` to Render, and falls back to `index.html` for frontend routes.
+- Set the Render `FRONTEND_ORIGIN` to the exact deployed Netlify origin, without a trailing slash.
 
-- Create a Docker web service from the repository root using the root `Dockerfile`.
-- Configure the required environment variables in Render's Environment settings.
-- Set the health-check path to `/api/health`.
-- Add Render's documented outbound IP ranges to the Atlas Network Access list. Avoid broad `0.0.0.0/0` access for a production database.
+### Render backend
+
+- Create a Docker web service from the repository root using `Dockerfile`.
+- Add private environment variables in Render settings and set the health-check path to `/api/health`.
+- Allow Render's documented outbound IP ranges in MongoDB Atlas Network Access.
 
 ### MongoDB Atlas
 
-- Use an application database user with only the permissions required by Nebula.
-- Store the connection string as the `MONGODB_URI` secret in Render; set `MONGODB_DB` to the intended database name.
-- Confirm Atlas network access permits the Render service to connect.
-- Configure backups and retention before onboarding real students.
+- Use a dedicated application database user with only the permissions Nebula needs.
+- Keep `MONGODB_URI` in Render's private environment settings and set `MONGODB_DB` to the intended database.
+- Configure backups and retention before using real student data.
+
+These instructions describe repository configuration; they do not by themselves confirm that a particular production deploy is healthy or fully seeded.
 
 ### Backend environment variables
 
-Set these in the deployment provider's private environment settings. The values belong there, not in source control or README:
-
 | Variable | Purpose |
 |---|---|
-| `NEBULA_ENV` | Use `production` for the hosted service |
+| `NEBULA_ENV` | Set to `production` for the hosted service |
 | `NEBULA_DEMO_MODE` | Keep `false` when using MongoDB |
 | `MONGODB_URI` | Private MongoDB connection string |
-| `MONGODB_DB` | MongoDB database name |
+| `MONGODB_DB` | Database name |
 | `JWT_SECRET_KEY` | Private token-signing secret |
 | `ADMIN_SIGNUP_KEY` | Private admin invitation key |
-| `FRONTEND_ORIGIN` | Exact deployed frontend origin, without trailing slash |
+| `FRONTEND_ORIGIN` | Exact frontend origin, without trailing slash |
 
-## API reference
+## API overview
 
-Protected routes require `Authorization: Bearer <access_token>`. Admin-only routes additionally require an administrator account.
+Protected routes require `Authorization: Bearer <access_token>`. Admin-only routes require an administrator account.
 
 | Area | Endpoints |
 |---|---|
@@ -234,59 +230,55 @@ Protected routes require `Authorization: Bearer <access_token>`. Admin-only rout
 | Accounts | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PATCH /api/auth/profile` |
 | Courses | `GET /api/courses`, `POST /api/courses`, `PUT/DELETE /api/courses/:course_id` |
 | Enrollment and topics | `GET /api/enrollments`, `POST/DELETE /api/enrollments/:course_id`, `GET /api/courses/:course_id/topics` |
-| Lessons | `GET /api/courses/:course_id/lessons`, `GET/POST /api/admin/lessons`, `PUT/DELETE /api/admin/lessons/:id`, `POST /api/lessons/:id/complete` |
-| Quizzes | `GET /api/quizzes`, `GET /api/quizzes/:id`, `POST /api/quizzes`, `PUT/DELETE /api/quizzes/:id`, `POST /api/quizzes/:id/submit` |
+| Lessons and video progress | `GET /api/courses/:course_id/lessons`, admin lesson CRUD under `/api/admin/lessons`, `POST /api/lessons/:id/complete`, `POST /api/courses/:course_id/topics/:topic_id/video-complete` |
+| Quizzes | `GET /api/quizzes`, `GET /api/quizzes/:id`, quiz CRUD, `POST /api/quizzes/:id/submit` |
 | Student learning | `GET /api/progress`, `GET /api/study-plan`, `POST /api/study-plan/generate`, `POST /api/study-plan/sessions/:session_id/complete`, `GET /api/recommendations` |
 | Admin | `GET /api/admin/overview`, `GET /api/admin/students`, `PATCH /api/admin/students/:id/status` |
 
-Quiz answer keys are not sent with the student quiz. Grading feedback is returned after submission. Admin student views contain profile preferences and aggregate activity, not password hashes or answer selections. Draft lessons are only available to admins; published lessons are available to students.
+Quiz answer keys are kept server-side until submission. Draft lessons are admin-only; published lessons can be viewed by students with access to the course. Paired session/quiz score changes are descriptive comparisons and do not establish causation.
 
-Study-session outcomes are descriptive before/after comparisons. They help monitor whether students return to a topic and how their later quiz score compares with a prior baseline; they do not prove that the plan caused a score change. Score-change summaries require at least three distinct questions in both the baseline and follow-up.
+## Tests
 
-The administrator overview also reports pilot signals: exact UTC day-1/day-7 student return rates, completion across students' latest saved plans, and eligible paired topic-score changes. Return tracking starts when the backend first initializes this feature; earlier accounts are excluded from the retention denominator. Returns count an authenticated app visit or a learning action. These small pilot metrics are directional and should be interpreted with their eligible sample counts, not as evidence of causation or model accuracy.
-
-## Project structure
-
-```text
-.
-├── backend/                 Flask API, CSV data, model workflow, and tests
-│   ├── app.py               API routes, authentication, study planner
-│   ├── tests/               Backend acceptance and regression tests
-│   ├── *.csv                Curriculum and historical assessment data
-│   ├── import_dataset.py    MongoDB curriculum/history importer
-│   └── train_performance_model.py
-├── frontend/                Static HTML, JavaScript, and CSS
-├── Dockerfile               Render/Gunicorn container setup
-├── netlify.toml             Netlify publishing, API proxy, and SPA routes
-├── STUDENT_SYSTEM_DESIGN.md  Student experience and flow
-├── ADMIN_SYSTEM_DESIGN.md   Admin experience and flow
-└── MVP_READINESS.md         Current MVP checklist and launch considerations
-```
-
-## Run the backend acceptance suite
-
-From `backend/`, install the development dependencies and run the isolated API acceptance tests:
+Backend acceptance tests use `mongomock`, so they do not write test users or attempts to Atlas. From `backend/`:
 
 ```powershell
 pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 ```
 
-The suite uses `mongomock` and does not write test users or attempts to your Atlas database.
+See [`MVP_READINESS.md`](MVP_READINESS.md) for the tracked verification and launch checklist.
 
-## Security notes
+## Project structure
+
+```text
+.
+├── backend/                  Flask API, curriculum CSVs, question bank, model workflow, tests
+│   ├── app.py                API routes, authentication, and study planner
+│   ├── tests/                Backend acceptance and regression tests
+│   ├── *.csv                 Curriculum, quiz questions, and historical assessments
+│   ├── import_dataset.py     MongoDB curriculum/history importer
+│   └── train_performance_model.py
+├── frontend/                 Static HTML, JavaScript, and CSS
+├── Dockerfile                Render/Gunicorn container setup
+├── netlify.toml              Netlify publishing, API proxy, and frontend routes
+├── STUDENT_SYSTEM_DESIGN.md  Student flow and data ownership
+├── ADMIN_SYSTEM_DESIGN.md    Admin flow and permissions
+└── MVP_READINESS.md          Verification and launch checklist
+```
+
+## Security and data handling
 
 - `backend/.env` is private local configuration and is ignored by Git.
-- Never commit database URIs, passwords, JWT secrets, admin signup keys, or dataset salts.
-- Use provider-managed secret settings for Render and keep access limited to project maintainers.
-- Rotate any credential that was exposed in a screenshot, terminal capture, chat, or Git history.
-- Do not put real student data in public issues, screenshots, or sample files.
+- Never commit database connection strings, passwords, JWT secrets, admin keys, or dataset salts.
+- Use provider-managed secrets for Render and limit access to project maintainers.
+- Rotate any credential exposed in screenshots, terminal output, chat, or Git history.
+- Keep real student information out of public issues, screenshots, and sample datasets.
 
-## Current scope
+## Current limitations
 
-- The catalog supports 35 B.Tech branch/specialization tracks and BCA, with common foundation and authored branch subject/topic outlines in CSV.
-- In-app lesson content is a pilot set for DSA, Python, DBMS, Computer Networks, and Operating Systems; result pages open a matching published lesson where one exists and otherwise offer a YouTube topic search.
-- The CSV-backed bank contains 172 short quizzes and 2,595 explained questions. Every quiz has at least 15 questions, with at least 3 distinct questions in each of 860 listed course-topic pairs. All questions remain pending external instructor review. In-app lessons remain a small pilot library. These are formative practice sets, not complete GATE, semester-exam, or placement-interview mocks.
-- Rule-based study planning is active. The ML score estimator remains experimental and is not a promise of student performance.
-
-For the detailed launch checklist and verification status, see [`MVP_READINESS.md`](MVP_READINESS.md).
+- Curriculum coverage is a common reference outline, not a complete university-specific syllabus or semester plan.
+- Question content is a formative starter bank awaiting instructor review; it is not a certified exam question set or full mock exam.
+- In-app lessons cover five pilot subjects; external-video watched status is self-reported and playback is not verified.
+- A local static frontend server needs an `/api` development proxy to work with the local backend.
+- ML score forecasts are disabled because the current held-out evaluation does not beat simple baselines.
+- Hosted availability, database seeding, and content counts must be verified in the target deployment; source CSV counts alone do not prove production state.

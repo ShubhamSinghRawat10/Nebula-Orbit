@@ -1071,6 +1071,97 @@ def create_app(test_config=None):
             unique_question_count = len(values["question_signatures"])
             topics.append({"course_id": course_id, "topic": name, "attempts": values["attempts"], "score": values["score"], "max_score": values["max_score"], "mastery": int(math.floor(100 * values["score"] / values["max_score"] + 0.5)) if values["max_score"] else 0, "distinct_question_count": unique_question_count, "evidence_status": "reliable" if unique_question_count >= MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL else "preliminary"})
         topics.sort(key=lambda item: (item["mastery"], item["topic"], item["course_id"]))
+
+        # Keep the complete active-track topic catalog separate from assessed
+        # signals so unattempted topics can be shown without treating them as
+        # weak topics in recommendations or the study planner.
+        track_courses = list(courses.find(
+            {"course_id": {"$in": student_track_course_ids(user)}},
+            {"course_id": 1, "title": 1, "subject": 1, "topics": 1, "topic_ids": 1},
+        ).sort("title", ASCENDING))
+        course_details = {
+            str(item.get("course_id", "")).upper(): item for item in track_courses
+        }
+        track_course_ids = list(course_details)
+        catalog_docs = list(topics_collection.find(
+            {"course_id": {"$in": track_course_ids}},
+            {"course_id": 1, "topic_id": 1, "topic_name": 1},
+        ).sort([("course_id", ASCENDING), ("topic_id", ASCENDING)]))
+
+        def topic_key(course_id, name):
+            return (str(course_id or "").upper(), " ".join(str(name or "").casefold().split()))
+
+        assessed_by_key = {topic_key(row["course_id"], row["topic"]): row for row in topics}
+        catalog_topics = []
+        matched_keys = set()
+        catalog_keys = set()
+        catalog_topic_ids = set()
+        for topic in catalog_docs:
+            course_id = str(topic.get("course_id", "")).upper()
+            key = topic_key(course_id, topic.get("topic_name"))
+            catalog_keys.add(key)
+            if topic.get("topic_id"):
+                catalog_topic_ids.add(str(topic["topic_id"]))
+            assessed = assessed_by_key.get(key)
+            if assessed:
+                matched_keys.add(key)
+            course = course_details.get(course_id, {})
+            catalog_topics.append({
+                "course_id": course_id,
+                "course_title": course.get("title", course_id),
+                "subject": course.get("subject", ""),
+                "topic_id": topic.get("topic_id"),
+                "topic": topic.get("topic_name", "Untitled topic"),
+                "attempts": assessed["attempts"] if assessed else 0,
+                "score": assessed["score"] if assessed else 0,
+                "max_score": assessed["max_score"] if assessed else 0,
+                "mastery": assessed["mastery"] if assessed else None,
+                "distinct_question_count": assessed["distinct_question_count"] if assessed else 0,
+                "evidence_status": assessed["evidence_status"] if assessed else "not_assessed",
+                "in_catalog": True,
+            })
+        for course_id, course in course_details.items():
+            for index, topic_name in enumerate(course.get("topics") or []):
+                topic_ids = course.get("topic_ids") or []
+                topic_id = topic_ids[index] if index < len(topic_ids) else None
+                if topic_id and str(topic_id) in catalog_topic_ids:
+                    continue
+                key = topic_key(course_id, topic_name)
+                if key in catalog_keys:
+                    continue
+                catalog_keys.add(key)
+                assessed = assessed_by_key.get(key)
+                if assessed:
+                    matched_keys.add(key)
+                catalog_topics.append({
+                    "course_id": course_id,
+                    "course_title": course.get("title", course_id),
+                    "subject": course.get("subject", ""),
+                    "topic_id": topic_id,
+                    "topic": topic_name,
+                    "attempts": assessed["attempts"] if assessed else 0,
+                    "score": assessed["score"] if assessed else 0,
+                    "max_score": assessed["max_score"] if assessed else 0,
+                    "mastery": assessed["mastery"] if assessed else None,
+                    "distinct_question_count": assessed["distinct_question_count"] if assessed else 0,
+                    "evidence_status": assessed["evidence_status"] if assessed else "not_assessed",
+                    "in_catalog": True,
+                })
+        for assessed in topics:
+            key = topic_key(assessed["course_id"], assessed["topic"])
+            if key in matched_keys:
+                continue
+            course = course_details.get(assessed["course_id"], {})
+            catalog_topics.append({
+                **assessed,
+                "course_title": course.get("title", assessed["course_id"] or "Other quiz topics"),
+                "subject": course.get("subject", ""),
+                "topic_id": None,
+                "in_catalog": False,
+            })
+        catalog_topics.sort(key=lambda item: (
+            item["course_title"].casefold(), item["topic"].casefold(), item["course_id"]
+        ))
         total = sum(x.get("max_score", 0) for x in recent)
         score = sum(x.get("score", 0) for x in recent)
         lesson_count = db.lesson_completions.count_documents({"student_id": user["_id"]})
@@ -1105,7 +1196,7 @@ def create_app(test_config=None):
             "average_score_change_points": round(outcome_summary["average"], 1) if outcome_summary.get("count") else None,
             "improved_assessments": outcome_summary.get("improved", 0),
         }
-        return jsonify({"summary": {"attempts": len(recent), "average": int(math.floor(100 * score / total + 0.5)) if total else 0, "completed_lessons": lesson_count, "streak_days": streak}, "study_sessions": study_session_metrics, "topics": topics, "recent_attempts": serialize(recent[:12]), "score_trend_attempts": serialize(recent)})
+        return jsonify({"summary": {"attempts": len(recent), "average": int(math.floor(100 * score / total + 0.5)) if total else 0, "completed_lessons": lesson_count, "streak_days": streak}, "study_sessions": study_session_metrics, "topics": topics, "topic_catalog": catalog_topics, "recent_attempts": serialize(recent[:12]), "score_trend_attempts": serialize(recent)})
 
     @app.post("/api/lessons/<lesson_id>/complete")
     @role_required("student")
