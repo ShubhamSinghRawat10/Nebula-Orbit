@@ -63,6 +63,23 @@ STUDY_DAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 DEFAULT_STUDY_DAYS = ["mon", "tue", "wed", "thu", "fri"]
 SESSION_LENGTHS = (15, 25, 30, 45, 60)
 MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL = 3
+ACHIEVEMENT_DEFINITIONS = (
+    {"badge_id": "first_quiz", "title": "First Orbit", "description": "Complete your first quiz.", "metric": "quizzes", "metric_label": "quizzes completed", "target": 1, "icon": "spark", "color": "#61d7ff"},
+    {"badge_id": "quiz_explorer", "title": "Quiz Explorer", "description": "Complete 3 different quizzes.", "metric": "unique_quizzes", "metric_label": "different quizzes", "target": 3, "icon": "quiz", "color": "#8b7cff"},
+    {"badge_id": "steady_orbit", "title": "Steady Orbit", "description": "Keep a 3-day learning streak.", "metric": "streak", "metric_label": "consecutive days", "target": 3, "icon": "streak", "color": "#ffb84d"},
+    {"badge_id": "weekly_rhythm", "title": "Weekly Rhythm", "description": "Learn on 7 consecutive days.", "metric": "streak", "metric_label": "consecutive days", "target": 7, "icon": "orbit", "color": "#ff6da9"},
+    {"badge_id": "session_builder", "title": "Session Builder", "description": "Complete 5 study-plan sessions.", "metric": "sessions", "metric_label": "study sessions", "target": 5, "icon": "target", "color": "#a4e66d"},
+    {"badge_id": "lesson_reader", "title": "Lesson Collector", "description": "Finish 5 in-app lessons.", "metric": "lessons", "metric_label": "in-app lessons", "target": 5, "icon": "book", "color": "#ffc96b"},
+    {"badge_id": "topic_cartographer", "title": "Topic Cartographer", "description": "Practice 10 different topics.", "metric": "topics", "metric_label": "different topics practiced", "target": 10, "icon": "compass", "color": "#68a4ff"},
+    {"badge_id": "growth_signal", "title": "Growth Signal", "description": "Improve by 5+ points in 3 eligible follow-up checks.", "metric": "improved_checks", "metric_label": "eligible score improvements", "target": 3, "icon": "growth", "color": "#71e0bd"},
+    {"badge_id": "course_finisher", "title": "Course Journey", "description": "Mark every topic video complete in one course.", "metric": "courses", "metric_label": "courses finished", "target": 1, "icon": "laurel", "color": "#d597ff"},
+    {"badge_id": "deep_space", "title": "Deep Space", "description": "Complete 10 quizzes and keep building your baseline.", "metric": "quizzes", "metric_label": "quizzes completed", "target": 10, "icon": "nebula", "color": "#a78bfa"},
+    {"badge_id": "fortnight_orbit", "title": "Fortnight Orbit", "description": "Keep a learning streak for 14 consecutive days.", "metric": "streak", "metric_label": "consecutive days", "target": 14, "icon": "crown", "color": "#f7c66a"},
+    {"badge_id": "session_pro", "title": "Session Pro", "description": "Complete 15 planned study sessions.", "metric": "sessions", "metric_label": "study sessions", "target": 15, "icon": "checklist", "color": "#4fe0bd"},
+    {"badge_id": "lesson_scholar", "title": "Lesson Scholar", "description": "Finish 10 in-app lessons.", "metric": "lessons", "metric_label": "in-app lessons", "target": 10, "icon": "scroll", "color": "#fb9d72"},
+    {"badge_id": "star_mapper", "title": "Star Mapper", "description": "Practice 20 different course topics.", "metric": "topics", "metric_label": "different topics practiced", "target": 20, "icon": "constellation", "color": "#72b7ff"},
+    {"badge_id": "course_constellation", "title": "Course Constellation", "description": "Finish 3 courses by completing their topic videos.", "metric": "courses", "metric_label": "courses finished", "target": 3, "icon": "trophy", "color": "#ff83bb"},
+)
 
 
 def question_signature(prompt):
@@ -98,6 +115,9 @@ def normalize_student_profile(profile, fallback=None):
     track_id = str(profile.get("program_track", fallback.get("program_track", DEFAULT_TRACK))).strip().upper()
     if track_id not in CURRICULUM_TRACKS:
         raise ValueError("Choose a supported degree and branch.")
+    learning_level = profile.get("learning_level", fallback.get("learning_level", "adaptive"))
+    if learning_level not in ("adaptive", "basic", "medium", "advanced"):
+        raise ValueError("Choose adaptive, basic, medium, or advanced learning content.")
     track = CURRICULUM_TRACKS[track_id]
     return {
         "learning_track": track_id,
@@ -107,6 +127,7 @@ def normalize_student_profile(profile, fallback=None):
         "goal": STUDY_GOALS[mode],
         "goal_mode": mode,
         "level": str(profile.get("level", fallback.get("level", track.get("degree", "B.Tech"))))[:80],
+        "learning_level": learning_level,
         "daily_minutes": daily_minutes,
         "available_days": days,
         "preferred_session_minutes": session_minutes,
@@ -179,6 +200,7 @@ def create_app(test_config=None):
     study_session_completions = db.study_session_completions
     course_video_completions = db.course_video_completions
     course_completion_records = db.course_completion_records
+    student_achievements = db.student_achievements
     student_activity_days = db.student_activity_days
     app_metadata = db.app_metadata
     model_path = os.path.join(os.path.dirname(__file__), "performance_model.joblib")
@@ -231,6 +253,7 @@ def create_app(test_config=None):
     study_session_completions.create_index([("student_id", ASCENDING), ("course_id", ASCENDING), ("topic", ASCENDING), ("completed_at", ASCENDING)])
     course_video_completions.create_index([("student_id", ASCENDING), ("course_id", ASCENDING), ("topic_id", ASCENDING)], unique=True)
     course_completion_records.create_index([("student_id", ASCENDING), ("course_id", ASCENDING)], unique=True)
+    student_achievements.create_index([("student_id", ASCENDING), ("badge_id", ASCENDING)], unique=True)
     student_activity_days.create_index([("student_id", ASCENDING), ("activity_date", ASCENDING)], unique=True)
     app_metadata.update_one(
         {"_id": "pilot_activity_tracking_started_at"},
@@ -1051,7 +1074,9 @@ def create_app(test_config=None):
     @role_required("student")
     def progress():
         user = current_user()
-        recent = list(attempts.find({"student_id": user["_id"], "course_id": {"$in": student_track_course_ids(user)}}).sort("created_at", -1).limit(100))
+        track_course_ids = student_track_course_ids(user)
+        attempt_query = {"student_id": user["_id"], "course_id": {"$in": track_course_ids}}
+        recent = list(attempts.find(attempt_query).sort("created_at", -1).limit(100))
         topic_scores = {}
         for item in recent:
             course_id = str(item.get("course_id", "")).upper()
@@ -1171,6 +1196,7 @@ def create_app(test_config=None):
             local_timezone = timezone.utc
         activity_timestamps = [item.get("created_at") for item in recent if item.get("created_at")]
         activity_timestamps.extend(item.get("completed_at") for item in db.lesson_completions.find({"student_id": user["_id"]}, {"completed_at": 1}) if item.get("completed_at"))
+        activity_timestamps.extend(item.get("completed_at") for item in study_session_completions.find({"student_id": user["_id"]}, {"completed_at": 1}) if item.get("completed_at"))
         study_days = {(stamp.replace(tzinfo=timezone.utc) if stamp.tzinfo is None else stamp).astimezone(local_timezone).date() for stamp in activity_timestamps}
         streak = 0
         day = utcnow().astimezone(local_timezone).date()
@@ -1196,7 +1222,50 @@ def create_app(test_config=None):
             "average_score_change_points": round(outcome_summary["average"], 1) if outcome_summary.get("count") else None,
             "improved_assessments": outcome_summary.get("improved", 0),
         }
-        return jsonify({"summary": {"attempts": len(recent), "average": int(math.floor(100 * score / total + 0.5)) if total else 0, "completed_lessons": lesson_count, "streak_days": streak}, "study_sessions": study_session_metrics, "topics": topics, "topic_catalog": catalog_topics, "recent_attempts": serialize(recent[:12]), "score_trend_attempts": serialize(recent)})
+        total_attempts = attempts.count_documents(attempt_query)
+        unique_quizzes = len(attempts.distinct("quiz_id", attempt_query))
+        distinct_topics = set()
+        for attempt_row in attempts.find(attempt_query, {"course_id": 1, "topic": 1, "topic_scores": 1}):
+            course_code = str(attempt_row.get("course_id", "")).upper()
+            breakdown = attempt_row.get("topic_scores") or [{"topic": attempt_row.get("topic", "General")}]
+            for topic_result in breakdown:
+                topic_name = str(topic_result.get("topic", "General")).strip()
+                if topic_name:
+                    distinct_topics.add((course_code, topic_name.casefold()))
+        completed_courses = course_completion_records.count_documents({"student_id": user["_id"]})
+        improved_checks = study_session_completions.count_documents({
+            "student_id": user["_id"], "score_change_points": {"$gte": 5},
+            "baseline_question_count": {"$gte": MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL},
+            "follow_up_unique_question_count": {"$gte": MIN_DISTINCT_QUESTIONS_FOR_TOPIC_SIGNAL},
+        })
+        achievement_metrics = {
+            "quizzes": total_attempts, "unique_quizzes": unique_quizzes, "streak": streak,
+            "sessions": all_session_completions, "lessons": lesson_count, "topics": len(distinct_topics),
+            "improved_checks": improved_checks, "courses": completed_courses,
+        }
+        achievement_rows = []
+        for definition in ACHIEVEMENT_DEFINITIONS:
+            current_value = int(achievement_metrics.get(definition["metric"], 0))
+            earned = current_value >= definition["target"]
+            record = student_achievements.find_one({"student_id": user["_id"], "badge_id": definition["badge_id"]})
+            if earned and not record:
+                try:
+                    student_achievements.update_one(
+                        {"student_id": user["_id"], "badge_id": definition["badge_id"]},
+                        {"$setOnInsert": {"student_id": user["_id"], "badge_id": definition["badge_id"], "unlocked_at": utcnow()}},
+                        upsert=True,
+                    )
+                except DuplicateKeyError:
+                    pass
+                record = student_achievements.find_one({"student_id": user["_id"], "badge_id": definition["badge_id"]})
+            achievement_rows.append({
+                **definition, "progress": min(current_value, definition["target"]), "earned": bool(record),
+                "unlocked_at": serialize(record.get("unlocked_at")) if record else None,
+            })
+        orbit_xp = unique_quizzes * 10 + all_session_completions * 10 + lesson_count * 5 + completed_courses * 40 + len(study_days) * 2
+        orbit_level = orbit_xp // 100 + 1
+        gamification = {"xp": orbit_xp, "level": orbit_level, "level_xp": orbit_xp % 100, "next_level_xp": 100, "earned_badges": sum(1 for item in achievement_rows if item["earned"]), "total_badges": len(achievement_rows)}
+        return jsonify({"summary": {"attempts": len(recent), "average": int(math.floor(100 * score / total + 0.5)) if total else 0, "completed_lessons": lesson_count, "streak_days": streak}, "study_sessions": study_session_metrics, "gamification": gamification, "achievements": achievement_rows, "topics": topics, "topic_catalog": catalog_topics, "recent_attempts": serialize(recent[:12]), "score_trend_attempts": serialize(recent)})
 
     @app.post("/api/lessons/<lesson_id>/complete")
     @role_required("student")
@@ -1533,20 +1602,25 @@ def create_app(test_config=None):
         session_minutes = min(profile["preferred_session_minutes"], day_minutes)
         sessions_per_day = max(1, math.ceil(day_minutes / session_minutes))
         allowed_weekdays = {STUDY_DAYS.index(day) for day in profile["available_days"]}
-        cursor = today
+        week_start = today
+        week_end = week_start + timedelta(days=6)
+        cursor = week_start
         daily_counts = {}
         tasks = []
         plan_id = secrets.token_urlsafe(18)
         for item in planned_topics[:7]:
-            while cursor.weekday() not in allowed_weekdays or daily_counts.get(cursor, 0) >= sessions_per_day:
+            while cursor <= week_end and (cursor.weekday() not in allowed_weekdays or daily_counts.get(cursor, 0) >= sessions_per_day):
                 cursor += timedelta(days=1)
+            if cursor > week_end:
+                tasks.append({**item, "session_id": secrets.token_urlsafe(18), "day": len(tasks) + 1, "day_label": "NEXT WEEK · UNSCHEDULED", "scheduled_date": None, "minutes": session_minutes})
+                continue
             used_sessions = daily_counts.get(cursor, 0)
             task_minutes = min(session_minutes, day_minutes - used_sessions * session_minutes)
             daily_counts[cursor] = used_sessions + 1
             day_label = "TODAY" if cursor == today else f"{cursor.strftime('%a').upper()} · {cursor.strftime('%b')} {cursor.day}"
             tasks.append({**item, "session_id": secrets.token_urlsafe(18), "day": len(tasks) + 1, "day_label": day_label, "scheduled_date": cursor.isoformat(), "minutes": task_minutes})
         plan = {
-            "student_id": user["_id"], "plan_id": plan_id, "learning_track": profile["learning_track"],
+            "student_id": user["_id"], "plan_id": plan_id, "week_start": week_start.isoformat(), "week_end": week_end.isoformat(), "learning_track": profile["learning_track"],
             "learning_track_label": CURRICULUM_TRACKS[profile["program_track"]].get("display_name", profile["program_track"]), "goal": profile["goal"], "goal_mode": goal_mode,
             "daily_minutes": day_minutes, "available_days": profile["available_days"],
             "preferred_session_minutes": profile["preferred_session_minutes"], "session_minutes": session_minutes,
