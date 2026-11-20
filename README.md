@@ -22,7 +22,7 @@
 
 | Area | Current repository coverage |
 |---|---|
-| Learning tracks | 35 B.Tech branches/specializations and 1 BCA track |
+| Learning tracks | 35 B.Tech branches/specialization and 1 BCA track |
 | Curriculum sources | 522 track-to-course rows across 147 branch-outline course codes, plus 25 shared catalog courses |
 | Practice bank | 172 quiz sets and 2,595 explained questions in CSV |
 | Topic practice coverage | 860 course-topic pairs across 172 courses; 855 distinct topic labels |
