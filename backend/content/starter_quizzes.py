@@ -349,7 +349,7 @@ def starter_quizzes():
     # distinct, topic-mapped items from the reviewed source bank. This keeps
     # every generated course quiz at the agreed minimum without copying items
     # into the CSV a second time.
-    from curated_practice import curated_practice_quizzes
+    from content.curated_practice import curated_practice_quizzes
 
     bank_by_course = {quiz["course_id"].upper(): quiz for quiz in curated_practice_quizzes()}
     for quiz in quizzes:

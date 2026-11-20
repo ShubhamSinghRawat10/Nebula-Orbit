@@ -1,14 +1,15 @@
 """Generate the source-controlled common B.Tech/BCA curriculum CSV.
 
 These are authored curriculum outlines, not verbatim university syllabi.
-Review source notes in CURRICULUM_SOURCES.md before extending this catalog.
+Review source notes in ../docs/CURRICULUM_SOURCES.md before extending this catalog.
 """
 from __future__ import annotations
 
 import csv
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT / "data"
 
 # Each subject is expressed as a small, teachable topic outline. Track-specific
 # topics are intentionally explicit so recommendations never rely on synthetic
@@ -235,10 +236,10 @@ TRACK_SUBJECTS = {
 
 # The core Engineering Science foundation is shared across all engineering
 # branches; course codes are stable so a student can change tracks safely.
-TRACKS = [row["track_id"] for row in csv.DictReader((ROOT / "curriculum_tracks.csv").open(encoding="utf-8-sig"))]
+TRACKS = [row["track_id"] for row in csv.DictReader((DATA_DIR / "curriculum_tracks.csv").open(encoding="utf-8-sig"))]
 ALL_BTECH = [track for track in TRACKS if track.startswith("BTECH_")]
 TRACK_PARENTS = {}
-for row in csv.DictReader((ROOT / "curriculum_track_parents.csv").open(encoding="utf-8-sig")):
+for row in csv.DictReader((DATA_DIR / "curriculum_track_parents.csv").open(encoding="utf-8-sig")):
     TRACK_PARENTS.setdefault(row["track_id"], []).append(row["parent_track_id"])
 
 def main():
@@ -263,7 +264,7 @@ def main():
                     continue
                 rows.append({**row, "track_id": child})
                 existing.add(row["course_code"])
-    path = ROOT / "branch_curriculum.csv"
+    path = DATA_DIR / "branch_curriculum.csv"
     with path.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=["course_code", "course_name", "category", "track_id", "topics"])
         writer.writeheader()

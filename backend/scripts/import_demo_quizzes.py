@@ -15,9 +15,9 @@ from pymongo import MongoClient
 
 load_dotenv()
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 snapshot_path = Path(
-    os.getenv("NEBULA_DEMO_STORE", str(ROOT / ".demo_data.json"))
+    os.getenv("NEBULA_DEMO_STORE", str(ROOT / ".local" / "demo_data.json"))
 )
 if not snapshot_path.is_file():
     raise SystemExit(f"Demo snapshot not found: {snapshot_path}")

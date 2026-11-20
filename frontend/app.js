@@ -448,7 +448,22 @@ function renderQuizReviewItem(r, i) {
   const correctAnswer = Number.isInteger(r.answer_index) ? r.options[r.answer_index] : "Correct answer unavailable";
   const source = typeof r.source_url === "string" && r.source_url.startsWith("https://") ? r.source_url : "";
   const reviewed = r.review_status === "approved" && r.reviewer_name;
-  return `<div class="review-item"><strong>${i + 1}. ${esc(r.prompt)}</strong><div class="review-answer-summary ${r.correct ? "is-correct" : "is-wrong"}"><span class="review-answer-line"><b>Your answer</b><span>${esc(selectedAnswer)}</span></span><span class="review-answer-line correct-answer"><b>Correct answer</b><span>${esc(correctAnswer)}</span></span></div>${r.explanation ? `<p class="review-explanation">${esc(r.explanation)}</p>` : ""}${reviewed ? `<small class="practice-review-status">Reviewed by ${esc(r.reviewer_name)}${r.reviewer_role ? ` · ${esc(r.reviewer_role.replaceAll("_", " "))}` : ""}${r.review_date ? ` · ${esc(r.review_date)}` : ""}${source ? ` · <a href="${esc(source)}" target="_blank" rel="noopener noreferrer">Source</a>` : ""}</small>` : ""}</div>`;
+  return `<div class="review-item"><strong>${i + 1}. ${esc(r.prompt)}</strong><div class="review-answer-summary ${r.correct ? "is-correct" : "is-wrong"}"><span class="review-answer-line ${r.correct ? "user-correct" : "user-wrong"}"><b>Your answer ${r.correct ? "✓" : "✕"}</b><span>${esc(selectedAnswer)}</span></span><span class="review-answer-line correct-answer"><b>Correct answer ✓</b><span>${esc(correctAnswer)}</span></span></div>${r.explanation ? `<p class="review-explanation">${esc(r.explanation)}</p>` : ""}${reviewed ? `<small class="practice-review-status">Reviewed by ${esc(r.reviewer_name)}${r.reviewer_role ? ` · ${esc(r.reviewer_role.replaceAll("_", " "))}` : ""}${r.review_date ? ` · ${esc(r.review_date)}` : ""}${source ? ` · <a href="${esc(source)}" target="_blank" rel="noopener noreferrer">Source</a>` : ""}</small>` : ""}</div>`;
+}
+
+async function enrichQuizResult(previousProgress, courseId, resultRef) {
+  const jobs = [
+    api("/progress").then(progress => { state.progress = progress; notifyNewBadges(previousProgress, progress); }),
+    api("/courses").then(response => { state.courses = response.courses; }),
+    api(`/courses/${encodeURIComponent(courseId)}/lessons`).then(response => { state.resultLessons = response.lessons; }),
+    api(`/courses/${encodeURIComponent(courseId)}/topics`).then(response => { state.focusTopics = response.topics; }),
+    api("/study-plan/generate", { method: "POST", body: "{}" }).then(response => { state.plan = response.plan; })
+  ];
+  const outcomes = await Promise.allSettled(jobs);
+  if (outcomes.some(outcome => outcome.status === "rejected")) {
+    toast("Your score is saved. Some progress or study-plan details may take a moment to refresh.", true);
+  }
+  if (state.page === "quiz" && state.review === resultRef) paintPage();
 }
 
 function quizPage() {
@@ -493,7 +508,7 @@ function quizPage() {
       const lesson = state.resultLessons.find(item => state.focusTopics.find(topic => topic.topic_id === item.topic_id)?.topic_name === t.topic);
       return `<article class="resource-card spotlight-card" data-spotlight style="--resource-hue:${i % 2 ? "145,255,63" : "67,117,255"}"><div class="resource-art resource-art-${i % 3}"><span class="resource-orbit"></span><span class="resource-play">▶</span><span class="resource-topic">${esc(t.topic)}</span><span class="resource-chip">${t.mastery}% · ${esc(levelSearch.level)}</span></div><div class="resource-copy"><span class="resource-kicker">${lesson ? "IN-APP LESSON · " : "VIDEO SEARCH · "}${esc(course?.title || "NEBULA LEARNING")}</span><h4>${esc(t.topic)}</h4><p>${lesson ? esc(lesson.summary || "Review this focused lesson, then return to practice.") : "Search phrased for " + esc(levelSearch.level) + " explanations based on your preference and this quiz result."}</p>${lesson ? `<button class="resource-link" data-action="open-result-lesson" data-id="${esc(lesson._id)}">Read in-app lesson <span aria-hidden="true">↗</span></button>` : `<a class="resource-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Explore lessons <span aria-hidden="true">↗</span></a>`}</div></article>`;
     }).join("")}</div><p class="resource-footnote">In-app lessons are shown when published for that topic; otherwise this opens YouTube search results. Video order and availability are set by YouTube.</p></section>` : `<section class="resource-section resource-all-good"><div class="resource-heading"><div><div class="eyebrow">Next level unlocked</div><h3>No weak topics in this attempt</h3><p>Your topic scores are at 80% or above. Keep your momentum with the next challenge.</p></div><span class="tag">Strong work</span></div></section>`;
-    return `${heading("Quiz complete", "Nice work showing up.", `You got ${attempt.score} out of ${attempt.max_score} correct.`)}<div class="card review-card"><div class="review-score">${attempt.percentage}<span>%</span></div><p class="review-message">${attempt.percentage >= 80 ? "Strong understanding. Nebula has updated your plan with the next challenge." : attempt.percentage >= 50 ? "Good starting point. Your plan now includes focused practice for this topic." : "This gives us a useful baseline. Your plan will start with the foundations."}</p><p class="review-message">${attempt.elapsed_seconds ? `Completed in ${Math.ceil(attempt.elapsed_seconds / 60)} min · ` : ""}Result saved to your personal progress.</p>${answerReview}${nextActions}${resources}<div class="modal-actions"><button class="btn secondary" data-action="go" data-page="progress">See my progress</button><button class="btn" data-action="go" data-page="plan">View updated study plan</button><button class="btn secondary" data-action="reset-quiz">Back to quizzes</button></div></div>`;
+    return `${heading("Quiz complete", "Nice work showing up.", `You got ${attempt.score} out of ${attempt.max_score} correct.`)}<div class="card review-card"><div class="review-score">${attempt.percentage}<span>%</span></div><p class="review-message">${state.plan ? (attempt.percentage >= 80 ? "Strong understanding. Nebula has updated your plan with the next challenge." : attempt.percentage >= 50 ? "Good starting point. Your plan now includes focused practice for this topic." : "This gives us a useful baseline. Your plan will start with the foundations.") : "Your score is saved. Nebula is refreshing your progress and study plan."}</p><p class="review-message">${attempt.elapsed_seconds ? `Completed in ${Math.ceil(attempt.elapsed_seconds / 60)} min · ` : ""}Result saved to your personal progress.</p>${answerReview}${nextActions}${resources}<div class="modal-actions"><button class="btn secondary" data-action="go" data-page="progress">See my progress</button><button class="btn" data-action="go" data-page="plan">View updated study plan</button><button class="btn secondary" data-action="reset-quiz">Back to quizzes</button></div></div>`;
   }
   const isBaseline = quiz.assessment_type === "baseline";
   const q = quiz.questions[state.questionIndex || 0];
@@ -790,18 +805,19 @@ document.addEventListener("click", async event => {
     if (state.selected[index] == null) { toast("Choose an answer to continue.", true); return; }
     if (index < state.activeQuiz.questions.length - 1) { state.questionIndex = index + 1; await render(); }
     else {
+      button.disabled = true;
+      const originalButtonHtml = button.innerHTML;
+      button.textContent = "Saving result…";
       try {
         const previousProgress = state.progress;
         const result = await api(`/quizzes/${state.activeQuiz._id}/submit`, { method: "POST", body: JSON.stringify({ answers: state.selected, elapsed_seconds: Math.round((Date.now() - state.quizStartedAt) / 1000) }) });
         state.review = result;
-        state.progress = await api("/progress");
-        notifyNewBadges(previousProgress, state.progress);
-        try { state.courses = (await api("/courses")).courses; } catch { /* The score remains visible if the catalog is briefly unavailable. */ }
-        try { const courseId = encodeURIComponent(state.activeQuiz.course_id); const [lessons, topics] = await Promise.all([api(`/courses/${courseId}/lessons`), api(`/courses/${courseId}/topics`)]); state.resultLessons = lessons.lessons; state.focusTopics = topics.topics; } catch { state.resultLessons = []; state.focusTopics = []; }
-        try { state.plan = (await api("/study-plan/generate", { method: "POST", body: "{}" })).plan; }
-        catch { toast("Result saved. Open Study plan to try generating your plan.", true); }
-        await render();
-      } catch (e) { toast(e.message, true); }
+        state.resultLessons = [];
+        state.focusTopics = [];
+        state.plan = null;
+        paintPage();
+        void enrichQuizResult(previousProgress, state.activeQuiz.course_id, result);
+      } catch (e) { toast(e.message, true); button.disabled = false; button.innerHTML = originalButtonHtml; }
     }
   }
   if (action === "open-result-lesson") { const lesson = state.resultLessons.find(item => item._id === button.dataset.id); if (lesson) openLesson(lesson); }

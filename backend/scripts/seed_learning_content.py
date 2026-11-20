@@ -9,13 +9,17 @@ from __future__ import annotations
 import os
 import json
 import hashlib
+import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-from curated_practice import curated_practice_quizzes
-from seed_pilot_lessons import seed_lessons
-from starter_quizzes import starter_quizzes
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(BACKEND_ROOT))
+from content.curated_practice import curated_practice_quizzes
+from content.seed_pilot_lessons import seed_lessons
+from content.starter_quizzes import starter_quizzes
 
 
 # SHA-256 signatures of the five original, source-controlled pilot quizzes.

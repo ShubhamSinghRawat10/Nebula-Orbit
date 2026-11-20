@@ -10,8 +10,9 @@ import csv
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-BANK = ROOT / "practice_question_bank.csv"
+ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT / "data"
+BANK = DATA_DIR / "practice_question_bank.csv"
 
 # Each course has two additional questions for each of its five outline topics.
 # Fields: prompt, correct option, three distractors, explanation, difficulty.
@@ -314,8 +315,8 @@ def main() -> None:
     title = {}
     # Take canonical topic order from the curriculum, not from the current CSV
     # row order (which can differ for imported legacy questions).
-    curriculum = list(csv.DictReader((ROOT / "branch_curriculum.csv").open("r", encoding="utf-8-sig", newline="")))
-    legacy = list(csv.DictReader((ROOT / "topics.csv").open("r", encoding="utf-8-sig", newline="")))
+    curriculum = list(csv.DictReader((DATA_DIR / "branch_curriculum.csv").open("r", encoding="utf-8-sig", newline="")))
+    legacy = list(csv.DictReader((DATA_DIR / "topics.csv").open("r", encoding="utf-8-sig", newline="")))
     legacy_by_course = {}
     for row in legacy:
         legacy_by_course.setdefault(row["course_code"], []).append(row["topic_name"])

@@ -21,8 +21,8 @@ from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity
 from pymongo import ASCENDING, MongoClient
 from pymongo.errors import DuplicateKeyError, PyMongoError
 from werkzeug.security import check_password_hash, generate_password_hash
-from data_loader import import_curriculum
-from performance_model import PerformanceModel
+from core.data_loader import import_curriculum
+from core.performance_model import PerformanceModel
 
 # Resolve this project's env file directly. In local development it is the source
 # of truth even if an old terminal still has stale values; deployments continue
@@ -52,7 +52,8 @@ STUDY_GOALS = {
     "foundations": "Build strong fundamentals",
     "explore_courses": "Explore my enrolled courses",
 }
-TRACK_FILE = Path(__file__).with_name("curriculum_tracks.csv")
+DATA_DIR = Path(__file__).resolve().parent / "data"
+TRACK_FILE = DATA_DIR / "curriculum_tracks.csv"
 try:
     with TRACK_FILE.open("r", encoding="utf-8-sig", newline="") as track_stream:
         CURRICULUM_TRACKS = {row["track_id"]: row for row in csv.DictReader(track_stream)}
@@ -178,7 +179,7 @@ def create_app(test_config=None):
     else:
         client = MongoClient(app.config["MONGODB_URI"], serverSelectionTimeoutMS=1500)
     db = client[app.config["MONGODB_DB"]]
-    demo_store = Path(os.getenv("NEBULA_DEMO_STORE", os.path.join(os.path.dirname(__file__), ".demo_data.json")))
+    demo_store = Path(os.getenv("NEBULA_DEMO_STORE", os.path.join(os.path.dirname(__file__), ".local", "demo_data.json")))
     if demo_mode and demo_store.exists():
         try:
             snapshot = json_util.loads(demo_store.read_text(encoding="utf-8"))
@@ -203,9 +204,9 @@ def create_app(test_config=None):
     student_achievements = db.student_achievements
     student_activity_days = db.student_activity_days
     app_metadata = db.app_metadata
-    model_path = os.path.join(os.path.dirname(__file__), "performance_model.joblib")
+    model_path = os.path.join(os.path.dirname(__file__), "models", "performance_model.joblib")
     try:
-        metrics_path = os.path.join(os.path.dirname(__file__), "performance_model_metrics.json")
+        metrics_path = os.path.join(os.path.dirname(__file__), "models", "performance_model_metrics.json")
         with open(metrics_path, encoding="utf-8") as metrics_file:
             model_metrics = json.load(metrics_file)
         if model_metrics.get("student_facing_eligible") and os.path.exists(model_path):
@@ -264,7 +265,7 @@ def create_app(test_config=None):
 
     if demo_mode:
         # Pick up replaced CSV curriculum files on the next demo server start.
-        import_curriculum(db, os.path.dirname(__file__))
+        import_curriculum(db, DATA_DIR)
     if demo_mode and quizzes.count_documents({}) == 0:
         quizzes.insert_many([
             {"title": "DSA baseline diagnostic", "course_id": "DSA", "topic": "Data Structures & Algorithms - Fundamentals & Core Concepts", "difficulty": "mixed", "published": True, "created_at": utcnow(), "questions": [
@@ -290,7 +291,7 @@ def create_app(test_config=None):
         ])
 
     if demo_mode:
-        from starter_quizzes import starter_quizzes
+        from content.starter_quizzes import starter_quizzes
         for starter_quiz in starter_quizzes():
             existing_quiz = quizzes.find_one({"course_id": starter_quiz["course_id"]})
             if not existing_quiz:
@@ -1036,13 +1037,24 @@ def create_app(test_config=None):
         record_student_activity(user["_id"], "quiz_attempt")
         linked_outcomes = 0
         course_id = str(attempt.get("course_id", "")).upper()
+        # Fetch follow-up candidates for every topic in one database round trip.
+        # The former per-topic find_one loop added one network round trip for
+        # each distinct topic in a quiz submission.
+        pending_sessions_by_topic = {}
+        if course_id and topic_scores:
+            pending_sessions = study_session_completions.find(
+                {"student_id": user["_id"], "course_id": course_id,
+                 "topic": {"$in": [item["topic"] for item in topic_scores]},
+                 "completed_at": {"$lte": submitted_at},
+                 "follow_up_attempt_id": {"$exists": False}},
+                {"_id": 1, "topic": 1, "baseline_mastery": 1,
+                 "baseline_question_count": 1},
+            ).sort("completed_at", -1)
+            for session in pending_sessions:
+                pending_sessions_by_topic.setdefault(session["topic"], session)
         for topic_result in topic_scores:
             topic_name = topic_result["topic"]
-            completed_session = study_session_completions.find_one(
-                {"student_id": user["_id"], "course_id": course_id, "topic": topic_name,
-                 "completed_at": {"$lte": submitted_at}, "follow_up_attempt_id": {"$exists": False}},
-                sort=[("completed_at", -1)],
-            )
+            completed_session = pending_sessions_by_topic.get(topic_name)
             if not completed_session:
                 continue
             percentage = int(math.floor(100 * topic_result["score"] / topic_result["max_score"] + 0.5)) if topic_result["max_score"] else 0

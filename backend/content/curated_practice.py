@@ -9,12 +9,13 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 
-QUESTION_BANK = Path(__file__).with_name("practice_question_bank.csv")
+DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+QUESTION_BANK = DATA_DIR / "practice_question_bank.csv"
 
 
 def curated_practice_quizzes():
     """Return validated, topic-linked quiz documents from the CSV question bank."""
-    data_root = QUESTION_BANK.parent
+    data_root = DATA_DIR
     known_courses = {
         row["course_code"].strip().upper()
         for filename in ("courses.csv", "branch_curriculum.csv")

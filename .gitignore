@@ -1,9 +1,10 @@
 backend/.env
 backend/.venv/
 backend/.deps/
-backend/.demo_data.json
-backend/.demo_data.migrated-backup.json
-backend/.demo_data.json.tmp
+backend/.local/
 backend/__pycache__/
 backend/*.pyc
-backend/server.verify*.log
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/logs/
+backend/models/performance_model_live_candidate.*
