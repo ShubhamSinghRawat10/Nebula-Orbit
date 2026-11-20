@@ -70,6 +70,30 @@ class NebulaAcceptanceTests(unittest.TestCase):
             } for index in range(8)],
         })
 
+    def test_topic_map_returns_safe_guide_and_published_resources(self):
+        signup = register(self.client)
+        headers = auth(signup.json["access_token"])
+        self.db.lessons.insert_one({
+            "course_id": "DSA", "topic_id": "DSA_T2", "title": "Analysis lesson",
+            "summary": "A published topic lesson", "published": True, "position": 1,
+        })
+
+        response = self.client.get(
+            "/api/courses/DSA/topic-map?topic=DSA%20-%20Algorithm%20analysis",
+            headers=headers,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json
+        self.assertEqual(payload["target_topic_id"], "DSA_T2")
+        self.assertEqual([node["topic_id"] for node in payload["nodes"]], ["DSA_T1", "DSA_T2"])
+        target = payload["nodes"][-1]
+        self.assertTrue(target["concept_guide"]["overview"])
+        self.assertEqual(target["lessons"][0]["title"], "Analysis lesson")
+        self.assertEqual(len(target["quizzes"]), 1)
+        self.assertNotIn("questions", target["quizzes"][0])
+        self.assertNotIn("answer_index", target["quizzes"][0])
+
     def tearDown(self):
         self.mongo.close()
 

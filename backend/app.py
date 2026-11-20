@@ -53,6 +53,19 @@ STUDY_GOALS = {
     "explore_courses": "Explore my enrolled courses",
 }
 DATA_DIR = Path(__file__).resolve().parent / "data"
+TOPIC_GUIDES_FILE = DATA_DIR / "topic_concept_guides.csv"
+
+
+def load_topic_concept_guides():
+    """Load source-controlled concept drafts without requiring a database seed."""
+    try:
+        with TOPIC_GUIDES_FILE.open("r", encoding="utf-8-sig", newline="") as guide_stream:
+            return {row["topic_id"]: row for row in csv.DictReader(guide_stream) if row.get("topic_id")}
+    except (OSError, KeyError):
+        return {}
+
+
+TOPIC_CONCEPT_GUIDES = load_topic_concept_guides()
 TRACK_FILE = DATA_DIR / "curriculum_tracks.csv"
 try:
     with TRACK_FILE.open("r", encoding="utf-8-sig", newline="") as track_stream:
@@ -587,6 +600,100 @@ def create_app(test_config=None):
                 if required:
                     topic["prerequisites"].append({"topic_id": required["topic_id"], "topic_name": required["topic_name"], "type": edge["prerequisite_type"]})
         return jsonify({"topics": serialize(rows)})
+
+    @app.get("/api/courses/<course_id>/topic-map")
+    @jwt_required()
+    def course_topic_map(course_id):
+        """Return a safe, content-linked prerequisite map for one course topic."""
+        user = current_user()
+        if not user_is_active(user):
+            return api_error("This account is suspended.", 403)
+        course_id = course_id.upper()
+        if not student_can_access_course(user, course_id):
+            return api_error("Course not found.", 404)
+        course = courses.find_one({"course_id": course_id})
+        requested_topic = request.args.get("topic", "").strip()
+        if not requested_topic:
+            return api_error("Choose a topic to build its learning map.")
+        target = topics_collection.find_one({"course_id": course_id, "topic_id": requested_topic})
+        if not target:
+            target = topics_collection.find_one({"course_id": course_id, "topic_name": requested_topic})
+        if not target:
+            return api_error("This topic is not part of the selected course.", 404)
+
+        ordered_ids = []
+        edges = []
+        topic_docs = {}
+        visiting = set()
+
+        def visit(topic_doc, depth=0):
+            topic_id = topic_doc.get("topic_id")
+            if not topic_id or topic_id in topic_docs or depth > 8:
+                return
+            topic_docs[topic_id] = topic_doc
+            visiting.add(topic_id)
+            for edge in prerequisites.find({"topic_id": topic_id}):
+                prerequisite_id = edge.get("prerequisite_topic_id")
+                prerequisite_doc = topics_collection.find_one({"topic_id": prerequisite_id}) if prerequisite_id else None
+                if (not prerequisite_doc
+                        or not student_can_access_course(user, prerequisite_doc.get("course_id", ""))
+                        or prerequisite_id in visiting):
+                    continue
+                visit(prerequisite_doc, depth + 1)
+                if prerequisite_id in topic_docs:
+                    edges.append({"from": prerequisite_id, "to": topic_id, "relation": str(edge.get("prerequisite_type", "Prerequisite"))})
+            visiting.discard(topic_id)
+            if topic_id not in ordered_ids:
+                ordered_ids.append(topic_id)
+
+        visit(target)
+        # A malformed or very deep prerequisite graph should never make the map
+        # unbounded; retain the selected topic even when ancestors are truncated.
+        ordered_ids = ordered_ids[-12:]
+        included = set(ordered_ids)
+        edges = [edge for edge in edges if edge["from"] in included and edge["to"] in included]
+        course_cache = {course_id: course} if course else {}
+        quiz_cache = {}
+        nodes = []
+        for topic_id in ordered_ids:
+            topic_doc = topic_docs[topic_id]
+            node_course_id = str(topic_doc.get("course_id", "")).upper()
+            if node_course_id not in course_cache:
+                course_cache[node_course_id] = courses.find_one({"course_id": node_course_id})
+            node_course = course_cache[node_course_id]
+            accessible = bool(node_course and student_can_access_course(user, node_course_id))
+            lesson_rows = list(lessons.find(
+                {"course_id": node_course_id, "topic_id": topic_id, "published": True},
+                {"title": 1, "summary": 1, "position": 1},
+            ).sort([("position", ASCENDING), ("title", ASCENDING)])) if accessible else []
+            if node_course_id not in quiz_cache:
+                # Only fetch the fields needed to find matching practice. Do not
+                # load quiz options/answer keys into this read-only learning map.
+                quiz_cache[node_course_id] = list(quizzes.find(
+                    {"course_id": node_course_id, "published": True, "content_review_status": {"$ne": "review_revisions_needed"}},
+                    {"title": 1, "topic": 1, "difficulty": 1, "questions.topic": 1},
+                )) if accessible else []
+            topic_key = str(topic_doc.get("topic_name", "")).strip().casefold()
+            matched_quizzes = []
+            for quiz in quiz_cache[node_course_id]:
+                question_topics = {str(question.get("topic", quiz.get("topic", ""))).strip().casefold() for question in quiz.get("questions", [])}
+                quiz_topic = str(quiz.get("topic", "")).strip().casefold()
+                if topic_key not in question_topics and topic_key != quiz_topic:
+                    continue
+                matched_quizzes.append({"quiz_id": str(quiz.get("_id", "")), "title": quiz.get("title", "Topic practice"), "question_count": len(quiz.get("questions", [])), "difficulty": quiz.get("difficulty", "mixed")})
+            nodes.append({
+                "topic_id": topic_id,
+                "topic_name": topic_doc.get("topic_name", topic_id),
+                "course_id": node_course_id,
+                "course_title": node_course.get("title", node_course_id) if node_course else node_course_id,
+                "difficulty_level": topic_doc.get("difficulty_level", ""),
+                "estimated_hours": topic_doc.get("estimated_hours"),
+                "is_target": topic_id == target.get("topic_id"),
+                "concept_guide": TOPIC_CONCEPT_GUIDES.get(topic_id),
+                "lessons": [{"lesson_id": str(lesson.get("_id", "")), "title": lesson.get("title", "Lesson"), "summary": lesson.get("summary", "")} for lesson in lesson_rows],
+                "quizzes": matched_quizzes,
+            })
+        return jsonify({"course_id": course_id, "course_title": course.get("title", course_id) if course else course_id, "target_topic_id": target["topic_id"], "target_topic": target["topic_name"], "nodes": nodes, "edges": edges, "content_note": "Concept guides are original Nebula learning drafts with further-reading references; instructor review is pending."})
 
     @app.get("/api/courses/<course_id>/video-progress")
     @role_required("student")
