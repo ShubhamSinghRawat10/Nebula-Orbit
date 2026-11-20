@@ -28,6 +28,8 @@
 | Topic practice coverage | 860 course-topic pairs have at least 3 distinct questions |
 | In-app lessons | 10 pilot lessons across DSA, Python, DBMS, Computer Networks, and Operating Systems |
 | Personalization | Transparent score thresholds, learner history, prerequisites, and study-time preferences |
+| Weekly planning | Seven-day schedule with daily check-offs, completion progress, and unscheduled overflow |
+| Gamification | 15 server-tracked achievements, XP/levels, and downloadable SVG/PNG badge art |
 | ML status | Experimental next-score model; currently below the evidence gate and hidden from student forecasts |
 
 Counts describe source-controlled project data. The expanded CSV question bank is not automatically present in a hosted MongoDB database: seed and verify the target database before claiming the hosted app has these counts. The course outlines are common references, not complete semester-by-semester curricula for every institution. All 2,595 authored question records are pending external instructor review.
@@ -40,12 +42,15 @@ Counts describe source-controlled project data. The expanded CSV question bank i
 - Explore the track's available course catalog and enroll in courses.
 - Take a topic-linked quiz and see the score, correct answers, and explanations after submission.
 - Review topic mastery and saved quiz attempts. A topic is labelled weak only after at least 3 distinct questions; smaller samples are marked preliminary.
-- Read a published in-app lesson when one is available, or open a topic-specific YouTube search for other topics. Students can manually mark each external video as watched; Nebula cannot verify playback or watch time.
+- Read a published in-app lesson when one is available, or open a topic-specific YouTube search for other topics. These are generated search links, not a YouTube API integration. Students can manually mark each external video as watched; Nebula cannot verify playback or watch time.
 - Generate a study plan that prioritizes weak topics in enrolled courses, prerequisite topics, available study days, and the student's time budget. Each session explains why it was selected.
+- Follow a seven-day plan, check off individual study days/sessions, and see completion progress. Sessions that do not fit the selected days remain visible as unscheduled next steps.
+- Choose adaptive, basic, medium, or advanced learning depth. This setting adjusts YouTube search wording; in-app lessons remain at their authored level and quiz difficulty is not automatically adapted.
 - Mark study sessions and in-app lessons complete. When a suitable later quiz exists, compare its topic score with the earlier baseline.
-- Review quiz averages, topic progress, completed sessions, and study streaks.
+- Review quiz averages, topic progress, completed sessions, and study streaks. Quiz answer review shows the selected answer, correct answer, and explanation.
+- Earn 15 achievements through learning activity, gain XP/levels, and download unlocked badge artwork as SVG or PNG.
 
-After every topic video in a course has been manually marked watched, Nebula schedules a course revision check-in for 7 days later. A follow-up quiz can show a later score difference, but that difference alone does not prove the video or plan caused improvement.
+After every topic video in a course has been manually marked watched, Nebula schedules an in-app course revision check-in for 7 days later. It is shown in the app when due; video completion is self-reported, and no YouTube playback tracking or external push/email delivery is claimed. A follow-up quiz can show a later score difference, but that difference alone does not prove the video or plan caused improvement.
 
 ### Administrator workspace
 
@@ -58,10 +63,10 @@ Administrator registration uses the private `ADMIN_SIGNUP_KEY` configured on the
 
 ## How the study plan adapts
 
-1. The student completes a quiz; Nebula saves the attempt to that account.
+1. The student completes a quiz; Nebula saves the attempt to that account and shows answer-by-answer review.
 2. Scores across distinct questions provide topic-level signals. Small samples stay preliminary.
 3. Low-scoring topics, course prerequisites, and enrollment guide what appears next.
-4. The plan fits sessions around the student's study days, preferred session length, and daily study-time budget.
+4. A seven-day plan fits sessions around the student's selected study days, preferred session length, and daily study-time budget. The student can check off completed days/sessions; these check-offs are self-reported.
 5. After a completed study session, a later quiz on the same course and topic may be paired with its earlier baseline. At least 3 distinct questions are required on both sides for the score-change signal.
 6. New quiz activity can refresh study priorities and schedule spaced review.
 
@@ -69,7 +74,7 @@ The planner is rule-based and explainable. Its guidance is not a guarantee of ex
 
 ## ML model: experimental, not powering recommendations
 
-The repository includes a scikit-learn model that estimates a learner's next assessment score from earlier assessment history. It uses a chronological train/validation/test split to avoid training on future attempts. The checked-in evaluation reports:
+The repository includes a scikit-learn model that estimates a learner's next assessment score from earlier assessment history. It uses a chronological train/validation/test split to avoid training on future attempts. The checked-in evaluation artifact reports:
 
 - **Model:** `RandomForestRegressor`, selected from the candidates using validation data.
 - **Evaluation data:** 25,000 historical/synthetic assessment rows, grouped by assessment date for a 70/10/20 split.
@@ -81,11 +86,26 @@ These results show no meaningful predictive lift. The backend therefore disables
 
 See [`backend/models/performance_model_metrics.json`](backend/models/performance_model_metrics.json), [`backend/docs/DATASET_NOTES.md`](backend/docs/DATASET_NOTES.md), and the model trainer at [`backend/scripts/train_performance_model.py`](backend/scripts/train_performance_model.py). Do not tune against the held-out test period.
 
+### Latest live-data candidate evaluation
+
+The separate live evaluator reads quiz attempts from MongoDB and writes only a local candidate artifact and aggregate metrics; it does not update MongoDB or replace the production model. The latest recorded run (20 Nov 2026) used 718 earlier rows for training/selection, 561 rows from 18 Nov for validation, and 220 later rows from 19 Nov onward for a chronological test. Its `RandomForestRegressor` candidate reported:
+
+| Metric | Candidate result | Comparison |
+|---|---:|---|
+| Test MAE | 21.863 points | Previous-topic-mean baseline: 20.872 (better) |
+| Test RMSE | 38.646 points | — |
+| R² | 0.1608 | Describes this held-out sample; not evidence of useful lift by itself |
+| Proficiency-band accuracy | 73.18% | Majority-band baseline: 73.64% (better) |
+| Balanced accuracy / macro F1 | 56.81% / 51.26% | — |
+
+This run is **not eligible for student-facing use**: the candidate did not beat the comparison baselines, and 633 of 938 topic rows used evaluation-only topic IDs rather than the 305 official catalog topic IDs. The model artifact is a local experiment, not the deployed predictor. The read-only workflows are [`backend/scripts/evaluate_live_assessments.py`](backend/scripts/evaluate_live_assessments.py) and [`backend/scripts/evaluate_live_grouped_cv.py`](backend/scripts/evaluate_live_grouped_cv.py); they require access to a configured database and private environment settings. Metrics may change when the evaluation is rerun against new data.
+
 ## Technology and architecture
 
 | Layer | Implementation |
 |---|---|
 | Frontend | Static HTML, CSS, and JavaScript |
+| Visual identity | Nebula SVG logo and an ambient canvas-based Ghost Fibers background |
 | API and authentication | Python, Flask, Flask-JWT-Extended |
 | Database | MongoDB Atlas or local MongoDB |
 | Offline model workflow | scikit-learn, CSV assessment history |
@@ -100,7 +120,7 @@ flowchart LR
     R --> C[Courses, quizzes, lessons, and plans]
 ```
 
-The browser sends requests to `/api` on the same site origin. Netlify forwards API requests to the Render service, which reads and writes MongoDB. A free hosting plan may spin down after inactivity, making the first request slower.
+The browser sends requests to `/api` on the same site origin. Netlify forwards API requests to the Render service, which reads and writes MongoDB. A free hosting plan may spin down after inactivity, making the first request slower. Flask also serves the frontend from `/` and `/assets` when running locally or in the Docker service.
 
 ## Curriculum and question bank
 
@@ -147,7 +167,7 @@ You need Python 3.10+ and either a local MongoDB server or a MongoDB Atlas conne
 
 4. Confirm the API and database connection at [http://127.0.0.1:5000/api/health](http://127.0.0.1:5000/api/health).
 
-The frontend calls the relative `/api` path, so a plain static server such as `python -m http.server` will not proxy API requests to the local backend. Use a same-origin development proxy for a complete local UI/API session. The deployed Netlify configuration already provides the `/api` proxy.
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000) to use the UI and API together. Flask serves the static frontend and `/api` from the same origin. A separate static server such as `python -m http.server` does not proxy API calls; if you choose to run the frontend separately, configure a development proxy to the Flask API. The deployed Netlify configuration provides the `/api` proxy.
 
 For macOS/Linux, activate the virtual environment with `source .venv/bin/activate` and use `python app.py` from `backend/`.
 

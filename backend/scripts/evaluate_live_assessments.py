@@ -32,6 +32,7 @@ OUTPUT_METRICS = MODEL_DIR / "performance_model_live_metrics.json"
 FIELDS = [
     "interaction_id", "student_id", "student_name", "course_code", "topic_id",
     "topic_name", "test_score", "proficiency_status", "recommendation", "last_assessed",
+    "assessment_id", "last_assessed_at",
 ]
 
 
@@ -93,11 +94,15 @@ def main() -> int:
             continue
         if isinstance(assessed, datetime):
             assessed_day = assessed.date().isoformat()
+            assessed_at = assessed.isoformat()
         elif isinstance(assessed, date):
             assessed_day = assessed.isoformat()
+            assessed_at = ""
         else:
             try:
-                assessed_day = datetime.fromisoformat(str(assessed).replace("Z", "+00:00")).date().isoformat()
+                parsed_assessed = datetime.fromisoformat(str(assessed).replace("Z", "+00:00"))
+                assessed_day = parsed_assessed.date().isoformat()
+                assessed_at = parsed_assessed.isoformat()
             except ValueError:
                 continue
 
@@ -139,6 +144,11 @@ def main() -> int:
                 "proficiency_status": proficiency(score),
                 "recommendation": "",
                 "last_assessed": assessed_day,
+                # Multiple topic scores from one quiz share an event key. This
+                # lets evaluation use earlier quizzes from the same day without
+                # leaking scores between topics in the same quiz.
+                "assessment_id": f"LIVE_ATT_{pseudonym(salt, attempt_key)[:32]}",
+                "last_assessed_at": assessed_at,
             })
 
     dates = {row["last_assessed"] for row in rows}
