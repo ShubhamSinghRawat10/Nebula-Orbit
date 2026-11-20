@@ -195,7 +195,7 @@ def import_curriculum(db, data_dir: str | Path):
     }
     db.dataset_metadata.update_one(
         {"_id": "curriculum"},
-        {"$set": {"counts": counts, "source_files": ["courses.csv", "topics.csv", "topic_prerequisite.csv", "course_tracks.csv", "branch_curriculum.csv", "curriculum_tracks.csv", "curriculum_track_parents.csv"], "updated_at": datetime.now(timezone.utc)}},
+        {"$set": {"counts": counts, "source_files": [f"data/{name}" for name in ("courses.csv", "topics.csv", "topic_prerequisite.csv", "course_tracks.csv", "branch_curriculum.csv", "curriculum_tracks.csv", "curriculum_track_parents.csv")], "updated_at": datetime.now(timezone.utc)}},
         upsert=True,
     )
     return counts

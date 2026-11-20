@@ -421,11 +421,14 @@ button:focus-visible,a:focus-visible{outline:3px solid #baff3f;outline-offset:3p
 .review-answer-summary{display:grid;gap:7px;margin-top:10px;padding:10px 12px;border:1px solid #39465a;border-radius:11px;background:#121a25}
 .quiz-answer-review{margin:14px 0 24px}
 .quiz-answer-review>.card-head{margin-bottom:4px}
-.review-answer-summary.is-correct{border-color:#52783b66}
-.review-answer-summary.is-wrong{border-color:#82574766}
+.review-answer-summary.is-correct{border-color:#4c985b88;background:#102018}
+.review-answer-summary.is-wrong{border-color:#b44b4b88;background:#211518}
 .review-answer-line{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;color:#bac5d4;font-size:11px}
 .review-answer-line b{color:#8f9db1;font-size:9px;text-transform:uppercase;letter-spacing:.06em}
-.review-answer-line.correct-answer span{color:#d7ffad;font-weight:700}
+.review-answer-line.user-correct span,.review-answer-line.correct-answer span{color:#b8f5bd;font-weight:700}
+.review-answer-line.user-correct b,.review-answer-line.correct-answer b{color:#88d990}
+.review-answer-line.user-wrong span{color:#ffb0aa;font-weight:700}
+.review-answer-line.user-wrong b{color:#ff8178}
 .review-explanation{margin:8px 1px 0;color:#a9b6c8;font-size:11px;line-height:1.6}
 @media(max-width:480px){.review-answer-line{grid-template-columns:1fr;gap:2px}}
 

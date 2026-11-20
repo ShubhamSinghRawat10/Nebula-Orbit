@@ -10,8 +10,9 @@ import csv
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-BANK = ROOT / "practice_question_bank.csv"
+ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT / "data"
+BANK = DATA_DIR / "practice_question_bank.csv"
 
 # Each course has two new items for each canonical topic. Existing five-item
 # baselines plus this pack produce 15 total with three per outline topic.
@@ -3420,9 +3421,9 @@ def main() -> None:
     fields = list(rows[0])
     topics = {}
     titles = {}
-    for row in csv.DictReader((ROOT / "topics.csv").open("r", encoding="utf-8-sig", newline="")):
+    for row in csv.DictReader((DATA_DIR / "topics.csv").open("r", encoding="utf-8-sig", newline="")):
         topics.setdefault(row["course_code"], []).append(row["topic_name"])
-    curriculum_rows = csv.DictReader((ROOT / "branch_curriculum.csv").open("r", encoding="utf-8-sig", newline=""))
+    curriculum_rows = csv.DictReader((DATA_DIR / "branch_curriculum.csv").open("r", encoding="utf-8-sig", newline=""))
     for row in curriculum_rows:
         topics.setdefault(row["course_code"], [name.strip() for name in row["topics"].split("|") if name.strip()])
     for row in rows:

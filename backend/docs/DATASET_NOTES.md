@@ -21,13 +21,13 @@ Each proficiency band has three possible `recommendation` labels, each used at r
 
 ## Import and later CSV updates
 
-Replace the CSVs in this folder, then:
+Replace the relevant CSVs in `../data/`, then:
 
 - In demo mode, restart the Flask server; startup reloads the course/topic/prerequisite catalog from the current CSVs.
-- With MongoDB configured, run `python import_dataset.py` from this folder to upsert the catalog. Imported CSV-owned rows removed from the new files are removed from the catalog sync; admin-created courses are preserved.
+- With MongoDB configured, run `python scripts/import_dataset.py` from `backend/` to upsert the catalog. Imported CSV-owned rows removed from the new files are removed from the catalog sync; admin-created courses are preserved.
 - Assessment history is only imported when `DATASET_HASH_SALT` is set to a secret of at least 24 characters. Re-running the import updates matching interaction IDs and adds new ones. IDs stay pseudonymized and are not joined to student accounts.
 
-The CSVs include course/topic metadata and historical scores, but no question text or later learning outcome. `train_performance_model.py` predicts a historical learner's next assessment score using only earlier attempts and a chronological date holdout. The model does not use the CSV's `recommendation` labels, which cannot prove recommendation effectiveness. Student-specific live recommendations use that student's Nebula quiz attempts; imported historical identities stay separate and are never linked to accounts.
+The CSVs include course/topic metadata and historical scores, but no question text or later learning outcome. `scripts/train_performance_model.py` predicts a historical learner's next assessment score using only earlier attempts and a chronological date holdout. The model does not use the CSV's `recommendation` labels, which cannot prove recommendation effectiveness. Student-specific live recommendations use that student's Nebula quiz attempts; imported historical identities stay separate and are never linked to accounts.
 
 ## Current model status
 

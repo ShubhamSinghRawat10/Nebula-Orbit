@@ -21,12 +21,14 @@ from dotenv import load_dotenv
 import joblib
 from pymongo import MongoClient
 
-from train_performance_model import main as train_model
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from scripts.train_performance_model import main as train_model
 
-
-ROOT = Path(__file__).resolve().parent
-OUTPUT_MODEL = ROOT / "performance_model_live_candidate.joblib"
-OUTPUT_METRICS = ROOT / "performance_model_live_metrics.json"
+DATA_DIR = ROOT / "data"
+MODEL_DIR = ROOT / "models"
+OUTPUT_MODEL = MODEL_DIR / "performance_model_live_candidate.joblib"
+OUTPUT_METRICS = MODEL_DIR / "performance_model_live_metrics.json"
 FIELDS = [
     "interaction_id", "student_id", "student_name", "course_code", "topic_id",
     "topic_name", "test_score", "proficiency_status", "recommendation", "last_assessed",
@@ -54,7 +56,7 @@ def main() -> int:
         return 2
 
     topic_catalog = {}
-    with (ROOT / "topics.csv").open("r", encoding="utf-8-sig", newline="") as stream:
+    with (DATA_DIR / "topics.csv").open("r", encoding="utf-8-sig", newline="") as stream:
         for topic in csv.DictReader(stream):
             topic_catalog[(topic["course_code"].strip().upper(), topic["topic_name"].strip())] = topic["topic_id"].strip()
 

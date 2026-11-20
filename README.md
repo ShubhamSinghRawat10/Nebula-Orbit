@@ -79,7 +79,7 @@ The repository includes a scikit-learn model that estimates a learner's next ass
 
 These results show no meaningful predictive lift. The backend therefore disables student-facing score forecasts; quiz-score rules and prerequisites remain the active study-planning logic. Do not describe Nebula as an AI-powered tutor or claim that its ML model improves learning outcomes. Better evidence needs real, repeated student assessments and recorded learning outcomes after recommendations, followed by a fresh untouched evaluation.
 
-See [`backend/performance_model_metrics.json`](backend/performance_model_metrics.json), [`backend/DATASET_NOTES.md`](backend/DATASET_NOTES.md), and the model trainer at [`backend/train_performance_model.py`](backend/train_performance_model.py). Do not tune against the held-out test period.
+See [`backend/models/performance_model_metrics.json`](backend/models/performance_model_metrics.json), [`backend/docs/DATASET_NOTES.md`](backend/docs/DATASET_NOTES.md), and the model trainer at [`backend/scripts/train_performance_model.py`](backend/scripts/train_performance_model.py). Do not tune against the held-out test period.
 
 ## Technology and architecture
 
@@ -104,20 +104,20 @@ The browser sends requests to `/api` on the same site origin. Netlify forwards A
 
 ## Curriculum and question bank
 
-Curriculum source files are in `backend/`:
+Curriculum source files are grouped in `backend/data/`:
 
 | File | Purpose |
 |---|---|
-| `curriculum_tracks.csv` | 35 B.Tech branch/specialization tracks and the BCA track |
-| `courses.csv`, `topics.csv` | Shared course catalog and topic metadata |
-| `course_tracks.csv` | Assigns shared catalog courses to applicable tracks |
-| `branch_curriculum.csv` | Track-specific course and topic outlines |
-| `curriculum_track_parents.csv` | Explicit inheritance between related specializations |
-| `topic_prerequisite.csv` | Prerequisite relationships used by the planner |
-| `practice_question_bank.csv` | Question text, choices, answer keys, explanations, and review fields |
-| `student_interaction.csv` | Historical/synthetic assessment data used for offline model analysis |
+| `backend/data/curriculum_tracks.csv` | 35 B.Tech branch/specialization tracks and the BCA track |
+| `backend/data/courses.csv`, `backend/data/topics.csv` | Shared course catalog and topic metadata |
+| `backend/data/course_tracks.csv` | Assigns shared catalog courses to applicable tracks |
+| `backend/data/branch_curriculum.csv` | Track-specific course and topic outlines |
+| `backend/data/curriculum_track_parents.csv` | Explicit inheritance between related specializations |
+| `backend/data/topic_prerequisite.csv` | Prerequisite relationships used by the planner |
+| `backend/data/practice_question_bank.csv` | Question text, choices, answer keys, explanations, and review fields |
+| `backend/data/student_interaction.csv` | Historical/synthetic assessment data used for offline model analysis |
 
-The 35 B.Tech options and BCA track follow a common reference outline. The catalog is not mapped to a specific university's semesters, credits, or electives, and it is not a complete GATE, placement, or degree-exam course. See [`backend/CURRICULUM_SOURCES.md`](backend/CURRICULUM_SOURCES.md) for source scope and limitations.
+The 35 B.Tech options and BCA track follow a common reference outline. The catalog is not mapped to a specific university's semesters, credits, or electives, and it is not a complete GATE, placement, or degree-exam course. See [`backend/docs/CURRICULUM_SOURCES.md`](backend/docs/CURRICULUM_SOURCES.md) for source scope and limitations.
 
 The CSV question bank has 172 quiz sets, each with at least 15 questions; 860 listed course-topic pairs have at least 3 distinct questions. These are Nebula-authored starter questions, not copied question-bank material. Structural and course/topic-linkage checks do not replace subject-matter review: every question is still pending external instructor review. Treat these as formative practice, not certified exam material or full-length mocks. Lessons are currently limited to the five-subject pilot listed above.
 
@@ -156,18 +156,18 @@ For macOS/Linux, activate the virtual environment with `source .venv/bin/activat
 From the repository root, run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\backend\start-demo.ps1
+powershell -ExecutionPolicy Bypass -File .\backend\scripts\start-demo.ps1
 ```
 
-Demo mode uses an in-memory Mongo mock and may restore or create the ignored `backend/.demo_data.json` snapshot. It is for one local demonstration, not multiple users or production. Keep any snapshot private; it may contain personal demo data.
+Demo mode uses an in-memory Mongo mock and may restore or create the ignored `backend/.local/demo_data.json` snapshot. It is for one local demonstration, not multiple users or production. Keep any snapshot private; it may contain personal demo data.
 
 ## Import and seed curriculum content
 
 Run these only after verifying that the environment points to the intended MongoDB database. From `backend/`:
 
 ```powershell
-python import_dataset.py
-python seed_learning_content.py
+python scripts/import_dataset.py
+python scripts/seed_learning_content.py
 ```
 
 The first command syncs the CSV curriculum. The second adds source-controlled pilot lessons and quizzes. The seeder preserves admin-edited quizzes and only expands unchanged seeded content under its signature checks. Re-run safely only after confirming the target database; then verify course, quiz, and lesson counts in the app.
@@ -179,10 +179,10 @@ Historical assessment rows are imported only when a private `DATASET_HASH_SALT` 
 From `backend/`:
 
 ```powershell
-python train_performance_model.py
+python scripts/train_performance_model.py
 ```
 
-This retrains on `student_interaction.csv` and rewrites the model artifact and evaluation metrics. Review the chronological held-out results before considering any change to the student-facing evidence gate. More rows alone do not guarantee better model performance.
+This retrains on `data/student_interaction.csv` and rewrites the model artifact and evaluation metrics under `models/`. Review the chronological held-out results before considering any change to the student-facing evidence gate. More rows alone do not guarantee better model performance.
 
 ## Deployment configuration
 
@@ -252,12 +252,15 @@ See [`MVP_READINESS.md`](MVP_READINESS.md) for the tracked verification and laun
 
 ```text
 .
-├── backend/                  Flask API, curriculum CSVs, question bank, model workflow, tests
-│   ├── app.py                API routes, authentication, and study planner
-│   ├── tests/                Backend acceptance and regression tests
-│   ├── *.csv                 Curriculum, quiz questions, and historical assessments
-│   ├── import_dataset.py     MongoDB curriculum/history importer
-│   └── train_performance_model.py
+├── backend/
+│   ├── app.py                Flask API entry point
+│   ├── core/                 Data import and model runtime services
+│   ├── content/              Quiz, lesson, and question-bank helpers
+│   ├── data/                 Curriculum and assessment CSV sources
+│   ├── docs/                 Dataset and content provenance notes
+│   ├── models/               Offline model artifact and evaluation metrics
+│   ├── scripts/              Import, seed, build, migration, and training tools
+│   └── tests/                Backend acceptance and regression tests
 ├── frontend/                 Static HTML, JavaScript, and CSS
 ├── Dockerfile                Render/Gunicorn container setup
 ├── netlify.toml              Netlify publishing, API proxy, and frontend routes

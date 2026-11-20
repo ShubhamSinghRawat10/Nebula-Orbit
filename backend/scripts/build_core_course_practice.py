@@ -10,7 +10,8 @@ import csv
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT / "data"
 CORE = {
     "CN": ("Computer Networks", [
         ("Layered network architecture", "A network stack separates communication functions into layers. What is a key benefit?", ["Each layer can provide a defined service to the layer above", "Every layer must use the same protocol", "Applications no longer need addresses", "All packets arrive in order automatically"], 0, "Layering defines interfaces and separates concerns, making protocols easier to develop and interoperate."),
@@ -281,8 +282,8 @@ def write_csv(path: Path, fields, rows):
 
 
 def main():
-    courses = {row["course_code"]: row["course_name"] for row in read_csv(ROOT / "courses.csv")}
-    question_rows = read_csv(ROOT / "practice_question_bank.csv")
+    courses = {row["course_code"]: row["course_name"] for row in read_csv(DATA_DIR / "courses.csv")}
+    question_rows = read_csv(DATA_DIR / "practice_question_bank.csv")
     course_topics = {}
     generated_questions = []
     generated_codes = set(CORE) - set(EXISTING_TOPIC_RULES)
@@ -373,7 +374,7 @@ def main():
 
     question_rows.extend(generated_questions)
 
-    topic_rows = read_csv(ROOT / "topics.csv")
+    topic_rows = read_csv(DATA_DIR / "topics.csv")
     retained = [row for row in topic_rows if row["course_code"] not in CORE]
     for code, topics in course_topics.items():
         for index, topic_name in enumerate(topics, 1):
@@ -383,17 +384,17 @@ def main():
                 "difficulty_level": "Beginner" if index <= 2 else "Intermediate",
                 "estimated_hours": "3",
             })
-    write_csv(ROOT / "topics.csv", ["topic_id", "course_code", "topic_name", "difficulty_level", "estimated_hours"], retained)
+    write_csv(DATA_DIR / "topics.csv", ["topic_id", "course_code", "topic_name", "difficulty_level", "estimated_hours"], retained)
 
-    course_rows = read_csv(ROOT / "courses.csv")
+    course_rows = read_csv(DATA_DIR / "courses.csv")
     for row in course_rows:
         if row["course_code"] in CORE:
             row["total_topics"] = str(len(course_topics[row["course_code"]]))
-    write_csv(ROOT / "courses.csv", ["course_code", "course_name", "category", "total_topics"], course_rows)
+    write_csv(DATA_DIR / "courses.csv", ["course_code", "course_name", "category", "total_topics"], course_rows)
 
     active_topic_ids = {row["topic_id"] for row in retained}
     core_topic_ids = {f"{code}_T{index}" for code, topics in course_topics.items() for index in range(1, len(topics) + 1)}
-    prerequisites = [row for row in read_csv(ROOT / "topic_prerequisite.csv")
+    prerequisites = [row for row in read_csv(DATA_DIR / "topic_prerequisite.csv")
                      if row["topic_id"] in active_topic_ids and row["prerequisite_topic_id"] in active_topic_ids
                      and row["topic_id"] not in core_topic_ids and row["prerequisite_topic_id"] not in core_topic_ids]
     next_id = max((int(row["id"]) for row in prerequisites), default=0) + 1
@@ -406,9 +407,9 @@ def main():
                 "prerequisite_type": "Recommended",
             })
             next_id += 1
-    write_csv(ROOT / "topic_prerequisite.csv", ["id", "topic_id", "prerequisite_topic_id", "prerequisite_type"], prerequisites)
+    write_csv(DATA_DIR / "topic_prerequisite.csv", ["id", "topic_id", "prerequisite_topic_id", "prerequisite_type"], prerequisites)
 
-    write_csv(ROOT / "practice_question_bank.csv", list(question_rows[0]), question_rows)
+    write_csv(DATA_DIR / "practice_question_bank.csv", list(question_rows[0]), question_rows)
     print(f"Updated {len(CORE)} legacy course outlines; added {len(generated_questions)} questions; preserved {len(question_rows) - len(generated_questions)} existing questions.")
 
 

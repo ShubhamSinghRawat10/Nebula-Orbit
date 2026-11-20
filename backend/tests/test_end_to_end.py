@@ -14,7 +14,7 @@ BACKEND = Path(__file__).resolve().parents[1]
 os.environ["NEBULA_SKIP_DEFAULT_APP"] = "true"
 sys.path.insert(0, str(BACKEND))
 from app import create_app  # noqa: E402
-from data_loader import import_curriculum  # noqa: E402
+from core.data_loader import import_curriculum  # noqa: E402
 os.environ.pop("NEBULA_SKIP_DEFAULT_APP", None)
 
 

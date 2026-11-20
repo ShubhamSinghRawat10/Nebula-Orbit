@@ -4,6 +4,7 @@ from __future__ import annotations
 import csv
 import json
 import math
+import sys
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,14 +15,16 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.base import clone
 from sklearn.metrics import balanced_accuracy_score, f1_score
 
-from performance_model import build_features
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from core.performance_model import build_features
 
-
-ROOT = Path(__file__).resolve().parent
-DATASET = ROOT / "student_interaction.csv"
-TOPICS = ROOT / "topics.csv"
-ARTIFACT = ROOT / "performance_model.joblib"
-METRICS = ROOT / "performance_model_metrics.json"
+DATA_DIR = ROOT / "data"
+MODEL_DIR = ROOT / "models"
+DATASET = DATA_DIR / "student_interaction.csv"
+TOPICS = DATA_DIR / "topics.csv"
+ARTIFACT = MODEL_DIR / "performance_model.joblib"
+METRICS = MODEL_DIR / "performance_model_metrics.json"
 
 
 def band(score):
