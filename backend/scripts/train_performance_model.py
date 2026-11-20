@@ -13,6 +13,7 @@ import joblib
 from sklearn.ensemble import ExtraTreesRegressor, HistGradientBoostingRegressor, RandomForestRegressor
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.base import clone
+from sklearn.linear_model import Ridge
 from sklearn.metrics import balanced_accuracy_score, f1_score
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -46,12 +47,18 @@ def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
         info = topic_info.get(row["topic_id"], {})
         if info and row["course_code"].upper() != info["course_id"]:
             raise ValueError(f"Course/topic mismatch for {row['interaction_id']}.")
-        row["date"] = datetime.strptime(row["last_assessed"], "%Y-%m-%d").date()
+        assessed_at_text = str(row.get("last_assessed_at") or "").strip()
+        if assessed_at_text:
+            row["assessed_at"] = datetime.fromisoformat(assessed_at_text.replace("Z", "+00:00"))
+            row["date"] = row["assessed_at"].date()
+        else:
+            row["date"] = datetime.strptime(row["last_assessed"], "%Y-%m-%d").date()
+            row["assessed_at"] = datetime.combine(row["date"], datetime.min.time())
         row["course_code"] = row["course_code"].upper()
         row["score"] = float(row["test_score"])
         row["difficulty"] = info.get("difficulty", "Unknown")
         rows.append(row)
-    rows.sort(key=lambda row: (row["date"], row["student_id"], row["interaction_id"]))
+    rows.sort(key=lambda row: (row["date"], row["assessed_at"].timestamp(), row["student_id"], row["interaction_id"]))
 
     dates = sorted({row["date"] for row in rows})
     train_index = max(1, int(len(dates) * 0.7))
@@ -70,7 +77,9 @@ def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
     train_features, train_targets = [], []
     validation_features, validation_targets = [], []
     validation_topic_baselines, validation_global_baselines = [], []
+    validation_last_score_baselines = []
     test_features, test_targets, test_topic_baselines, test_global_baselines = [], [], [], []
+    test_last_score_baselines = []
     day_groups = defaultdict(list)
     for row in rows:
         day_groups[row["date"]].append(row)
@@ -99,29 +108,44 @@ def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
         else:
             # Test simulates the selected model retrained through validation.
             prior_population = population_state(final_population_scores, final_population_topic, final_population_course)
-        pending_history = defaultdict(list)
         pending_population = []
+        # Preserve quiz order within a day when the live export includes its
+        # timestamp. All topic scores from the same timestamp are one event,
+        # so none can leak into another row from that same quiz. Legacy CSVs
+        # without timestamps remain grouped by learner and date.
+        event_groups = defaultdict(list)
         for row in batch:
-            topic_id = row["topic_id"]
             sid = row["student_id"]
-            features = build_features(learner_history[sid], row["course_code"], topic_id, row["difficulty"], prior_population, day)
-            if day < train_cutoff:
-                train_features.append(features)
-                train_targets.append(row["score"])
-            elif day < test_cutoff:
-                validation_features.append(features)
-                validation_targets.append(row["score"])
-                validation_topic_baselines.append(features["student_topic_mean"] * 100)
-                validation_global_baselines.append(prior_population["global_mean"])
-            else:
-                test_features.append(features)
-                test_targets.append(row["score"])
-                test_topic_baselines.append(features["student_topic_mean"] * 100)
-                test_global_baselines.append(prior_population["global_mean"])
-            pending_history[sid].append({"score": row["score"], "course_id": row["course_code"], "topic_id": topic_id, "date": day})
-            pending_population.append(row)
-        for sid, assessments in pending_history.items():
-            learner_history[sid].extend(assessments)
+            event_key = row["assessed_at"].timestamp() if str(row.get("last_assessed_at") or "").strip() else None
+            event_groups[(sid, event_key)].append(row)
+        ordered_events = sorted(
+            event_groups.items(),
+            key=lambda item: (float("-inf") if item[0][1] is None else item[0][1], item[0][0]),
+        )
+        for (sid, _event_time), event_rows in ordered_events:
+            for row in event_rows:
+                topic_id = row["topic_id"]
+                features = build_features(learner_history[sid], row["course_code"], topic_id, row["difficulty"], prior_population, day)
+                if day < train_cutoff:
+                    train_features.append(features)
+                    train_targets.append(row["score"])
+                elif day < test_cutoff:
+                    validation_features.append(features)
+                    validation_targets.append(row["score"])
+                    validation_topic_baselines.append(features["student_topic_mean"] * 100)
+                    validation_global_baselines.append(prior_population["global_mean"])
+                    validation_last_score_baselines.append(features["student_last_score"] * 100)
+                else:
+                    test_features.append(features)
+                    test_targets.append(row["score"])
+                    test_topic_baselines.append(features["student_topic_mean"] * 100)
+                    test_global_baselines.append(prior_population["global_mean"])
+                    test_last_score_baselines.append(features["student_last_score"] * 100)
+                pending_population.append(row)
+            learner_history[sid].extend({
+                "score": row["score"], "course_id": row["course_code"],
+                "topic_id": row["topic_id"], "date": day,
+            } for row in event_rows)
         if day < train_cutoff:
             for row in pending_population:
                 add_population(row, train_population_scores, train_population_topic, train_population_course)
@@ -138,6 +162,9 @@ def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
         RandomForestRegressor(n_estimators=160, max_depth=16, min_samples_leaf=6, max_features=0.85, n_jobs=-1, random_state=41),
         ExtraTreesRegressor(n_estimators=160, max_depth=16, min_samples_leaf=6, max_features=0.85, n_jobs=-1, random_state=41),
         HistGradientBoostingRegressor(max_iter=160, max_leaf_nodes=15, min_samples_leaf=35, l2_regularization=3.0, learning_rate=0.07, random_state=41),
+        Ridge(alpha=1.0),
+        Ridge(alpha=10.0),
+        Ridge(alpha=50.0),
     ]
     comparisons = []
     best_candidate = None
@@ -154,8 +181,10 @@ def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
 
     validation_topic_mae = sum(abs(actual - baseline) for actual, baseline in zip(validation_targets, validation_topic_baselines)) / len(validation_targets)
     validation_global_mae = sum(abs(actual - baseline) for actual, baseline in zip(validation_targets, validation_global_baselines)) / len(validation_targets)
+    validation_last_score_mae = sum(abs(actual - baseline) for actual, baseline in zip(validation_targets, validation_last_score_baselines)) / len(validation_targets)
     comparisons.extend([
         {"model": "previous_topic_mean_baseline", "validation_mae_points": round(validation_topic_mae, 3)},
+        {"model": "previous_student_last_score_baseline", "validation_mae_points": round(validation_last_score_mae, 3)},
         {"model": "training_global_mean_baseline", "validation_mae_points": round(validation_global_mae, 3)},
     ])
 
@@ -178,6 +207,7 @@ def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
     r2 = 1 - sum((actual - predicted) ** 2 for actual, predicted in zip(test_targets, predictions)) / ss_total if ss_total else 0
     band_accuracy = sum(band(actual) == band(predicted) for actual, predicted in zip(test_targets, predictions)) / len(test_targets)
     topic_baseline_mae = sum(abs(actual - baseline) for actual, baseline in zip(test_targets, test_topic_baselines)) / len(test_targets)
+    last_score_baseline_mae = sum(abs(actual - baseline) for actual, baseline in zip(test_targets, test_last_score_baselines)) / len(test_targets)
     global_baseline_mae = sum(abs(actual - baseline) for actual, baseline in zip(test_targets, test_global_baselines)) / len(test_targets)
     majority_band = max(set(map(band, fit_targets)), key=lambda label: sum(band(score) == label for score in fit_targets))
     majority_accuracy = sum(band(actual) == majority_band for actual in test_targets) / len(test_targets)
@@ -190,6 +220,7 @@ def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
     student_facing_eligible = bool(
         r2 > 0
         and mae <= topic_baseline_mae - 2.0
+        and mae <= last_score_baseline_mae - 2.0
         and mae <= global_baseline_mae - 2.0
     )
 
@@ -200,7 +231,7 @@ def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
     }
     metrics = {
         "target": "next_assessment_test_score",
-        "split": "chronological 70/10/20 train/validation/test by assessment date; same-day rows stay together",
+        "split": "chronological 70/10/20 by assessment date; same-day rows stay in one split, and timestamped quiz events within a day use only earlier-event history",
         "training_rows": len(fit_targets),
         "selection_training_rows": len(train_targets),
         "validation_rows": len(validation_targets),
@@ -217,6 +248,7 @@ def main(dataset_path=DATASET, artifact_path=ARTIFACT, metrics_path=METRICS):
         "proficiency_band_macro_f1": round(float(band_macro_f1), 4),
         "majority_band_accuracy_baseline": round(majority_accuracy, 4),
         "baseline_previous_topic_mean_mae_points": round(topic_baseline_mae, 3),
+        "baseline_previous_student_last_score_mae_points": round(last_score_baseline_mae, 3),
         "baseline_training_global_mean_mae_points": round(global_baseline_mae, 3),
         "student_facing_eligible": student_facing_eligible,
         "candidate_comparison": comparisons,
