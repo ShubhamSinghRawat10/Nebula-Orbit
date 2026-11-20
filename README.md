@@ -25,7 +25,8 @@
 | Learning tracks | 35 B.Tech branches/specializations and 1 BCA track |
 | Curriculum sources | 522 track-to-course rows across 147 branch-outline course codes, plus 25 shared catalog courses |
 | Practice bank | 172 quiz sets and 2,595 explained questions in CSV |
-| Topic practice coverage | 860 course-topic pairs have at least 3 distinct questions |
+| Topic practice coverage | 860 course-topic pairs across 172 courses; 855 distinct topic labels |
+| Topic concept guides | 860 original guide drafts, one per course-topic pair, with further-reading references |
 | In-app lessons | 10 pilot lessons across DSA, Python, DBMS, Computer Networks, and Operating Systems |
 | Personalization | Transparent score thresholds, learner history, prerequisites, and study-time preferences |
 | Weekly planning | Seven-day schedule with daily check-offs, completion progress, and unscheduled overflow |
@@ -33,6 +34,8 @@
 | ML status | Experimental next-score model; currently below the evidence gate and hidden from student forecasts |
 
 Counts describe source-controlled project data. The expanded CSV question bank is not automatically present in a hosted MongoDB database: seed and verify the target database before claiming the hosted app has these counts. The course outlines are common references, not complete semester-by-semester curricula for every institution. All 2,595 authored question records are pending external instructor review.
+
+The topic guide source is `backend/data/topic_concept_guides.csv`; it contains one row for each of the 860 course-topic pairs represented in the question bank. Guide prose is original Nebula-authored draft content, not copied from GeeksforGeeks or Wikipedia. Reference columns point to official documentation where available and topic search pages for further reading. Individual facts and course-specific fit still need instructor review; the guides are not a substitute for a university's prescribed syllabus.
 
 ## What Nebula does
 
@@ -45,6 +48,7 @@ Counts describe source-controlled project data. The expanded CSV question bank i
 - Read a published in-app lesson when one is available, or open a topic-specific YouTube search for other topics. These are generated search links, not a YouTube API integration. Students can manually mark each external video as watched; Nebula cannot verify playback or watch time.
 - Generate a study plan that prioritizes weak topics in enrolled courses, prerequisite topics, available study days, and the student's time budget. Each session explains why it was selected.
 - Follow a seven-day plan, check off individual study days/sessions, and see completion progress. Sessions that do not fit the selected days remain visible as unscheduled next steps.
+- Open an interactive 3D concept map from a study session. It lays out recorded prerequisite topics, shows the learner's quiz signal, and presents an original guide for each of the 860 course-topic pairs (core idea, key concepts, components, mechanism, example, uses, trade-offs, and a self-check). It also links matching published Nebula lessons/quizzes and provides further-reading search links.
 - Choose adaptive, basic, medium, or advanced learning depth. This setting adjusts YouTube search wording; in-app lessons remain at their authored level and quiz difficulty is not automatically adapted.
 - Mark study sessions and in-app lessons complete. When a suitable later quiz exists, compare its topic score with the earlier baseline.
 - Review quiz averages, topic progress, completed sessions, and study streaks. Quiz answer review shows the selected answer, correct answer, and explanation.
@@ -67,8 +71,9 @@ Administrator registration uses the private `ADMIN_SIGNUP_KEY` configured on the
 2. Scores across distinct questions provide topic-level signals. Small samples stay preliminary.
 3. Low-scoring topics, course prerequisites, and enrollment guide what appears next.
 4. A seven-day plan fits sessions around the student's selected study days, preferred session length, and daily study-time budget. The student can check off completed days/sessions; these check-offs are self-reported.
-5. After a completed study session, a later quiz on the same course and topic may be paired with its earlier baseline. At least 3 distinct questions are required on both sides for the score-change signal.
-6. New quiz activity can refresh study priorities and schedule spaced review.
+5. The topic map lays out any prerequisite links present in Nebula's curriculum and exposes its matching published lesson and quiz resources. Topic explanations themselves must exist as Nebula lesson content; the visualization does not generate them.
+6. After a completed study session, a later quiz on the same course and topic may be paired with its earlier baseline. At least 3 distinct questions are required on both sides for the score-change signal.
+7. New quiz activity can refresh study priorities and schedule spaced review.
 
 The planner is rule-based and explainable. Its guidance is not a guarantee of exam results.
 
@@ -249,7 +254,7 @@ Protected routes require `Authorization: Bearer <access_token>`. Admin-only rout
 | Health | `GET /api/health` |
 | Accounts | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `PATCH /api/auth/profile` |
 | Courses | `GET /api/courses`, `POST /api/courses`, `PUT/DELETE /api/courses/:course_id` |
-| Enrollment and topics | `GET /api/enrollments`, `POST/DELETE /api/enrollments/:course_id`, `GET /api/courses/:course_id/topics` |
+| Enrollment and topics | `GET /api/enrollments`, `POST/DELETE /api/enrollments/:course_id`, `GET /api/courses/:course_id/topics`, `GET /api/courses/:course_id/topic-map?topic=...` |
 | Lessons and video progress | `GET /api/courses/:course_id/lessons`, admin lesson CRUD under `/api/admin/lessons`, `POST /api/lessons/:id/complete`, `POST /api/courses/:course_id/topics/:topic_id/video-complete` |
 | Quizzes | `GET /api/quizzes`, `GET /api/quizzes/:id`, quiz CRUD, `POST /api/quizzes/:id/submit` |
 | Student learning | `GET /api/progress`, `GET /api/study-plan`, `POST /api/study-plan/generate`, `POST /api/study-plan/sessions/:session_id/complete`, `GET /api/recommendations` |
