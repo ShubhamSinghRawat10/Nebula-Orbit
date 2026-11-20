@@ -479,3 +479,8 @@ button:focus-visible,a:focus-visible{outline:3px solid #baff3f;outline-offset:3p
 .achievement-note{margin:16px 0 0;color:#8292a7;font-size:10px;line-height:1.55}
 @media(max-width:1000px){.achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.achievement-grid{grid-template-columns:1fr}.achievement-card{grid-template-columns:84px minmax(0,1fr);padding:11px}.achievement-art{width:84px}.orbit-level-panel{grid-template-columns:1fr}.achievement-hub-head{flex-direction:column}}
+
+/* Nebula orbital monogram */
+.brand-symbol{display:block;width:44px;height:44px;flex:none;object-fit:contain;filter:drop-shadow(0 7px 14px rgba(37,92,210,.28))}
+.mobile-brand{gap:8px}
+.mobile-brand img{display:block;width:32px;height:32px;flex:none;object-fit:contain}

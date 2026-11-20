@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Nebula</title>
+  <desc id="desc">An illuminated N held inside a pair of orbital paths.</desc>
+  <defs>
+    <linearGradient id="tile" x1="12" y1="8" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#243D78"/>
+      <stop offset=".48" stop-color="#13264D"/>
+      <stop offset="1" stop-color="#0C1529"/>
+    </linearGradient>
+    <linearGradient id="orbit" x1="22" y1="29" x2="104" y2="91" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8CB8FF"/>
+      <stop offset=".48" stop-color="#5DE5E0"/>
+      <stop offset="1" stop-color="#9C8BFF"/>
+    </linearGradient>
+    <linearGradient id="monogram" x1="42" y1="41" x2="86" y2="87" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#BED2FF"/>
+    </linearGradient>
+    <radialGradient id="core" cx="0" cy="0" r="1" gradientTransform="matrix(0 28 -30 0 64 61)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#536FC2" stop-opacity=".46"/>
+      <stop offset="1" stop-color="#172750" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft-glow" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="34" fill="url(#tile)"/>
+  <rect x="4.75" y="4.75" width="118.5" height="118.5" rx="33.25" stroke="#D8E5FF" stroke-opacity=".18" stroke-width="1.5"/>
+  <circle cx="64" cy="62" r="38" fill="url(#core)"/>
+  <g fill="none" stroke="url(#orbit)" stroke-linecap="round">
+    <ellipse cx="64" cy="62" rx="45" ry="20" transform="rotate(-34 64 62)" stroke-width="3.2" stroke-dasharray="220 22" opacity=".94"/>
+    <ellipse cx="64" cy="62" rx="36" ry="15.5" transform="rotate(38 64 62)" stroke-width="1.35" stroke-dasharray="130 96" opacity=".36"/>
+  </g>
+  <path d="M43 82V42h9.2l23.6 25.5V42H85v40h-8.8L52.2 56.2V82H43Z" fill="url(#monogram)"/>
+  <circle cx="101.4" cy="34.5" r="5.2" fill="#B4FA73" filter="url(#soft-glow)"/>
+  <circle cx="28.4" cy="88.4" r="2.5" fill="#8FE9ED"/>
+  <path d="m94 86 2.2 5.8L102 94l-5.8 2.2L94 102l-2.2-5.8L86 94l5.8-2.2L94 86Z" fill="#AFC6FF" opacity=".92"/>
+</svg>
